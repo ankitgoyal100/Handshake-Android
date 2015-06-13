@@ -37,10 +37,22 @@ public class ContactServerSync {
         result.sort("contact_updated", RealmResults.SORT_ORDER_DESCENDING);
 
         if (result.size() > 0)
-            syncPage(1, result.first().getContactUpdated().toString());
+            syncPage(1, result.first().getContactUpdated().toString(), new SyncCompleted() {
+                @Override
+                public void syncCompletedListener() {
+                    syncCompleted();
+                }
+            });
         else
-            syncPage(1, "");
+            syncPage(1, "", new SyncCompleted() {
+                @Override
+                public void syncCompletedListener() {
+                    syncCompleted();
+                }
+            });
+    }
 
+    private static void syncCompleted() {
         counter++;
         RealmResults<User> toDelete = realm.where(User.class).equalTo("syncStatus", Utils.userDeleted).findAll();
         for(final User user : toDelete) {
@@ -60,7 +72,7 @@ public class ContactServerSync {
         //TODO: Contact Sync
     }
 
-    private static void syncPage(final int page, final String contactUpdated) {
+    private static void syncPage(final int page, final String contactUpdated, final SyncCompleted listener) {
         RequestParams params = new RequestParams();
         params.put("page", page);
         if (!contactUpdated.equals("")) params.put("since_date", contactUpdated);
@@ -102,9 +114,12 @@ public class ContactServerSync {
                 }
 
                 try {
-                    if (response.getJSONArray("contacts").length() < 200) return;
+                    if (response.getJSONArray("contacts").length() < 200) {
+                        listener.syncCompletedListener();
+                        return;
+                    }
 
-                    syncPage(page + 1, contactUpdated);
+                    syncPage(page + 1, contactUpdated, listener);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
