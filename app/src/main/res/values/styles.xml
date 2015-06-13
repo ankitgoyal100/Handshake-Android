@@ -1,0 +1,11 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    </style>
+
+    <style name="button" parent="@android:style/Widget.Button">
+        <item name="com.handshake.Handshake:font">assets/HelveticaNeue.ttf</item>
+    </style>
+
+</resources>

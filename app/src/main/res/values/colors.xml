@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background_window">#ffecf0f1</color>
+    <color name="brown">#ff5b4d41</color>
+    <color name="tint">#c2634d3b</color>
+    <color name="off_white">#d9d7d5</color>
+    <color name="orange">#ef9b55</color>
+    <color name="divider">#ffc0c0c0</color>
+    <color name="dark_gray">#ff979797</color>
+</resources>
