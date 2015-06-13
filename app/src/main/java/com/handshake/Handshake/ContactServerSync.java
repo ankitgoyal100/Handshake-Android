@@ -23,9 +23,13 @@ public class ContactServerSync {
     private static SessionManager session;
     private static Context context;
     private static Realm realm;
+    private static SyncCompleted listener;
 
-    public static void performSync(Context c) {
+    private static int counter = 0;
+
+    public static void performSync(Context c, SyncCompleted l) {
         context = c;
+        listener = l;
         session = new SessionManager(c);
         //Get most recent contactUpdated date
         realm = Realm.getInstance(context);
@@ -37,12 +41,18 @@ public class ContactServerSync {
         else
             syncPage(1, "");
 
+        counter++;
         RealmResults<User> toDelete = realm.where(User.class).equalTo("syncStatus", Utils.userDeleted).findAll();
         for(final User user : toDelete) {
             RestClient.delete(context, "/users/" + user.getUserId(), new RequestParams(), new JsonHttpResponseHandler() {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                     user.setSyncStatus(Utils.userSynced);
+
+                    counter--;
+                    if(counter == 0) {
+                        listener.syncCompletedListener();
+                    }
                 }
             });
         }
@@ -74,7 +84,7 @@ public class ContactServerSync {
                     User result = realm.where(User.class).equalTo("userId", key).findFirst();
                     if (result != null) {
                         if (result.getSyncStatus() != Utils.userDeleted)
-                            User.updateContact(realm, map.get(key));
+                            result.updateContact(realm, map.get(key));
                         map.remove(key);
                     }
                 }

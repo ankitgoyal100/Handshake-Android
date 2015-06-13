@@ -28,6 +28,8 @@ public class SessionManager {
     // Password (make variable public to access from outside)
     public static final String KEY_TOKEN = "token";
 
+    public static final String KEY_EMAIL = "email";
+
     // Constructor
     public SessionManager(Context context) {
         this.sContext = context;
@@ -38,7 +40,7 @@ public class SessionManager {
     /**
      * Create login session
      */
-    public void createLoginSession(String id, String token) {
+    public void createLoginSession(String id, String token, String email) {
         // Storing login value as TRUE
         editor.putBoolean(sIsLogin, true);
 
@@ -47,6 +49,8 @@ public class SessionManager {
 
         // Storing password in pref
         editor.putString(KEY_TOKEN, token);
+
+        editor.putString(KEY_EMAIL, email);
 
         // commit changes
         editor.apply();
@@ -90,6 +94,10 @@ public class SessionManager {
 
     public static String getID() {
         return pref.getString(KEY_ID, null);
+    }
+
+    public static String getEmail() {
+        return pref.getString(KEY_EMAIL, "");
     }
 
 

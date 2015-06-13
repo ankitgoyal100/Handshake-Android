@@ -48,7 +48,7 @@ public class SignUpActivity extends ActionBarActivity {
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(firstName.getText().toString().equals("")) {
+                if (firstName.getText().toString().equals("")) {
                     Toast.makeText(context, "First name can't be blank.", Toast.LENGTH_LONG).show();
                 } else if (email.getText().toString().equals("")) {
                     Toast.makeText(context, "Email can't be blank.", Toast.LENGTH_LONG).show();
@@ -72,7 +72,8 @@ public class SignUpActivity extends ActionBarActivity {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                                 try {
-                                    session.createLoginSession(response.getJSONObject("user").getString("id"), response.getString("auth_token"));
+                                    session.createLoginSession(response.getJSONObject("user").getString("id"), response.getString("auth_token"),
+                                            email.getText().toString());
                                     Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
                                     startActivity(intent);
                                     finish();

@@ -56,7 +56,12 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void performSync() {
-        ContactServerSync.performSync(context);
+        ContactServerSync.performSync(context, new SyncCompleted() {
+            @Override
+            public void syncCompletedListener() {
+                // TODO: Callback
+            }
+        });
     }
 
     public class TabAdapter extends FragmentPagerAdapter implements PagerSlidingTabStrip.IconTabProvider {

@@ -206,7 +206,7 @@ public class User extends RealmObject {
         this.groups = groups;
     }
 
-    public static void updateContact(Realm realm, JSONObject json) {
+    public void updateContact(Realm realm, JSONObject json) {
         //TODO: [contact updateFromDictionary:[HandshakeCoreDataStore removeNullsFromDictionary:contactDict]];
 //        contact.contactUpdated = [DateConverter convertToDate:contactDict[@"contact_updated"]];
 //        contact.syncStatus = @(UserSynced);
