@@ -1,6 +1,7 @@
 package com.handshake.Handshake;
 
 import android.content.Context;
+import android.os.Handler;
 
 import com.handshake.models.User;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -20,6 +21,8 @@ import io.realm.RealmResults;
  * Created by ankitgoyal on 6/13/15.
  */
 public class ContactServerSync {
+    private static Handler handler = new Handler();
+
     private static SessionManager session;
     private static Context context;
     private static Realm realm;
@@ -27,49 +30,56 @@ public class ContactServerSync {
 
     private static int counter = 0;
 
-    public static void performSync(Context c, SyncCompleted l) {
+    public static void performSync(final Context c, final SyncCompleted l) {
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                performSyncHelper(c, l);
+            }
+        }).start();
+
+    }
+
+    private static void performSyncHelper(Context c, SyncCompleted l) {
         context = c;
         listener = l;
         session = new SessionManager(c);
         //Get most recent contactUpdated date
         realm = Realm.getInstance(context);
+
+        String date = "";
         RealmResults<User> result = realm.where(User.class).equalTo("isContact", true).findAll();
         result.sort("contact_updated", RealmResults.SORT_ORDER_DESCENDING);
 
-        if (result.size() > 0)
-            syncPage(1, result.first().getContactUpdated().toString(), new SyncCompleted() {
-                @Override
-                public void syncCompletedListener() {
-                    syncCompleted();
-                }
-            });
-        else
-            syncPage(1, "", new SyncCompleted() {
-                @Override
-                public void syncCompletedListener() {
-                    syncCompleted();
-                }
-            });
-    }
+        if (result.size() > 0) date = result.first().getContactUpdated().toString();
+        syncPage(1, date, new SyncCompleted() {
+            @Override
+            public void syncCompletedListener() {
+                counter++;
+                RealmResults<User> toDelete = realm.where(User.class).equalTo("syncStatus", Utils.userDeleted).findAll();
+                for (final User user : toDelete) {
+                    RestClient.delete(context, "/users/" + user.getUserId(), new RequestParams(), new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                            user.setSyncStatus(Utils.userSynced);
 
-    private static void syncCompleted() {
-        counter++;
-        RealmResults<User> toDelete = realm.where(User.class).equalTo("syncStatus", Utils.userDeleted).findAll();
-        for(final User user : toDelete) {
-            RestClient.delete(context, "/users/" + user.getUserId(), new RequestParams(), new JsonHttpResponseHandler() {
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                    user.setSyncStatus(Utils.userSynced);
-
-                    counter--;
-                    if(counter == 0) {
-                        listener.syncCompletedListener();
-                    }
+                            counter--;
+                            if (counter == 0) {
+                                handler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        listener.syncCompletedListener();
+                                    }
+                                });
+                            }
+                        }
+                    });
                 }
-            });
-        }
 
-        //TODO: Contact Sync
+                //TODO: Contact Sync
+            }
+        });
     }
 
     private static void syncPage(final int page, final String contactUpdated, final SyncCompleted listener) {
@@ -115,7 +125,12 @@ public class ContactServerSync {
 
                 try {
                     if (response.getJSONArray("contacts").length() < 200) {
-                        listener.syncCompletedListener();
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                listener.syncCompletedListener();
+                            }
+                        });
                         return;
                     }
 
