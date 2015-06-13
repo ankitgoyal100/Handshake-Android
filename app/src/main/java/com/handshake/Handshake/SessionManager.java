@@ -66,7 +66,7 @@ public class SessionManager {
     /**
      * Clear session details
      */
-    private void logoutUser() {
+    public void logoutUser() {
         // Clearing all data from Shared Preferences
         editor.clear();
         editor.apply();
@@ -87,6 +87,11 @@ public class SessionManager {
     public static String getToken() {
         return pref.getString(KEY_TOKEN, null);
     }
+
+    public static String getID() {
+        return pref.getString(KEY_ID, null);
+    }
+
 
     /**
      * Quick check for login

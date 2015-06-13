@@ -22,6 +22,8 @@ public class RestClient {
     public static void get(Context context, String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
         client.addHeader("Accept", "application/json");
         client.addHeader("Content-type", "application/json");
+        params.put("auth_token", SessionManager.getToken());
+        params.put("user_id", SessionManager.getID());
         client.get(context, getAbsoluteUrl(url), params, responseHandler);
     }
 
@@ -34,6 +36,8 @@ public class RestClient {
     public static void post(Context context, String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
         client.addHeader("Accept", "application/json");
         client.addHeader("Content-type", "application/json");
+        params.put("auth_token", SessionManager.getToken());
+        params.put("user_id", SessionManager.getID());
         client.post(context, getAbsoluteUrl(url), params, responseHandler);
     }
 
@@ -46,6 +50,8 @@ public class RestClient {
     public static void put(Context context, String url, RequestParams params, ResponseHandlerInterface responseHandler) {
         client.addHeader("Accept", "application/json");
         client.addHeader("Content-type", "application/json");
+        params.put("auth_token", SessionManager.getToken());
+        params.put("user_id", SessionManager.getID());
         client.put(getAbsoluteUrl(url), params, responseHandler);
     }
 
@@ -57,6 +63,8 @@ public class RestClient {
                 new BasicHeader("Accept", "application/json")
                 , new BasicHeader("Content-type", "application/json")
         };
+        params.put("auth_token", SessionManager.getToken());
+        params.put("user_id", SessionManager.getID());
         client.delete(context, getAbsoluteUrl(url), headers, params, responseHandler);
     }
 

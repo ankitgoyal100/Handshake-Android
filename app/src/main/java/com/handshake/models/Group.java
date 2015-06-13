@@ -1,0 +1,85 @@
+package com.handshake.models;
+
+import java.util.Date;
+
+import io.realm.RealmList;
+import io.realm.RealmObject;
+
+/**
+ * Created by ankitgoyal on 6/13/15.
+ */
+public class Group extends RealmObject {
+    private String code;
+    private Date createdAt;
+    private long groupId;
+    private String name;
+    private short syncStatus;
+    private Date updatedAt;
+
+    private RealmList<FeedItem> feedItems;
+    private RealmList<GroupMember> members;
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public long getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(long groupId) {
+        this.groupId = groupId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public short getSyncStatus() {
+        return syncStatus;
+    }
+
+    public void setSyncStatus(short syncStatus) {
+        this.syncStatus = syncStatus;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public RealmList<FeedItem> getFeedItems() {
+        return feedItems;
+    }
+
+    public void setFeedItems(RealmList<FeedItem> feedItems) {
+        this.feedItems = feedItems;
+    }
+
+    public RealmList<GroupMember> getMembers() {
+        return members;
+    }
+
+    public void setMembers(RealmList<GroupMember> members) {
+        this.members = members;
+    }
+}

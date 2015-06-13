@@ -51,6 +51,12 @@ public class MainActivity extends ActionBarActivity {
         tabs.setViewPager(sPager);
 
         changeColor(getResources().getColor(R.color.orange));
+
+        performSync();
+    }
+
+    private void performSync() {
+        ContactServerSync.performSync(context);
     }
 
     public class TabAdapter extends FragmentPagerAdapter implements PagerSlidingTabStrip.IconTabProvider {
