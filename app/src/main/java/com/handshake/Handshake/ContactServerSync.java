@@ -56,9 +56,9 @@ public class ContactServerSync {
         syncPage(1, date, new SyncCompleted() {
             @Override
             public void syncCompletedListener() {
-                counter++;
                 RealmResults<User> toDelete = realm.where(User.class).equalTo("syncStatus", Utils.userDeleted).findAll();
                 for (final User user : toDelete) {
+                    counter++;
                     RestClient.delete(context, "/users/" + user.getUserId(), new RequestParams(), new JsonHttpResponseHandler() {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -125,12 +125,7 @@ public class ContactServerSync {
 
                 try {
                     if (response.getJSONArray("contacts").length() < 200) {
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                listener.syncCompletedListener();
-                            }
-                        });
+                        listener.syncCompletedListener();
                         return;
                     }
 
