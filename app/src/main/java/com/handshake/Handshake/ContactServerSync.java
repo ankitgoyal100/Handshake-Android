@@ -105,8 +105,15 @@ public class ContactServerSync {
                 for (int key : map.keySet()) {
                     User result = realm.where(User.class).equalTo("userId", key).findFirst();
                     if (result != null) {
-                        if (result.getSyncStatus() != Utils.userDeleted)
-                            result.updateContact(realm, map.get(key));
+                        if (result.getSyncStatus() != Utils.userDeleted) {
+                            try {
+                                result.updateContact(realm, map.get(key));
+                                result.setSyncStatus(Utils.userSynced);
+                                result.setContactUpdated(Utils.formatDate(map.get(key).getString("contact_updated")));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
                         map.remove(key);
                     }
                 }
@@ -117,7 +124,10 @@ public class ContactServerSync {
                             continue;
                         }
 
-                        User.createContact(realm, map.get(key));
+                        User user = realm.createObject(User.class);
+                        user.updateContact(realm, map.get(key));
+                        user.setSyncStatus(Utils.userSynced);
+                        user.setContactUpdated(Utils.formatDate(map.get(key).getString("contact_updated")));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

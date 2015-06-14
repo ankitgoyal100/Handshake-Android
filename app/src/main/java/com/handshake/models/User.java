@@ -2,6 +2,7 @@ package com.handshake.models;
 
 import com.handshake.Handshake.Utils;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -10,6 +11,7 @@ import java.util.Date;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.RealmResults;
 
 /**
  * Created by ankitgoyal on 6/13/15.
@@ -190,6 +192,10 @@ public class User extends RealmObject {
         this.cards = cards;
     }
 
+    public void addCard(Card card) {
+        this.cards.add(card);
+    }
+
     public RealmList<FeedItem> getFeedItems() {
         return feedItems;
     }
@@ -207,28 +213,50 @@ public class User extends RealmObject {
     }
 
     public void updateContact(Realm realm, JSONObject json) {
-        //TODO: [contact updateFromDictionary:[HandshakeCoreDataStore removeNullsFromDictionary:contactDict]];
-//        contact.contactUpdated = [DateConverter convertToDate:contactDict[@"contact_updated"]];
-//        contact.syncStatus = @(UserSynced);
-    }
+        try {
+            this.userId = json.getInt("id");
+            this.createdAt = Utils.formatDate(json.getString("created_at"));
+            this.updatedAt = Utils.formatDate(json.getString("updated_at"));
 
-    public static void createContact(Realm realm, final JSONObject json) {
-        realm.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                User user = realm.createObject(User.class);
-                try {
-                    user.setContacts(json.getInt("contacts"));
-                    user.setContactUpdated(Utils.formatDate(json.getString("contact_updated")));
+            this.firstName = json.getString("first_name");
+            this.lastName = json.getString("last_name");
 
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+            this.isContact = json.getBoolean("is_contact");
+            this.requestSent = json.getBoolean("request_sent");
+            this.requestReceived = json.getBoolean("request_received");
 
+            // if no thumb or thumb is different - update
+            if (json.isNull("thumb") || !this.thumb.equals("") ||
+                    !json.getString("thumb").equals(this.thumb)) {
+                this.thumb = json.getString("thumb");
+                this.thumbData = null;
             }
-        });
-//        [contact updateFromDictionary:[HandshakeCoreDataStore removeNullsFromDictionary:contacts[contactId]]];
-//        contact.contactUpdated = [DateConverter convertToDate:contacts[contactId][@"contact_updated"]];
-//        contact.syncStatus = @(UserSynced);
+
+            // if no picture or picture is different - update
+            if (json.isNull("picture") || !this.picture.equals("") ||
+                    !json.getString("picture").equals(this.picture)) {
+                this.picture = json.getString("picture");
+                this.pictureData = null;
+            }
+
+            this.contacts = json.getInt("contacts");
+            this.mutual = json.getInt("mutual");
+
+            JSONArray cards = json.getJSONArray("cards");
+            for(int i = 0; i < cards.length(); i++) {
+                RealmResults<Card> result = realm.where(Card.class).equalTo("cardId", cards.getJSONObject(i).getInt("id")).findAll();
+                if(result.size() > 0) {
+                    Card card = result.get(0);
+                    card.updateCard(realm, cards.getJSONObject(i));
+                    card.setUser(this);
+                } else {
+                    Card card = realm.createObject(Card.class);
+                    card.updateCard(realm, cards.getJSONObject(i));
+                    this.addCard(card);
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }
