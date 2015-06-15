@@ -3,14 +3,17 @@ package com.handshake.Handshake;
 import android.content.Context;
 import android.os.Handler;
 
-import com.handshake.UserServerSync;
 import com.handshake.models.User;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 import org.apache.http.Header;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -23,12 +26,13 @@ public class ContactServerSync {
 
     private static SessionManager session;
     private static Context context;
-//    private static Realm realm;
+    //    private static Realm realm;
     private static SyncCompleted listener;
 
     private static int counter = 0;
 
     public static void performSync(final Context c, final SyncCompleted l) {
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -58,7 +62,7 @@ public class ContactServerSync {
             public void syncCompletedListener() {
                 System.out.println("Sync completed listener");
                 RealmResults<User> toDelete = realm.where(User.class).equalTo("syncStatus", Utils.userDeleted).findAll();
-                if(toDelete.size() == 0) listener.syncCompletedListener();
+                if (toDelete.size() == 0) listener.syncCompletedListener();
                 for (final User user : toDelete) {
                     System.out.println("Deleting user: " + user);
                     counter++;
@@ -96,14 +100,41 @@ public class ContactServerSync {
                 System.out.println(response.toString());
 
                 try {
-                    UserServerSync.addToQueue(response.getJSONArray("contacts"));
-                    UserServerSync.runQueue(context);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
 
-                try {
-                    if (response.getJSONArray("contacts").length() < 200) {
+                    JSONArray contacts = response.getJSONArray("contacts");
+
+                    final HashMap<Long, JSONObject> map = new HashMap<Long, JSONObject>();
+                    for (int i = 0; i < contacts.length(); i++) {
+                        map.put(contacts.getJSONObject(i).getLong("id"), contacts.getJSONObject(i));
+                    }
+
+                    UserServerSync.createUser(context, contacts, new UserSyncCompleted() {
+                        @Override
+                        public void syncCompletedListener(ArrayList<User> users) {
+                            Realm realm = Realm.getInstance(context);
+                            RealmResults<User> areContacts = realm.where(User.class).equalTo("isContact", true).findAll();
+
+                            for(int i = 0; i < areContacts.size(); i++) {
+                                if(!map.keySet().contains(areContacts.get(i).getUserId()))
+                                    areContacts.remove(i);
+                                else {
+                                    realm.beginTransaction();
+                                    try {
+                                        areContacts.get(i).setContactUpdated(Utils.formatDate(
+                                                map.get(areContacts.get(i).getUserId()).getString("contact_updated")));
+                                    } catch (JSONException e) {
+
+                                    }
+                                    realm.commitTransaction();
+                                }
+
+                            }
+
+
+                        }
+                    });
+
+                    if (contacts.length() < 200) {
                         listener.syncCompletedListener();
                         return;
                     }
@@ -122,4 +153,3 @@ public class ContactServerSync {
         });
     }
 }
-
