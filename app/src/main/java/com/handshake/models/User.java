@@ -36,9 +36,9 @@ public class User extends RealmObject {
     private Date updatedAt;
     private long userId;
 
-    private RealmList<Card> cards;
-    private RealmList<FeedItem> feedItems;
-    private RealmList<GroupMember> groups;
+    private RealmList<Card> cards = new RealmList<>();
+    private RealmList<FeedItem> feedItems = new RealmList<>();
+    private RealmList<GroupMember> groups = new RealmList<>();
 
     public int getContacts() {
         return contacts;
@@ -192,10 +192,6 @@ public class User extends RealmObject {
         this.cards = cards;
     }
 
-    public void addCard(Card card) {
-        this.cards.add(card);
-    }
-
     public RealmList<FeedItem> getFeedItems() {
         return feedItems;
     }
@@ -212,51 +208,56 @@ public class User extends RealmObject {
         this.groups = groups;
     }
 
-    public void updateContact(Realm realm, JSONObject json) {
+    public static User updateContact(User user, Realm realm, JSONObject json) {
         try {
-            this.userId = json.getInt("id");
-            this.createdAt = Utils.formatDate(json.getString("created_at"));
-            this.updatedAt = Utils.formatDate(json.getString("updated_at"));
+            user.setUserId(json.getInt("id"));
+            user.setCreatedAt(Utils.formatDate(json.getString("created_at")));
+            user.setUpdatedAt(Utils.formatDate(json.getString("updated_at")));
 
-            this.firstName = json.getString("first_name");
-            this.lastName = json.getString("last_name");
+            user.setFirstName(json.getString("first_name"));
+            user.setLastName(json.getString("last_name"));
 
-            this.isContact = json.getBoolean("is_contact");
-            this.requestSent = json.getBoolean("request_sent");
-            this.requestReceived = json.getBoolean("request_received");
+            user.setIsContact(json.getBoolean("is_contact"));
+            user.setRequestSent(json.getBoolean("request_sent"));
+            user.setRequestReceived(json.getBoolean("request_received"));
 
             // if no thumb or thumb is different - update
-            if (json.isNull("thumb") || !this.thumb.equals("") ||
-                    !json.getString("thumb").equals(this.thumb)) {
-                this.thumb = json.getString("thumb");
-                this.thumbData = null;
+            if (json.isNull("thumb") || (user.getThumb() != null && (!user.getThumb().equals("") ||
+                      !json.getString("thumb").equals(user.getThumb())))) {
+                user.setThumb(json.getString("thumb"));
+                user.setThumbData(new byte[0]);
             }
 
             // if no picture or picture is different - update
-            if (json.isNull("picture") || !this.picture.equals("") ||
-                    !json.getString("picture").equals(this.picture)) {
-                this.picture = json.getString("picture");
-                this.pictureData = null;
+            if (json.isNull("picture") || (user.getPicture() != null && (!user.getPicture().equals("") ||
+                    !json.getString("picture").equals(user.getPicture())))) {
+                user.setPicture(json.getString("picture"));
+                user.setPictureData(new byte[0]);
             }
 
-            this.contacts = json.getInt("contacts");
-            this.mutual = json.getInt("mutual");
+            user.setContacts(json.getInt("contacts"));
+            user.setMutual(json.getInt("mutual"));
 
             JSONArray cards = json.getJSONArray("cards");
             for(int i = 0; i < cards.length(); i++) {
                 RealmResults<Card> result = realm.where(Card.class).equalTo("cardId", cards.getJSONObject(i).getInt("id")).findAll();
                 if(result.size() > 0) {
                     Card card = result.get(0);
-                    card.updateCard(realm, cards.getJSONObject(i));
-                    card.setUser(this);
+                    card = Card.updateCard(card, realm, cards.getJSONObject(i));
+                    card.setUser(user);
                 } else {
                     Card card = realm.createObject(Card.class);
-                    card.updateCard(realm, cards.getJSONObject(i));
-                    this.addCard(card);
+                    card = Card.updateCard(card, realm, cards.getJSONObject(i));
+
+                    RealmList<Card> userCards = user.getCards();
+                    userCards.add(card);
+                    user.setCards(userCards);
                 }
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        return user;
     }
 }

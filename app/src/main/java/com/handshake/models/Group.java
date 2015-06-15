@@ -16,8 +16,8 @@ public class Group extends RealmObject {
     private short syncStatus;
     private Date updatedAt;
 
-    private RealmList<FeedItem> feedItems;
-    private RealmList<GroupMember> members;
+    private RealmList<FeedItem> feedItems = new RealmList<>();
+    private RealmList<GroupMember> members = new RealmList<>();
 
     public String getCode() {
         return code;

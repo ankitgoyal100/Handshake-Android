@@ -61,14 +61,14 @@ public class SignUpActivity extends ActionBarActivity {
                 params.add("email", email.getText().toString());
                 params.add("password", password.getText().toString());
 
-                RestClient.post(context, "/account", params, new JsonHttpResponseHandler() {
+                RestClientAsync.post(context, "/account", params, new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                         RequestParams params = new RequestParams();
                         params.add("email", email.getText().toString());
                         params.add("password", password.getText().toString());
 
-                        RestClient.post(context, "/tokens", params, new JsonHttpResponseHandler() {
+                        RestClientAsync.post(context, "/tokens", params, new JsonHttpResponseHandler() {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                                 try {

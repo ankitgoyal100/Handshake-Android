@@ -14,10 +14,10 @@ import org.apache.http.message.BasicHeader;
 /**
  * Created by ankitgoyal on 12/23/14.
  */
-public class RestClient {
+public class RestClientAsync {
     private static final String BASE_URL = "https://handshakeapi11.herokuapp.com";
 
-    private static AsyncHttpClient client = new AsyncHttpClient();
+        private static AsyncHttpClient client = new AsyncHttpClient();
 
     public static void get(Context context, String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
         client.addHeader("Accept", "application/json");

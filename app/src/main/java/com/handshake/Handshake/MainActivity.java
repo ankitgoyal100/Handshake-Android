@@ -17,6 +17,8 @@ import android.support.v7.app.ActionBarActivity;
 
 import com.astuetz.PagerSlidingTabStrip;
 
+import io.realm.Realm;
+
 
 public class MainActivity extends ActionBarActivity {
 
@@ -30,6 +32,8 @@ public class MainActivity extends ActionBarActivity {
     private TabAdapter tabAdapter;
     private static ViewPager sPager;
 
+    private Realm realm;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +41,8 @@ public class MainActivity extends ActionBarActivity {
 
         session = new SessionManager(this);
         session.checkLogin();
+
+        realm = Realm.getInstance(context);
 
         tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
         sPager = (ViewPager) findViewById(R.id.pager);
@@ -59,6 +65,7 @@ public class MainActivity extends ActionBarActivity {
         ContactServerSync.performSync(context, new SyncCompleted() {
             @Override
             public void syncCompletedListener() {
+                System.out.println("MainActivity sync completed");
                 // TODO: Callback
             }
         });
@@ -92,12 +99,7 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         public Fragment getItem(int position) {
-            return HomeFragment.newInstance("", "");
-
-//            switch (position) {
-//                case 0:
-//            }
-//            return null;
+            return HomeFragment.newInstance(realm);
         }
     }
 
@@ -154,4 +156,9 @@ public class MainActivity extends ActionBarActivity {
             handler.removeCallbacks(what);
         }
     };
+
+    public void onBackPressed() {
+        moveTaskToBack(true);
+    }
+
 }

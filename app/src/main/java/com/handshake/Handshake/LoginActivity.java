@@ -57,7 +57,7 @@ public class LoginActivity extends ActionBarActivity {
                 params.add("email", email.getText().toString());
                 params.add("password", password.getText().toString());
 
-                RestClient.post(context, "/tokens", params, new JsonHttpResponseHandler() {
+                RestClientAsync.post(context, "/tokens", params, new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                         try {
@@ -72,7 +72,6 @@ public class LoginActivity extends ActionBarActivity {
 
                     @Override
                     public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                        System.out.println(errorResponse.toString());
                         try {
                             Toast.makeText(context, errorResponse.getJSONArray("errors").getString(0), Toast.LENGTH_LONG).show();
                         } catch (JSONException e) {
