@@ -83,7 +83,7 @@ public class UserServerSync {
                 }
 
                 ArrayList<User> orderedArray = new ArrayList<User>();
-                for(long id : allIDs) {
+                for(Long id : allIDs) {
                     orderedArray.add(map.get(id));
                 }
 

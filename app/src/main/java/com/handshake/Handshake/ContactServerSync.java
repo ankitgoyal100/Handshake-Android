@@ -26,7 +26,6 @@ public class ContactServerSync {
 
     private static SessionManager session;
     private static Context context;
-    //    private static Realm realm;
     private static SyncCompleted listener;
 
     private static int counter = 0;
@@ -39,7 +38,6 @@ public class ContactServerSync {
                 context = c;
                 listener = l;
                 session = new SessionManager(context);
-//                realm = Realm.getInstance(context);
                 performSyncHelper();
             }
         }).start();
@@ -53,7 +51,7 @@ public class ContactServerSync {
         RealmResults<User> result = realm.where(User.class).equalTo("isContact", true).findAll();
         result.sort("updatedAt", RealmResults.SORT_ORDER_DESCENDING);
 
-        if (result.size() > 0) date = result.first().getContactUpdated().toString();
+        if (result.size() > 0) date = result.first().getContactUpdated().toGMTString();
 
         System.out.println("Date: " + date);
 
@@ -115,9 +113,7 @@ public class ContactServerSync {
                             RealmResults<User> areContacts = realm.where(User.class).equalTo("isContact", true).findAll();
 
                             for(int i = 0; i < areContacts.size(); i++) {
-                                if(!map.keySet().contains(areContacts.get(i).getUserId()))
-                                    areContacts.remove(i);
-                                else {
+                                if(!map.keySet().contains(areContacts.get(i).getUserId())) {
                                     realm.beginTransaction();
                                     try {
                                         areContacts.get(i).setContactUpdated(Utils.formatDate(
