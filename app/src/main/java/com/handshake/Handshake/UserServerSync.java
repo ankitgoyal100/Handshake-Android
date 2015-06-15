@@ -74,7 +74,6 @@ public class UserServerSync {
                     }
                 }
 
-                users.clear();
                 map.clear();
 
                 users = realm.allObjects(User.class);
