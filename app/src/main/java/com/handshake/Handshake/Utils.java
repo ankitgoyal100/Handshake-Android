@@ -18,6 +18,9 @@ public class Utils {
     public static short CardUpdated = 2;
     public static short CardDeleted = 3;
 
+    public static short AccountSynced = 0;
+    public static short AccountUpdated = 1;
+
     public static Date formatDate(String str) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
         format.setTimeZone(TimeZone.getTimeZone("GMT"));

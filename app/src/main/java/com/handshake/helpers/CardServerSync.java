@@ -33,8 +33,6 @@ public class CardServerSync {
     private static Context context;
     private static SyncCompleted listener;
 
-    private static int counter = 0;
-
     public static void performSync(final Context c, final SyncCompleted l) {
 
         new Thread(new Runnable() {
@@ -57,8 +55,6 @@ public class CardServerSync {
 
                 final Realm realm = Realm.getInstance(context);
                 Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
-
-                System.out.println(account == null);
 
                 if (account == null) return;
 

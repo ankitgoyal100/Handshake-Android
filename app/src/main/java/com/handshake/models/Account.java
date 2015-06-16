@@ -1,6 +1,7 @@
 package com.handshake.models;
 
 import com.handshake.Handshake.Utils;
+import com.loopj.android.http.RequestParams;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -152,6 +153,15 @@ public class Account extends RealmObject {
         }
 
         return account;
+    }
+
+    public static RequestParams accountToParams(Account account) {
+        RequestParams params = new RequestParams();
+        params.put("email", account.getEmail());
+        if (account.getFirstName().length() > 0) params.put("first_name", account.getFirstName());
+        if (account.getLastName().length() > 0) params.put("last_name", account.getLastName());
+
+        return params;
     }
 
 }
