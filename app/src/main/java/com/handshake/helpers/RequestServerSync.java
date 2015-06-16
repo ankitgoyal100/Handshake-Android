@@ -104,7 +104,9 @@ public class RequestServerSync {
         Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
 
         RequestParams params = new RequestParams();
-        params.put("card_ids", account.getCards().first().getCardId());
+        JSONArray cardIds = new JSONArray();
+        cardIds.put(account.getCards().first().getCardId())
+        params.put("card_ids", cardIds);
 
         RestClientAsync.post(context, "/users/" + user.getUserId() + "/request", params, new JsonHttpResponseHandler() {
             @Override
@@ -165,7 +167,9 @@ public class RequestServerSync {
         Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
 
         RequestParams params = new RequestParams();
-        params.put("card_ids", account.getCards().first().getCardId());
+        JSONArray cardIds = new JSONArray();
+        cardIds.put(account.getCards().first().getCardId())
+        params.put("card_ids", cardIds);
 
         RestClientAsync.post(context, "/users/" + user.getUserId() + "/accept", params, new JsonHttpResponseHandler() {
             @Override
