@@ -97,8 +97,10 @@ public class RequestServerSync {
         });
     }
 
-    public static void sendRequest(User user, UserSyncCompleted listener) {
-        final Realm realm = Realm.getInstance(context);
+    public static void sendRequest(final User user, final UserSyncCompleted listener) {
+        if(user.isRequestSent()) return;
+
+        Realm realm = Realm.getInstance(context);
         Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
 
         RequestParams params = new RequestParams();
@@ -107,23 +109,129 @@ public class RequestServerSync {
         RestClientAsync.post(context, "/users/" + user.getUserId() + "/request", params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                realm.beginTransaction();
-                try {
-                    user = User.updateContact(user, realm, response.getJSONObject("user"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                success(listener, user, response);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                System.out.println(errorResponse.toString());
+                Realm realm = Realm.getInstance(context);
                 realm.beginTransaction();
                 user.setRequestSent(false);
                 realm.commitTransaction();
+
+                listener.syncFailedListener();
+
                 if (statusCode == 401) session.logoutUser();
             }
         });
+
+        realm.beginTransaction();
+        user.setRequestSent(true);
+        realm.commitTransaction();
     }
 
+    public static void deleteRequest(final User user, final UserSyncCompleted listener) {
+        if(!user.isRequestSent()) return;
+
+        RestClientAsync.delete(context, "/users/" + user.getUserId() + "/request", new RequestParams(), new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                success(listener, user, response);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                Realm realm = Realm.getInstance(context);
+                realm.beginTransaction();
+                user.setRequestSent(true);
+                realm.commitTransaction();
+
+                listener.syncFailedListener();
+
+                if (statusCode == 401) session.logoutUser();
+            }
+        });
+
+        Realm realm = Realm.getInstance(context);
+        realm.beginTransaction();
+        user.setRequestSent(false);
+        realm.commitTransaction();
+    }
+
+    public static void acceptRequest(final User user, final UserSyncCompleted listener) {
+        if(!user.isRequestReceived()) return;
+
+        Realm realm = Realm.getInstance(context);
+        Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+
+        RequestParams params = new RequestParams();
+        params.put("card_ids", account.getCards().first().getCardId());
+
+        RestClientAsync.post(context, "/users/" + user.getUserId() + "/accept", params, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                success(listener, user, response);
+                FeedItemServerSync.performSync(context);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                Realm realm = Realm.getInstance(context);
+                realm.beginTransaction();
+                user.setIsContact(false);
+                user.setRequestReceived(true);
+                realm.commitTransaction();
+
+                listener.syncFailedListener();
+
+                if (statusCode == 401) session.logoutUser();
+            }
+        });
+
+        realm.beginTransaction();
+        user.setIsContact(true);
+        user.setRequestReceived(false);
+        realm.commitTransaction();
+    }
+
+    public static void declineRequest(final User user, final UserSyncCompleted listener) {
+        if(!user.isRequestReceived()) return;
+
+        RestClientAsync.delete(context, "/users/" + user.getUserId() + "/decline", new RequestParams(), new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                success(listener, user, response);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                Realm realm = Realm.getInstance(context);
+                realm.beginTransaction();
+                user.setRequestReceived(true);
+                realm.commitTransaction();
+
+                listener.syncFailedListener();
+
+                if (statusCode == 401) session.logoutUser();
+            }
+        });
+
+        Realm realm = Realm.getInstance(context);
+        realm.beginTransaction();
+        user.setRequestReceived(false);
+        realm.commitTransaction();
+    }
+
+    private static void success(UserSyncCompleted listener, User user, JSONObject response) {
+        Realm realm = Realm.getInstance(context);
+        realm.beginTransaction();
+        try {
+            User.updateContact(user, realm, response.getJSONObject("user"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        realm.commitTransaction();
+
+        listener.syncCompletedListener(user);
+    }
 }

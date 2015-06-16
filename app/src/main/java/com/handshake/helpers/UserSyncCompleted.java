@@ -7,4 +7,5 @@ import com.handshake.models.User;
  */
 public interface UserSyncCompleted {
     void syncCompletedListener(User users);
+    void syncFailedListener();
 }
