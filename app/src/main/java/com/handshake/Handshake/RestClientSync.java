@@ -47,7 +47,7 @@ public class RestClientSync {
         client.put(context, getAbsoluteUrl(url), entity, "application/json", responseHandler);
     }
 
-    public static void put(Context context, String url, RequestParams params, ResponseHandlerInterface responseHandler) {
+    public static void put(Context context, String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
         client.addHeader("Accept", "application/json");
         client.addHeader("Content-type", "application/json");
         params.put("auth_token", SessionManager.getToken());

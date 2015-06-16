@@ -8,6 +8,7 @@ import io.realm.RealmObject;
 public class Phone extends RealmObject {
     private String label;
     private String number;
+    private String countryCode;
 
     private Card card;
 
@@ -33,5 +34,13 @@ public class Phone extends RealmObject {
 
     public void setCard(Card card) {
         this.card = card;
+    }
+
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    public void setCountryCode(String countryCode) {
+        this.countryCode = countryCode;
     }
 }

@@ -238,6 +238,7 @@ public class User extends RealmObject {
             user.setContacts(json.getInt("contacts"));
             user.setMutual(json.getInt("mutual"));
 
+            System.out.println(json);
             JSONArray cards = json.getJSONArray("cards");
             for(int i = 0; i < cards.length(); i++) {
                 RealmResults<Card> result = realm.where(Card.class).equalTo("cardId", cards.getJSONObject(i).getInt("id")).findAll();

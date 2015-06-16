@@ -40,12 +40,12 @@ public class SessionManager {
     /**
      * Create login session
      */
-    public void createLoginSession(String id, String token, String email) {
+    public void createLoginSession(long id, String token, String email) {
         // Storing login value as TRUE
         editor.putBoolean(sIsLogin, true);
 
         // Storing name in pref
-        editor.putString(KEY_ID, id);
+        editor.putLong(KEY_ID, id);
 
         // Storing password in pref
         editor.putString(KEY_TOKEN, token);
@@ -92,8 +92,8 @@ public class SessionManager {
         return pref.getString(KEY_TOKEN, null);
     }
 
-    public static String getID() {
-        return pref.getString(KEY_ID, null);
+    public static long getID() {
+        return pref.getLong(KEY_ID, 0);
     }
 
     public static String getEmail() {

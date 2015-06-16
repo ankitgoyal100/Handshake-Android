@@ -6,6 +6,7 @@
     tools:context="com.handshake.Handshake.LoginActivity">
 
     <com.handshake.Handshake.EditTextCustomFont
+        android:text="ankitgoyal100@gmail.com"
         android:id="@+id/email"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -21,6 +22,7 @@
         android:background="@color/divider" />
 
     <com.handshake.Handshake.EditTextCustomFont
+        android:text="ashwinankit"
         android:id="@+id/password"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
