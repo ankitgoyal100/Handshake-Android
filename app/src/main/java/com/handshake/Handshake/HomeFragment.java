@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
-import com.handshake.models.User;
+import com.handshake.models.Card;
 
 import io.realm.Realm;
 import io.realm.RealmBaseAdapter;
@@ -45,20 +45,20 @@ public class HomeFragment extends ListFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        MyAdapter myAdapter = new MyAdapter(getActivity(), realm.where(User.class).findAll(), true);
+        MyAdapter myAdapter = new MyAdapter(getActivity(), realm.where(Card.class).findAll(), true);
         setListAdapter(myAdapter);
     }
 
 }
 
-class MyAdapter extends RealmBaseAdapter<User> implements ListAdapter {
+class MyAdapter extends RealmBaseAdapter<Card> implements ListAdapter {
 
     private static class ViewHolder {
         TextView cardName;
     }
 
     public MyAdapter(Context context,
-                     RealmResults<User> realmResults,
+                     RealmResults<Card> realmResults,
                      boolean automaticUpdate) {
         super(context, realmResults, automaticUpdate);
     }
@@ -77,12 +77,12 @@ class MyAdapter extends RealmBaseAdapter<User> implements ListAdapter {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        User item = realmResults.get(position);
-        viewHolder.cardName.setText(item.getFirstName() + " " + item.getLastName());
+        Card item = realmResults.get(position);
+        viewHolder.cardName.setText("Phone size: " + item.getPhones().size());
         return convertView;
     }
 
-    public RealmResults<User> getRealmResults() {
+    public RealmResults<Card> getRealmResults() {
         return realmResults;
     }
 }

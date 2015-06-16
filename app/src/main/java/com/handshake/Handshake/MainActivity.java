@@ -16,10 +16,12 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 
 import com.astuetz.PagerSlidingTabStrip;
-import com.handshake.helpers.CardServerSync;
+import com.handshake.helpers.ContactServerSync;
 import com.handshake.helpers.SyncCompleted;
+import com.handshake.models.Card;
 
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -64,10 +66,14 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void performSync() {
-        CardServerSync.performSync(context, new SyncCompleted() {
+        ContactServerSync.performSync(context, new SyncCompleted() {
             @Override
             public void syncCompletedListener() {
-                System.out.println("MainActivity sync completed");
+                Realm realm = Realm.getInstance(context);
+                RealmResults<Card> cards = realm.where(Card.class).findAll();
+
+                for (Card c : cards)
+                    System.out.println(cards.size() + " " + c.toString());
                 // TODO: Callback
             }
         });

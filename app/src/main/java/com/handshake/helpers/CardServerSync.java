@@ -7,8 +7,8 @@ import com.handshake.Handshake.RestClientAsync;
 import com.handshake.Handshake.RestClientSync;
 import com.handshake.Handshake.SessionManager;
 import com.handshake.Handshake.Utils;
+import com.handshake.models.Account;
 import com.handshake.models.Card;
-import com.handshake.models.User;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
@@ -56,9 +56,13 @@ public class CardServerSync {
                 System.out.println(response.toString());
 
                 final Realm realm = Realm.getInstance(context);
-                User user = realm.where(User.class).equalTo("userId", SessionManager.getID()).findFirst();
+                Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
 
-                if (user == null) return;
+                System.out.println(account == null);
+
+                if (account == null) return;
+
+                System.out.println("Account: " + account.toString());
 
                 final HashMap<Long, JSONObject> map = new HashMap<Long, JSONObject>();
                 try {
@@ -70,16 +74,16 @@ public class CardServerSync {
                     e.printStackTrace();
                 }
 
-                for (Card card : user.getCards()) {
+                for (Card card : account.getCards()) {
                     if (card.getSyncStatus() == Utils.CardCreated) continue;
 
                     if (!map.containsKey(card.getCardId())) {
-                        RealmList<Card> currCards = user.getCards();
+                        RealmList<Card> currCards = account.getCards();
                         currCards.remove(card);
-                        user.setCards(currCards);
+                        account.setCards(currCards);
                     } else if (card.getSyncStatus() == Utils.CardSynced) {
                         realm.beginTransaction();
-                        Card.updateCard(card, realm, map.get(card.getCardId()));
+                        card = Card.updateCard(card, realm, map.get(card.getCardId()));
                         realm.commitTransaction();
                     }
 
@@ -91,28 +95,33 @@ public class CardServerSync {
 
                     realm.beginTransaction();
                     Card card = realm.createObject(Card.class);
-                    Card.updateCard(card, realm, cardJSON);
+                    card = Card.updateCard(card, realm, cardJSON);
                     card.setSyncStatus(Utils.CardSynced);
+                    card.setAccount(account);
+
+                    RealmList<Card> currCards = account.getCards();
+                    currCards.add(card);
+                    account.setCards(currCards);
                     realm.commitTransaction();
 
-                    RealmList<Card> currCards = user.getCards();
-                    currCards.add(card);
-                    user.setCards(currCards);
+                    System.out.println("Card added: " + card.toString());
                 }
 
                 RealmResults<Card> cards = realm.where(Card.class).notEqualTo("syncStatus", Utils.CardSynced)
-                        .equalTo("user.userId", user.getUserId()).findAll();
+                        .equalTo("account.userId", account.getUserId()).findAll();
 
-                for (final Card card : cards) {
-                    if (card.getSyncStatus() == Utils.CardCreated) {
-                        RequestParams params = Card.cardToParams(card);
+                for (final Card c : cards) {
+                    if (c.getSyncStatus() == Utils.CardCreated) {
+                        RequestParams params = Card.cardToParams(c);
                         RestClientAsync.post(context, "/cards", params, new JsonHttpResponseHandler() {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                                Card card = c;
+
                                 Realm realm = Realm.getInstance(context);
                                 realm.beginTransaction();
                                 try {
-                                    Card.updateCard(card, realm, response.getJSONObject("card"));
+                                    card = Card.updateCard(card, realm, response.getJSONObject("card"));
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
@@ -125,42 +134,48 @@ public class CardServerSync {
                                 if (statusCode == 401) session.logoutUser();
                             }
                         });
-                    } else if (card.getSyncStatus() == Utils.CardUpdated) {
-                        RequestParams params = Card.cardToParams(card);
-                        RestClientAsync.put(context, "/cards/" + card.getCardId(), params, new JsonHttpResponseHandler() {
-                            @Override
-                            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                                Realm realm = Realm.getInstance(context);
-                                realm.beginTransaction();
-                                try {
-                                    Card.updateCard(card, realm, response.getJSONObject("card"));
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
+                    } else {
+                        if (c.getSyncStatus() == Utils.CardUpdated) {
+                            RequestParams params = Card.cardToParams(c);
+                            RestClientAsync.put(context, "/cards/" + c.getCardId(), params, new JsonHttpResponseHandler() {
+                                @Override
+                                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                                    Card card = c;
+
+                                    Realm realm = Realm.getInstance(context);
+                                    realm.beginTransaction();
+                                    try {
+                                        card = Card.updateCard(card, realm, response.getJSONObject("card"));
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                    card.setSyncStatus(Utils.CardSynced);
+                                    realm.commitTransaction();
                                 }
-                                card.setSyncStatus(Utils.CardSynced);
-                                realm.commitTransaction();
-                            }
 
-                            @Override
-                            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                                if (statusCode == 401) session.logoutUser();
-                            }
-                        });
-                    } else if (card.getSyncStatus() == Utils.CardDeleted) {
-                        RestClientAsync.delete(context, "/cards/" + card.getCardId(), new RequestParams(), new JsonHttpResponseHandler() {
-                            @Override
-                            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                                Realm realm = Realm.getInstance(context);
-                                realm.beginTransaction();
-                                card.removeFromRealm();
-                                realm.commitTransaction();
-                            }
+                                @Override
+                                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                                    if (statusCode == 401) session.logoutUser();
+                                }
+                            });
+                        } else if (c.getSyncStatus() == Utils.CardDeleted) {
+                            RestClientAsync.delete(context, "/cards/" + c.getCardId(), new RequestParams(), new JsonHttpResponseHandler() {
+                                @Override
+                                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                                    Card card = c;
 
-                            @Override
-                            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                                if (statusCode == 401) session.logoutUser();
-                            }
-                        });
+                                    Realm realm = Realm.getInstance(context);
+                                    realm.beginTransaction();
+                                    card.removeFromRealm();
+                                    realm.commitTransaction();
+                                }
+
+                                @Override
+                                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                                    if (statusCode == 401) session.logoutUser();
+                                }
+                            });
+                        }
                     }
                 }
 

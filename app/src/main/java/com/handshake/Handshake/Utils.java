@@ -30,4 +30,10 @@ public class Utils {
 
         return date;
     }
+
+    public static String toGmtString(Date date){
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+        format.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return format.format(date);
+    }
 }

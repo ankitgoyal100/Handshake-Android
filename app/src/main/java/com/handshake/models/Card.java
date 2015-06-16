@@ -28,6 +28,7 @@ public class Card extends RealmObject {
     private RealmList<Phone> phones = new RealmList<>();
     private RealmList<Social> socials = new RealmList<>();
     private User user;
+    private Account account;
 
     public long getCardId() {
         return cardId;
@@ -109,6 +110,14 @@ public class Card extends RealmObject {
         this.user = user;
     }
 
+    public Account getAccount() {
+        return account;
+    }
+
+    public void setAccount(Account account) {
+        this.account = account;
+    }
+
     public static Card updateCard(Card card, Realm realm, JSONObject json) {
         try {
             card.setCardId(json.getInt("id"));
@@ -116,32 +125,31 @@ public class Card extends RealmObject {
             card.setUpdatedAt(Utils.formatDate(json.getString("updated_at")));
             card.setName(json.getString("name"));
 
-            card.setPhones(new RealmList<Phone>());
+            RealmList<Phone> cardPhones = new RealmList<>();
             JSONArray phones = json.getJSONArray("phones");
+            System.out.println(phones.toString());
             for (int i = 0; i < phones.length(); i++) {
                 Phone phone = realm.createObject(Phone.class);
                 phone.setNumber(phones.getJSONObject(i).getString("number"));
                 phone.setCountryCode(phones.getJSONObject(i).getString("country_code"));
                 phone.setLabel(phones.getJSONObject(i).getString("label"));
 
-                RealmList<Phone> cardPhones = card.getPhones();
                 cardPhones.add(phone);
-                card.setPhones(cardPhones);
             }
+            card.setPhones(cardPhones);
 
-            card.setEmails(new RealmList<Email>());
+            RealmList<Email> cardEmails = new RealmList<>();
             JSONArray emails = json.getJSONArray("emails");
             for (int i = 0; i < emails.length(); i++) {
                 Email email = realm.createObject(Email.class);
                 email.setAddress(emails.getJSONObject(i).getString("address"));
                 email.setLabel(emails.getJSONObject(i).getString("label"));
 
-                RealmList<Email> cardEmails = card.getEmails();
                 cardEmails.add(email);
-                card.setEmails(cardEmails);
             }
+            card.setEmails(cardEmails);
 
-            card.setAddresses(new RealmList<Address>());
+            RealmList<Address> cardAddresses = new RealmList<>();
             JSONArray addresses = json.getJSONArray("addresses");
             for (int i = 0; i < addresses.length(); i++) {
                 Address address = realm.createObject(Address.class);
@@ -152,22 +160,20 @@ public class Card extends RealmObject {
                 address.setZip(addresses.getJSONObject(i).getString("zip"));
                 address.setLabel(addresses.getJSONObject(i).getString("label"));
 
-                RealmList<Address> cardAddresses = card.getAddresses();
                 cardAddresses.add(address);
-                card.setAddresses(cardAddresses);
             }
+            card.setAddresses(cardAddresses);
 
-            card.setSocials(new RealmList<Social>());
+            RealmList<Social> cardSocials = new RealmList<>();
             JSONArray socials = json.getJSONArray("socials");
             for (int i = 0; i < socials.length(); i++) {
                 Social social = realm.createObject(Social.class);
                 social.setUsername(socials.getJSONObject(i).getString("username"));
                 social.setNetwork(socials.getJSONObject(i).getString("network"));
 
-                RealmList<Social> cardSocials = card.getSocials();
                 cardSocials.add(social);
-                card.setSocials(cardSocials);
             }
+            card.setSocials(cardSocials);
         } catch (JSONException e) {
             e.printStackTrace();
         }

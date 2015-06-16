@@ -50,14 +50,12 @@ public class ContactServerSync {
 
     private static void performSyncHelper() {
         final Realm realm = Realm.getInstance(context);
-        //Get most recent contactUpdated date
+        //Get most recent contactUpdated date Mon Jun 15 21:04:57 PDT 2015
         String date = "";
         RealmResults<User> result = realm.where(User.class).equalTo("isContact", true).findAll();
         result.sort("updatedAt", RealmResults.SORT_ORDER_DESCENDING);
 
-        if (result.size() > 0) date = result.first().getContactUpdated().toGMTString();
-
-        System.out.println("Date: " + date);
+        if (result.size() > 0) date = Utils.toGmtString(result.first().getUpdatedAt());
 
         syncPage(1, date, new SyncCompleted() {
             @Override

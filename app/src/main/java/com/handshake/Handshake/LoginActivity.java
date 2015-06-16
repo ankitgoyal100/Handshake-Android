@@ -15,12 +15,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.handshake.models.Account;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 import org.apache.http.Header;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import io.realm.Realm;
 
 
 public class LoginActivity extends ActionBarActivity {
@@ -61,6 +64,12 @@ public class LoginActivity extends ActionBarActivity {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                         try {
+                            Realm realm = Realm.getInstance(context);
+                            realm.beginTransaction();
+                            Account account = realm.createObject(Account.class);
+                            account = Account.updateAccount(account, realm, response.getJSONObject("user"));
+                            realm.commitTransaction();
+
                             session.createLoginSession(response.getJSONObject("user").getLong("id"), response.getString("auth_token"), email.getText().toString());
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             startActivity(intent);
