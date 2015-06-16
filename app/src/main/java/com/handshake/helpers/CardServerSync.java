@@ -150,7 +150,10 @@ public class CardServerSync {
                         RestClientAsync.delete(context, "/cards/" + card.getCardId(), new RequestParams(), new JsonHttpResponseHandler() {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-
+                                Realm realm = Realm.getInstance(context);
+                                realm.beginTransaction();
+                                card.removeFromRealm();
+                                realm.commitTransaction();
                             }
 
                             @Override
@@ -161,7 +164,12 @@ public class CardServerSync {
                     }
                 }
 
-                listener.syncCompletedListener();
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.syncCompletedListener();
+                    }
+                });
             }
 
             @Override
