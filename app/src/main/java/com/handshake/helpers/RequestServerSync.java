@@ -105,7 +105,7 @@ public class RequestServerSync {
 
         RequestParams params = new RequestParams();
         JSONArray cardIds = new JSONArray();
-        cardIds.put(account.getCards().first().getCardId())
+        cardIds.put(account.getCards().first().getCardId());
         params.put("card_ids", cardIds);
 
         RestClientAsync.post(context, "/users/" + user.getUserId() + "/request", params, new JsonHttpResponseHandler() {
@@ -168,7 +168,7 @@ public class RequestServerSync {
 
         RequestParams params = new RequestParams();
         JSONArray cardIds = new JSONArray();
-        cardIds.put(account.getCards().first().getCardId())
+        cardIds.put(account.getCards().first().getCardId());
         params.put("card_ids", cardIds);
 
         RestClientAsync.post(context, "/users/" + user.getUserId() + "/accept", params, new JsonHttpResponseHandler() {
