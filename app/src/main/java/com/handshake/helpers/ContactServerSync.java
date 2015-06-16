@@ -108,7 +108,7 @@ public class ContactServerSync {
                         map.put(contacts.getJSONObject(i).getLong("id"), contacts.getJSONObject(i));
                     }
 
-                    UserServerSync.createUser(context, contacts, new UserSyncCompleted() {
+                    UserServerSync.cacheUser(context, contacts, new UserArraySyncCompleted() {
                         @Override
                         public void syncCompletedListener(ArrayList<User> users) {
                             Realm realm = Realm.getInstance(context);

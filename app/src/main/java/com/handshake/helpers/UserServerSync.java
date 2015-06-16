@@ -22,7 +22,7 @@ import io.realm.RealmResults;
 public class UserServerSync {
     private static Executor executor = Executors.newSingleThreadExecutor();
 
-    public static void createUser(final Context context, final JSONArray contacts, final UserSyncCompleted listener) {
+    public static void cacheUser(final Context context, final JSONArray contacts, final UserArraySyncCompleted listener) {
         executor.execute(new Runnable() {
             @Override
             public void run() {
