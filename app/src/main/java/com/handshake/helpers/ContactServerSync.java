@@ -1,8 +1,12 @@
-package com.handshake.Handshake;
+package com.handshake.helpers;
 
 import android.content.Context;
 import android.os.Handler;
 
+import com.handshake.Handshake.RestClientAsync;
+import com.handshake.Handshake.RestClientSync;
+import com.handshake.Handshake.SessionManager;
+import com.handshake.Handshake.Utils;
 import com.handshake.models.User;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -112,8 +116,8 @@ public class ContactServerSync {
                             Realm realm = Realm.getInstance(context);
                             RealmResults<User> areContacts = realm.where(User.class).equalTo("isContact", true).findAll();
 
-                            for(int i = 0; i < areContacts.size(); i++) {
-                                if(!map.keySet().contains(areContacts.get(i).getUserId())) {
+                            for (int i = 0; i < areContacts.size(); i++) {
+                                if (!map.keySet().contains(areContacts.get(i).getUserId())) {
                                     realm.beginTransaction();
                                     try {
                                         areContacts.get(i).setContactUpdated(Utils.formatDate(

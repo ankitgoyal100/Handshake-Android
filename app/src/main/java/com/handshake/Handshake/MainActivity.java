@@ -16,6 +16,8 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 
 import com.astuetz.PagerSlidingTabStrip;
+import com.handshake.helpers.CardServerSync;
+import com.handshake.helpers.SyncCompleted;
 
 import io.realm.Realm;
 
@@ -62,7 +64,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void performSync() {
-        ContactServerSync.performSync(context, new SyncCompleted() {
+        CardServerSync.performSync(context, new SyncCompleted() {
             @Override
             public void syncCompletedListener() {
                 System.out.println("MainActivity sync completed");

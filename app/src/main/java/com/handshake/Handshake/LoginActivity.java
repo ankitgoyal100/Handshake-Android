@@ -61,7 +61,7 @@ public class LoginActivity extends ActionBarActivity {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                         try {
-                            session.createLoginSession(response.getJSONObject("user").getString("id"), response.getString("auth_token"), email.getText().toString());
+                            session.createLoginSession(response.getJSONObject("user").getLong("id"), response.getString("auth_token"), email.getText().toString());
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             startActivity(intent);
                             finish();

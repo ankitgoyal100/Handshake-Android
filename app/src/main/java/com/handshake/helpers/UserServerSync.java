@@ -1,7 +1,8 @@
-package com.handshake.Handshake;
+package com.handshake.helpers;
 
 import android.content.Context;
 
+import com.handshake.Handshake.Utils;
 import com.handshake.models.User;
 
 import org.json.JSONArray;
@@ -61,6 +62,8 @@ public class UserServerSync {
                         } else {
                             user = map.get(contacts.getJSONObject(i).getLong("id"));
                         }
+
+                        map.put(user.getUserId(), user);
 
                         if (user.getSyncStatus() == Utils.userSynced) {
                             realm.beginTransaction();

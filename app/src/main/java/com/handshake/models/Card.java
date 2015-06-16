@@ -1,6 +1,7 @@
 package com.handshake.models;
 
 import com.handshake.Handshake.Utils;
+import com.loopj.android.http.RequestParams;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -117,9 +118,10 @@ public class Card extends RealmObject {
 
             card.setPhones(new RealmList<Phone>());
             JSONArray phones = json.getJSONArray("phones");
-            for(int i = 0; i < phones.length(); i++) {
+            for (int i = 0; i < phones.length(); i++) {
                 Phone phone = realm.createObject(Phone.class);
                 phone.setNumber(phones.getJSONObject(i).getString("number"));
+                phone.setCountryCode(phones.getJSONObject(i).getString("country_code"));
                 phone.setLabel(phones.getJSONObject(i).getString("label"));
 
                 RealmList<Phone> cardPhones = card.getPhones();
@@ -129,7 +131,7 @@ public class Card extends RealmObject {
 
             card.setEmails(new RealmList<Email>());
             JSONArray emails = json.getJSONArray("emails");
-            for(int i = 0; i < emails.length(); i++) {
+            for (int i = 0; i < emails.length(); i++) {
                 Email email = realm.createObject(Email.class);
                 email.setAddress(emails.getJSONObject(i).getString("address"));
                 email.setLabel(emails.getJSONObject(i).getString("label"));
@@ -141,7 +143,7 @@ public class Card extends RealmObject {
 
             card.setAddresses(new RealmList<Address>());
             JSONArray addresses = json.getJSONArray("addresses");
-            for(int i = 0; i < addresses.length(); i++) {
+            for (int i = 0; i < addresses.length(); i++) {
                 Address address = realm.createObject(Address.class);
                 address.setStreet1(addresses.getJSONObject(i).getString("street1"));
                 address.setStreet2(addresses.getJSONObject(i).getString("street2"));
@@ -157,7 +159,7 @@ public class Card extends RealmObject {
 
             card.setSocials(new RealmList<Social>());
             JSONArray socials = json.getJSONArray("socials");
-            for(int i = 0; i < socials.length(); i++) {
+            for (int i = 0; i < socials.length(); i++) {
                 Social social = realm.createObject(Social.class);
                 social.setUsername(socials.getJSONObject(i).getString("username"));
                 social.setNetwork(socials.getJSONObject(i).getString("network"));
@@ -171,5 +173,83 @@ public class Card extends RealmObject {
         }
 
         return card;
+    }
+
+    public static RequestParams cardToParams(Card card) {
+        RequestParams params = new RequestParams();
+        if (!card.getName().isEmpty()) params.put("name", card.getName());
+
+        JSONArray phones = new JSONArray();
+        for (Phone phone : card.getPhones()) {
+            if (phone.getNumber().length() > 0 && phone.getLabel().length() > 0) {
+                JSONObject phoneJSON = new JSONObject();
+                try {
+                    phoneJSON.put("number", phone.getNumber());
+                    phoneJSON.put("label", phone.getLabel());
+                    phoneJSON.put("country_code", phone.getCountryCode());
+                    phones.put(phoneJSON);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        params.put("phones_attributes", phones);
+
+        JSONArray emails = new JSONArray();
+        for (Email email : card.getEmails()) {
+            if (email.getAddress().length() > 0 && email.getLabel().length() > 0) {
+                JSONObject emailJSON = new JSONObject();
+                try {
+                    emailJSON.put("address", email.getAddress());
+                    emailJSON.put("label", email.getLabel());
+                    emails.put(emailJSON);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        params.put("emails_attributes", emails);
+
+        JSONArray addresses = new JSONArray();
+        for (Address address : card.getAddresses()) {
+            if ((address.getStreet1().length() > 0 || address.getStreet2().length() > 0 ||
+                    address.getCity().length() > 0 || address.getState().length() > 0 ||
+                    address.getZip().length() > 0) && address.getLabel().length() > 0) {
+                JSONObject addressJSON = new JSONObject();
+                try {
+                    if (address.getStreet1().length() > 0)
+                        addressJSON.put("street1", address.getStreet1());
+                    if (address.getStreet2().length() > 0)
+                        addressJSON.put("street2", address.getStreet2());
+                    if (address.getCity().length() > 0) addressJSON.put("city", address.getCity());
+                    if (address.getState().length() > 0)
+                        addressJSON.put("state", address.getState());
+                    if (address.getZip().length() > 0) addressJSON.put("zip", address.getZip());
+                    addressJSON.put("label", address.getLabel());
+                    addresses.put(addressJSON);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        params.put("addresses_attributes", addresses);
+
+        JSONArray socials = new JSONArray();
+        for(Social social : card.getSocials()) {
+            if(social.getUsername().length() > 0 && social.getNetwork().length() > 0) {
+                JSONObject socialJSON = new JSONObject();
+
+                try {
+                    socialJSON.put("username", social.getUsername());
+                    socialJSON.put("network", social.getNetwork());
+                    socials.put(socialJSON);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        params.put("socials_attributes", socials);
+
+        return params;
     }
 }

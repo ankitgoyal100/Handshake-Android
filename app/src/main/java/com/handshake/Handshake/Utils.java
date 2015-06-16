@@ -11,9 +11,12 @@ import java.util.TimeZone;
  */
 public class Utils {
     public static short userSynced = 0;
-    public static short userCreated = 1;
-    public static short userUpdated = 2;
-    public static short userDeleted = 3;
+    public static short userDeleted = 1;
+
+    public static short CardSynced = 0;
+    public static short CardCreated = 1;
+    public static short CardUpdated = 2;
+    public static short CardDeleted = 3;
 
     public static Date formatDate(String str) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
