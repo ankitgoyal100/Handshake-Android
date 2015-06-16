@@ -80,6 +80,7 @@ public class CardServerSync {
                     } else if (card.getSyncStatus() == Utils.CardSynced) {
                         realm.beginTransaction();
                         Card.updateCard(card, realm, map.get(card.getCardId()));
+                        realm.commitTransaction();
                     }
 
                     map.remove(card.getCardId());
