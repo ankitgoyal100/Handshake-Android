@@ -21,6 +21,11 @@ public class Utils {
     public static short AccountSynced = 0;
     public static short AccountUpdated = 1;
 
+    public static short GroupSynced = 0;
+    public static short GroupCreated = 1;
+    public static short GroupUpdated = 2;
+    public static short GroupDeleted = 3;
+
     public static Date formatDate(String str) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
         format.setTimeZone(TimeZone.getTimeZone("GMT"));

@@ -1,7 +1,13 @@
 package com.handshake.models;
 
+import com.handshake.Handshake.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.Date;
 
+import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 
@@ -81,5 +87,19 @@ public class Group extends RealmObject {
 
     public void setMembers(RealmList<GroupMember> members) {
         this.members = members;
+    }
+
+    public static Group updateGroup(Group group, Realm realm, JSONObject json) {
+        try {
+            group.setGroupId(json.getLong("id"));
+            group.setCreatedAt(Utils.formatDate(json.getString("created_at")));
+            group.setUpdatedAt(Utils.formatDate(json.getString("updated_at")));
+            group.setName(json.getString("name"));
+            group.setCode(json.getString("code"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return group;
     }
 }
