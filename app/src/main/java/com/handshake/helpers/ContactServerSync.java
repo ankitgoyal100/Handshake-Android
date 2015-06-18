@@ -133,7 +133,12 @@ public class ContactServerSync {
                     });
 
                     if (contacts.length() < 200) {
-                        listener.syncCompletedListener();
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                listener.syncCompletedListener();
+                            }
+                        });
                         return;
                     }
 
