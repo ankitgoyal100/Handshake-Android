@@ -184,6 +184,11 @@ public class FeedItemServerSync {
                                         }
                                     }
 
+                                    if(feedObjects.length() < 100) {
+                                        listener.syncCompletedListener();
+                                        return;
+                                    }
+
                                     syncPage(page + 1, listener);
                                 }
                             });
