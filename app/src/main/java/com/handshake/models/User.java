@@ -35,6 +35,7 @@ public class User extends RealmObject {
     private byte[] thumbData;
     private Date updatedAt;
     private long userId;
+    private boolean notifications;
 
     private RealmList<Card> cards = new RealmList<>();
     private RealmList<FeedItem> feedItems = new RealmList<>();
@@ -208,6 +209,14 @@ public class User extends RealmObject {
         this.groups = groups;
     }
 
+    public boolean isNotifications() {
+        return notifications;
+    }
+
+    public void setNotifications(boolean notifications) {
+        this.notifications = notifications;
+    }
+
     public static User updateContact(User user, Realm realm, JSONObject json) {
         try {
             user.setUserId(json.getInt("id"));
@@ -220,6 +229,8 @@ public class User extends RealmObject {
             user.setIsContact(json.getBoolean("is_contact"));
             user.setRequestSent(json.getBoolean("request_sent"));
             user.setRequestReceived(json.getBoolean("request_received"));
+
+            user.setNotifications(json.getBoolean("notifications"));
 
             // if no thumb or thumb is different - update
             if (json.isNull("thumb") || (user.getThumb() != null && (!user.getThumb().equals("") ||

@@ -84,7 +84,7 @@ public class ContactServerSync {
                     });
                 }
 
-                //TODO: Contact Sync
+                //TODO: Contact Sync to local address book
             }
         });
     }

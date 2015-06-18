@@ -175,7 +175,12 @@ public class RequestServerSync {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 success(listener, user, response);
-                FeedItemServerSync.performSync(context);
+                FeedItemServerSync.performSync(context, new SyncCompleted() {
+                    @Override
+                    public void syncCompletedListener() {
+                        System.out.println("Request server feed item sync completed");
+                    }
+                });
             }
 
             @Override

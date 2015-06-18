@@ -167,7 +167,7 @@ public class GroupServerSync {
         });
     }
 
-    private static void cacheGroup(final JSONArray jsonArray, final GroupArraySyncCompleted listener) {
+    public static void cacheGroup(final JSONArray jsonArray, final GroupArraySyncCompleted listener) {
         executor.execute(new Runnable() {
             @Override
             public void run() {
@@ -238,7 +238,7 @@ public class GroupServerSync {
         });
     }
 
-    private static void loadGroupMembers(Group group) {
+    public static void loadGroupMembers(Group group) {
         final long groupId = group.getGroupId();
         RestClientAsync.get(context, "/groups/" + groupId +"/members", new RequestParams(), new JsonHttpResponseHandler() {
             @Override
