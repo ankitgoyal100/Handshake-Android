@@ -40,6 +40,7 @@ public class User extends RealmObject {
     private RealmList<Card> cards = new RealmList<>();
     private RealmList<FeedItem> feedItems = new RealmList<>();
     private RealmList<GroupMember> groups = new RealmList<>();
+    private Suggestion suggestion;
 
     public int getContacts() {
         return contacts;
@@ -217,6 +218,15 @@ public class User extends RealmObject {
         this.notifications = notifications;
     }
 
+
+    public Suggestion getSuggestion() {
+        return suggestion;
+    }
+
+    public void setSuggestion(Suggestion suggestion) {
+        this.suggestion = suggestion;
+    }
+
     public static User updateContact(User user, Realm realm, JSONObject json) {
         try {
             user.setUserId(json.getInt("id"));
@@ -234,7 +244,7 @@ public class User extends RealmObject {
 
             // if no thumb or thumb is different - update
             if (json.isNull("thumb") || (user.getThumb() != null && (!user.getThumb().equals("") ||
-                      !json.getString("thumb").equals(user.getThumb())))) {
+                    !json.getString("thumb").equals(user.getThumb())))) {
                 user.setThumb(json.getString("thumb"));
                 user.setThumbData(new byte[0]);
             }
@@ -251,9 +261,9 @@ public class User extends RealmObject {
 
             System.out.println(json);
             JSONArray cards = json.getJSONArray("cards");
-            for(int i = 0; i < cards.length(); i++) {
+            for (int i = 0; i < cards.length(); i++) {
                 RealmResults<Card> result = realm.where(Card.class).equalTo("cardId", cards.getJSONObject(i).getInt("id")).findAll();
-                if(result.size() > 0) {
+                if (result.size() > 0) {
                     Card card = result.get(0);
                     card = Card.updateCard(card, realm, cards.getJSONObject(i));
                     card.setUser(user);
