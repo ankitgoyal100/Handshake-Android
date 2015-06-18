@@ -63,38 +63,38 @@ public class FeedItemServerSync {
     }
 
     private static void syncPage(final int page, final SyncCompleted listener) {
-        executor.execute(new Runnable() {
+        RequestParams params = new RequestParams();
+        params.put("page", page);
+
+        RestClientSync.get(context, "/feed", params, new JsonHttpResponseHandler() {
             @Override
-            public void run() {
-                RequestParams params = new RequestParams();
-                params.put("page", page);
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                System.out.println(response.toString());
 
-                RestClientSync.get(context, "/feed", params, new JsonHttpResponseHandler() {
-                    @Override
-                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                        System.out.println(response.toString());
+                try {
 
-                        try {
+                    final JSONArray feedObjects = response.getJSONArray("feed");
 
-                            final JSONArray feedObjects = response.getJSONArray("feed");
+                    if (feedObjects.length() == 0) return;
 
-                            if (feedObjects.length() == 0) return;
+                    final JSONArray users = new JSONArray();
+                    final JSONArray groups = new JSONArray();
+                    for (int i = 0; i < feedObjects.length(); i++) {
+                        if (feedObjects.getJSONObject(i).has("user"))
+                            users.put(feedObjects.getJSONObject(i).getJSONObject("user"));
+                        if (feedObjects.getJSONObject(i).has("group"))
+                            groups.put(feedObjects.getJSONObject(i).getJSONObject("group"));
+                    }
 
-                            final JSONArray users = new JSONArray();
-                            final JSONArray groups = new JSONArray();
-                            for (int i = 0; i < feedObjects.length(); i++) {
-                                if (feedObjects.getJSONObject(i).has("user"))
-                                    users.put(feedObjects.getJSONObject(i).getJSONObject("user"));
-                                if (feedObjects.getJSONObject(i).has("group"))
-                                    groups.put(feedObjects.getJSONObject(i).getJSONObject("group"));
-                            }
-
-                            UserServerSync.cacheUser(context, users, new UserArraySyncCompleted() {
+                    UserServerSync.cacheUser(context, users, new UserArraySyncCompleted() {
+                        @Override
+                        public void syncCompletedListener(ArrayList<User> usersArray) {
+                            GroupServerSync.cacheGroup(groups, new GroupArraySyncCompleted() {
                                 @Override
-                                public void syncCompletedListener(ArrayList<User> usersArray) {
-                                    GroupServerSync.cacheGroup(groups, new GroupArraySyncCompleted() {
+                                public void syncCompletedListener(ArrayList<Group> groupsArray) {
+                                    executor.execute(new Runnable() {
                                         @Override
-                                        public void syncCompletedListener(ArrayList<Group> groupsArray) {
+                                        public void run() {
                                             ArrayList<Long> userIds = new ArrayList<Long>();
                                             for (int i = 0; i < users.length(); i++) {
                                                 try {
@@ -201,18 +201,18 @@ public class FeedItemServerSync {
                                     });
                                 }
                             });
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
                         }
+                    });
 
-                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
-                    @Override
-                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                        if (statusCode == 401) session.logoutUser();
-                    }
-                });
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                if (statusCode == 401) session.logoutUser();
             }
         });
     }
