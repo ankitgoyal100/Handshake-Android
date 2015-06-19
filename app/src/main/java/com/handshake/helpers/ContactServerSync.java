@@ -53,9 +53,9 @@ public class ContactServerSync {
         //Get most recent contactUpdated date Mon Jun 15 21:04:57 PDT 2015
         String date = "";
         RealmResults<User> result = realm.where(User.class).equalTo("isContact", true).findAll();
-        result.sort("updatedAt", RealmResults.SORT_ORDER_DESCENDING);
+        result.sort("contactUpdated", RealmResults.SORT_ORDER_DESCENDING);
 
-        if (result.size() > 0) date = Utils.toGmtString(result.first().getUpdatedAt());
+        if (result.size() > 0) date = Utils.toGmtString(result.first().getContactUpdated());
 
         syncPage(1, date, new SyncCompleted() {
             @Override

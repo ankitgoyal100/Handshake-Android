@@ -78,14 +78,8 @@ public class MainActivity extends ActionBarActivity {
         ContactServerSync.performSync(context, new SyncCompleted() {
             @Override
             public void syncCompletedListener() {
-//                Realm realm = Realm.getInstance(context);
-//                RealmResults<Card> cards = realm.where(Card.class).findAll();
-//
-//                for (Card c : cards)
-//                    System.out.println(cards.size() + " " + c.toString());
-                // TODO: Callback
                 syncsCompleted++;
-                System.out.println("Contact sync completed " + syncsCompleted);
+//                System.out.println("Contact sync completed " + syncsCompleted);
             }
         });
 
@@ -93,7 +87,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
-                System.out.println("Account sync completed " + syncsCompleted);
+//                System.out.println("Account sync completed " + syncsCompleted);
             }
         });
 
@@ -101,7 +95,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
-                System.out.println("Card sync completed " + syncsCompleted);
+//                System.out.println("Card sync completed " + syncsCompleted);
             }
         });
 
@@ -109,7 +103,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
-                System.out.println("FeedItem sync completed " + syncsCompleted);
+//                System.out.println("FeedItem sync completed " + syncsCompleted);
             }
         });
 
@@ -117,7 +111,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
-                System.out.println("Group sync completed " + syncsCompleted);
+//                System.out.println("Group sync completed " + syncsCompleted);
             }
         });
 
@@ -125,7 +119,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
-                System.out.println("Request sync completed " + syncsCompleted);
+//                System.out.println("Request sync completed " + syncsCompleted);
             }
         });
 
@@ -133,7 +127,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
-                System.out.println("Suggestion sync completed " + syncsCompleted);
+//                System.out.println("Suggestion sync completed " + syncsCompleted);
             }
         });
 

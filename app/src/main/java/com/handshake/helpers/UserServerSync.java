@@ -23,10 +23,12 @@ public class UserServerSync {
     private static Executor executor = Executors.newSingleThreadExecutor();
 
     public static void cacheUser(final Context context, final JSONArray contacts, final UserArraySyncCompleted listener) {
-        System.out.println("Start cacheUser");
         executor.execute(new Runnable() {
             @Override
             public void run() {
+                System.out.println("Start cacheUser");
+                System.out.println(contacts.toString());
+
                 Realm realm = Realm.getInstance(context);
 
                 ArrayList<Long> allIDs = new ArrayList<Long>();
@@ -47,8 +49,6 @@ public class UserServerSync {
                         map.put(user.getUserId(), user);
                 }
 
-                System.out.println("Map: " + map.size());
-
                 allIDs.clear();
 
                 // update/create users
@@ -56,6 +56,7 @@ public class UserServerSync {
                     try {
                         User user;
                         if (!map.containsKey(contacts.getJSONObject(i).getLong("id"))) {
+                            System.out.println("ID Added: " + contacts.getJSONObject(i).getLong("id"));
                             realm.beginTransaction();
                             user = realm.createObject(User.class);
                             user.setSyncStatus(Utils.userSynced);
@@ -92,8 +93,8 @@ public class UserServerSync {
                 }
 
                 listener.syncCompletedListener(orderedArray);
+                System.out.println("End cacheUser");
             }
         });
-        System.out.println("End cacheUser");
     }
 }
