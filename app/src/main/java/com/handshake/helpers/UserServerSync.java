@@ -26,7 +26,6 @@ public class UserServerSync {
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                System.out.println("Start cacheUser");
                 System.out.println(contacts.toString());
 
                 Realm realm = Realm.getInstance(context);
@@ -48,7 +47,6 @@ public class UserServerSync {
                     if (allIDs.contains(user.getUserId()))
                         map.put(user.getUserId(), user);
                 }
-
                 allIDs.clear();
 
                 // update/create users
@@ -56,7 +54,6 @@ public class UserServerSync {
                     try {
                         User user;
                         if (!map.containsKey(contacts.getJSONObject(i).getLong("id"))) {
-                            System.out.println("ID Added: " + contacts.getJSONObject(i).getLong("id"));
                             realm.beginTransaction();
                             user = realm.createObject(User.class);
                             user.setSyncStatus(Utils.userSynced);
@@ -65,14 +62,13 @@ public class UserServerSync {
                             user = map.get(contacts.getJSONObject(i).getLong("id"));
                         }
 
-                        map.put(user.getUserId(), user);
-
                         if (user.getSyncStatus() == Utils.userSynced) {
                             realm.beginTransaction();
                             user = User.updateContact(user, realm, contacts.getJSONObject(i));
                             realm.commitTransaction();
                         }
 
+                        map.put(user.getUserId(), user);
                         allIDs.add(user.getUserId());
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -93,7 +89,6 @@ public class UserServerSync {
                 }
 
                 listener.syncCompletedListener(orderedArray);
-                System.out.println("End cacheUser");
             }
         });
     }

@@ -14,7 +14,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 
 import com.astuetz.PagerSlidingTabStrip;
 import com.handshake.helpers.AccountServerSync;
@@ -25,10 +24,8 @@ import com.handshake.helpers.GroupServerSync;
 import com.handshake.helpers.RequestServerSync;
 import com.handshake.helpers.SuggestionsServerSync;
 import com.handshake.helpers.SyncCompleted;
-import com.handshake.models.User;
 
 import io.realm.Realm;
-import io.realm.RealmResults;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -43,8 +40,6 @@ public class MainActivity extends ActionBarActivity {
     private TabAdapter tabAdapter;
     private static ViewPager sPager;
 
-    private Realm realm;
-
     int syncsCompleted = 0;
 
     @Override
@@ -54,8 +49,6 @@ public class MainActivity extends ActionBarActivity {
 
         session = new SessionManager(this);
         session.checkLogin();
-
-        realm = Realm.getInstance(context);
 
         tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
         sPager = (ViewPager) findViewById(R.id.pager);
@@ -137,11 +130,6 @@ public class MainActivity extends ActionBarActivity {
                 while (syncsCompleted != 7) {
                 }
                 System.out.println("All syncs completed!");
-                Realm realm = Realm.getInstance(context);
-                RealmResults<User> contacts = realm.where(User.class).equalTo("isContact", true).findAll();
-                contacts.sort("firstName", true);
-                for (User user : contacts)
-                    Log.d("Sync completed", user.toString());
             }
         }).start();
     }
@@ -174,7 +162,7 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         public Fragment getItem(int position) {
-            return HomeFragment.newInstance(realm);
+            return HomeFragment.newInstance();
         }
     }
 

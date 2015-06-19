@@ -17,11 +17,8 @@ import io.realm.RealmResults;
 
 
 public class HomeFragment extends ListFragment {
-    private static Realm realm;
-
-    public static HomeFragment newInstance(Realm r) {
+    public static HomeFragment newInstance() {
         HomeFragment fragment = new HomeFragment();
-        realm = r;
         return fragment;
     }
 
@@ -45,7 +42,8 @@ public class HomeFragment extends ListFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        MyAdapter myAdapter = new MyAdapter(getActivity(), realm.where(User.class).findAll(), true);
+        Realm realm = Realm.getInstance(getActivity());
+        MyAdapter myAdapter = new MyAdapter(getActivity(), realm.where(User.class).equalTo("isContact", true).findAll(), true);
         setListAdapter(myAdapter);
     }
 
