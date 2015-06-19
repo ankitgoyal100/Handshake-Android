@@ -48,7 +48,6 @@ public class FeedItemServerSync {
                 syncPage(1, new SyncCompleted() {
                     @Override
                     public void syncCompletedListener() {
-                        System.out.println("Sync completed listener");
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
@@ -68,9 +67,7 @@ public class FeedItemServerSync {
 
         RestClientSync.get(context, "/feed", params, new JsonHttpResponseHandler() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                System.out.println(response.toString());
-
+            public void onSuccess(int statusCode, Header[] headers, final JSONObject response) {
                 try {
 
                     final JSONArray feedObjects = response.getJSONArray("feed");
@@ -80,10 +77,12 @@ public class FeedItemServerSync {
                     final JSONArray users = new JSONArray();
                     final JSONArray groups = new JSONArray();
                     for (int i = 0; i < feedObjects.length(); i++) {
-                        if (feedObjects.getJSONObject(i).has("user"))
+                        if (feedObjects.getJSONObject(i).has("user") && !feedObjects.getJSONObject(i).isNull("user")) {
                             users.put(feedObjects.getJSONObject(i).getJSONObject("user"));
-                        if (feedObjects.getJSONObject(i).has("group"))
+                        }
+                        if (feedObjects.getJSONObject(i).has("group") && !feedObjects.getJSONObject(i).isNull("group")) {
                             groups.put(feedObjects.getJSONObject(i).getJSONObject("group"));
+                        }
                     }
 
                     UserServerSync.cacheUser(context, users, new UserArraySyncCompleted() {
@@ -163,10 +162,10 @@ public class FeedItemServerSync {
 
                                                     realm.beginTransaction();
                                                     feedItem = FeedItem.updateFeedItem(feedItem, realm, feedObjects.getJSONObject(i));
-                                                    if (feedObjects.getJSONObject(i).has("user"))
+                                                    if (feedObjects.getJSONObject(i).has("user") && !feedObjects.getJSONObject(i).isNull("user"))
                                                         feedItem.setUser(usersMap.get(
                                                                 feedObjects.getJSONObject(i).getJSONObject("user").getLong("id")));
-                                                    if (feedObjects.getJSONObject(i).has("group"))
+                                                    if (feedObjects.getJSONObject(i).has("group") && !feedObjects.getJSONObject(i).isNull("group"))
                                                         feedItem.setUser(usersMap.get(
                                                                 feedObjects.getJSONObject(i).getJSONObject("group").getLong("id")));
                                                     realm.commitTransaction();
@@ -177,10 +176,10 @@ public class FeedItemServerSync {
 
                                             if (page == 1) {
                                                 RealmResults<FeedItem> results = realm.where(FeedItem.class).findAll();
-                                                for (FeedItem feedItem : results) {
-                                                    if (!feedIds.contains(feedItem.getFeedId())) {
+                                                for (int i = 0; i < results.size(); i++) {
+                                                    if (!feedIds.contains(results.get(i).getFeedId())) {
                                                         realm.beginTransaction();
-                                                        feedItem.removeFromRealm();
+                                                        results.get(i).removeFromRealm();
                                                         realm.commitTransaction();
                                                     }
                                                 }

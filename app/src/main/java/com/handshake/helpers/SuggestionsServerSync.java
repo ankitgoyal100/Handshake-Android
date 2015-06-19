@@ -72,9 +72,9 @@ public class SuggestionsServerSync {
                                     Realm realm = Realm.getInstance(context);
                                     RealmResults<User> userRealmResults = realm.where(User.class).findAll();
 
-                                    for(User user : userRealmResults) {
-                                        if(userIds.contains(user.getUserId())) {
-                                            if(user.getSuggestion() != null) continue;
+                                    for (User user : userRealmResults) {
+                                        if (userIds.contains(user.getUserId())) {
+                                            if (user.getSuggestion() != null) continue;
 
                                             realm.beginTransaction();
                                             Suggestion suggestion = realm.createObject(Suggestion.class);
@@ -84,13 +84,20 @@ public class SuggestionsServerSync {
                                     }
 
                                     RealmResults<Suggestion> suggestionRealmResults = realm.where(Suggestion.class).findAll();
-                                    for(Suggestion suggestion : suggestionRealmResults) {
-                                        if(!userIds.contains(suggestion.getUser().getUserId())) {
+                                    for (Suggestion suggestion : suggestionRealmResults) {
+                                        if (!userIds.contains(suggestion.getUser().getUserId())) {
                                             realm.beginTransaction();
                                             suggestion.removeFromRealm();
                                             realm.commitTransaction();
                                         }
                                     }
+
+                                    handler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            listener.syncCompletedListener();
+                                        }
+                                    });
                                 }
                             });
                         }

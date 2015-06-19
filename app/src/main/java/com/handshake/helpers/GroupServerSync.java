@@ -58,8 +58,6 @@ public class GroupServerSync {
         RestClientSync.get(context, "/groups", new RequestParams(), new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                System.out.println(response.toString());
-
                 try {
                     JSONArray groups = response.getJSONArray("groups");
 
@@ -191,8 +189,6 @@ public class GroupServerSync {
                         map.put(group.getGroupId(), group);
                 }
 
-                System.out.println("Map: " + map.size());
-
                 allIDs.clear();
 
                 // update/create users
@@ -240,7 +236,7 @@ public class GroupServerSync {
 
     public static void loadGroupMembers(Group group) {
         final long groupId = group.getGroupId();
-        RestClientAsync.get(context, "/groups/" + groupId +"/members", new RequestParams(), new JsonHttpResponseHandler() {
+        RestClientSync.get(context, "/groups/" + groupId +"/members", new RequestParams(), new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {

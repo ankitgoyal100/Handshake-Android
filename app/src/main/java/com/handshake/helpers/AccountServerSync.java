@@ -48,8 +48,6 @@ public class AccountServerSync {
 
         if (account[0] == null) return;
 
-        System.out.println("Account: " + account[0].toString());
-
         if (account[0].getSyncStatus() == Utils.AccountSynced) {
             RequestParams params = Account.accountToParams(account[0]);
             if (account[0].getPicture().isEmpty() && account[0].getPictureData() != null) {

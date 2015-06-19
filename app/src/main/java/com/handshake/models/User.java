@@ -259,21 +259,22 @@ public class User extends RealmObject {
             user.setContacts(json.getInt("contacts"));
             user.setMutual(json.getInt("mutual"));
 
-            System.out.println(json);
-            JSONArray cards = json.getJSONArray("cards");
-            for (int i = 0; i < cards.length(); i++) {
-                RealmResults<Card> result = realm.where(Card.class).equalTo("cardId", cards.getJSONObject(i).getInt("id")).findAll();
-                if (result.size() > 0) {
-                    Card card = result.get(0);
-                    card = Card.updateCard(card, realm, cards.getJSONObject(i));
-                    card.setUser(user);
-                } else {
-                    Card card = realm.createObject(Card.class);
-                    card = Card.updateCard(card, realm, cards.getJSONObject(i));
+            if(json.has("cards")) {
+                JSONArray cards = json.getJSONArray("cards");
+                for (int i = 0; i < cards.length(); i++) {
+                    RealmResults<Card> result = realm.where(Card.class).equalTo("cardId", cards.getJSONObject(i).getInt("id")).findAll();
+                    if (result.size() > 0) {
+                        Card card = result.get(0);
+                        card = Card.updateCard(card, realm, cards.getJSONObject(i));
+                        card.setUser(user);
+                    } else {
+                        Card card = realm.createObject(Card.class);
+                        card = Card.updateCard(card, realm, cards.getJSONObject(i));
 
-                    RealmList<Card> userCards = user.getCards();
-                    userCards.add(card);
-                    user.setCards(userCards);
+                        RealmList<Card> userCards = user.getCards();
+                        userCards.add(card);
+                        user.setCards(userCards);
+                    }
                 }
             }
         } catch (JSONException e) {

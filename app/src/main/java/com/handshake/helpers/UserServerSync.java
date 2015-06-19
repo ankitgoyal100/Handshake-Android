@@ -23,6 +23,7 @@ public class UserServerSync {
     private static Executor executor = Executors.newSingleThreadExecutor();
 
     public static void cacheUser(final Context context, final JSONArray contacts, final UserArraySyncCompleted listener) {
+        System.out.println("Start cacheUser");
         executor.execute(new Runnable() {
             @Override
             public void run() {
@@ -86,12 +87,13 @@ public class UserServerSync {
                 }
 
                 ArrayList<User> orderedArray = new ArrayList<User>();
-                for(Long id : allIDs) {
+                for (Long id : allIDs) {
                     orderedArray.add(map.get(id));
                 }
 
                 listener.syncCompletedListener(orderedArray);
             }
         });
+        System.out.println("End cacheUser");
     }
 }

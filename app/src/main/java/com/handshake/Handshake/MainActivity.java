@@ -14,11 +14,18 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 
 import com.astuetz.PagerSlidingTabStrip;
+import com.handshake.helpers.AccountServerSync;
+import com.handshake.helpers.CardServerSync;
 import com.handshake.helpers.ContactServerSync;
+import com.handshake.helpers.FeedItemServerSync;
+import com.handshake.helpers.GroupServerSync;
+import com.handshake.helpers.RequestServerSync;
+import com.handshake.helpers.SuggestionsServerSync;
 import com.handshake.helpers.SyncCompleted;
-import com.handshake.models.Card;
+import com.handshake.models.User;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -37,6 +44,8 @@ public class MainActivity extends ActionBarActivity {
     private static ViewPager sPager;
 
     private Realm realm;
+
+    int syncsCompleted = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,21 +71,85 @@ public class MainActivity extends ActionBarActivity {
 
         changeColor(getResources().getColor(R.color.orange));
 
-        performSync();
+        performSyncs();
     }
 
-    private void performSync() {
+    private void performSyncs() {
         ContactServerSync.performSync(context, new SyncCompleted() {
             @Override
             public void syncCompletedListener() {
-                Realm realm = Realm.getInstance(context);
-                RealmResults<Card> cards = realm.where(Card.class).findAll();
-
-                for (Card c : cards)
-                    System.out.println(cards.size() + " " + c.toString());
+//                Realm realm = Realm.getInstance(context);
+//                RealmResults<Card> cards = realm.where(Card.class).findAll();
+//
+//                for (Card c : cards)
+//                    System.out.println(cards.size() + " " + c.toString());
                 // TODO: Callback
+                syncsCompleted++;
+                System.out.println("Contact sync completed " + syncsCompleted);
             }
         });
+
+        AccountServerSync.performSync(context, new SyncCompleted() {
+            @Override
+            public void syncCompletedListener() {
+                syncsCompleted++;
+                System.out.println("Account sync completed " + syncsCompleted);
+            }
+        });
+
+        CardServerSync.performSync(context, new SyncCompleted() {
+            @Override
+            public void syncCompletedListener() {
+                syncsCompleted++;
+                System.out.println("Card sync completed " + syncsCompleted);
+            }
+        });
+
+        FeedItemServerSync.performSync(context, new SyncCompleted() {
+            @Override
+            public void syncCompletedListener() {
+                syncsCompleted++;
+                System.out.println("FeedItem sync completed " + syncsCompleted);
+            }
+        });
+
+        GroupServerSync.performSync(context, new SyncCompleted() {
+            @Override
+            public void syncCompletedListener() {
+                syncsCompleted++;
+                System.out.println("Group sync completed " + syncsCompleted);
+            }
+        });
+
+        RequestServerSync.performSync(context, new SyncCompleted() {
+            @Override
+            public void syncCompletedListener() {
+                syncsCompleted++;
+                System.out.println("Request sync completed " + syncsCompleted);
+            }
+        });
+
+        SuggestionsServerSync.performSync(context, new SyncCompleted() {
+            @Override
+            public void syncCompletedListener() {
+                syncsCompleted++;
+                System.out.println("Suggestion sync completed " + syncsCompleted);
+            }
+        });
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (syncsCompleted != 7) {
+                }
+                System.out.println("All syncs completed!");
+                Realm realm = Realm.getInstance(context);
+                RealmResults<User> contacts = realm.where(User.class).equalTo("isContact", true).findAll();
+                contacts.sort("firstName", true);
+                for (User user : contacts)
+                    Log.d("Sync completed", user.toString());
+            }
+        }).start();
     }
 
     public class TabAdapter extends FragmentPagerAdapter implements PagerSlidingTabStrip.IconTabProvider {

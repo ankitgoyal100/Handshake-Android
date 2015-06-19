@@ -49,8 +49,6 @@ public class RequestServerSync {
         RestClientSync.get(context, "/requests", new RequestParams(), new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                System.out.println(response.toString());
-
                 try {
                     final JSONArray requestsJSONArray = response.getJSONArray("requests");
                     UserServerSync.cacheUser(context, requestsJSONArray, new UserArraySyncCompleted() {
@@ -178,7 +176,6 @@ public class RequestServerSync {
                 FeedItemServerSync.performSync(context, new SyncCompleted() {
                     @Override
                     public void syncCompletedListener() {
-                        System.out.println("Request server feed item sync completed");
                     }
                 });
             }
