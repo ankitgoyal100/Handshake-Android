@@ -1,13 +1,19 @@
 package com.handshake.models;
 
+import com.handshake.Handshake.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.Date;
 
+import io.realm.Realm;
 import io.realm.RealmObject;
 
 /**
  * Created by ankitgoyal on 6/13/15.
  */
-public class FeedItem extends RealmObject{
+public class FeedItem extends RealmObject {
     private Date createdAt;
     private long feedId;
     private String itemType;
@@ -63,4 +69,18 @@ public class FeedItem extends RealmObject{
     public void setUser(User user) {
         this.user = user;
     }
+
+    public static FeedItem updateFeedItem(FeedItem feedItem, Realm realm, JSONObject json) {
+        try {
+            feedItem.setFeedId(json.getLong("id"));
+            feedItem.setCreatedAt(Utils.formatDate(json.getString("created_at")));
+            feedItem.setUpdatedAt(Utils.formatDate(json.getString("updated_at")));
+            feedItem.setItemType(json.getString("item_type"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return feedItem;
+    }
+
 }

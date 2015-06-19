@@ -22,10 +22,12 @@ import io.realm.RealmResults;
 public class UserServerSync {
     private static Executor executor = Executors.newSingleThreadExecutor();
 
-    public static void createUser(final Context context, final JSONArray contacts, final UserSyncCompleted listener) {
+    public static void cacheUser(final Context context, final JSONArray contacts, final UserArraySyncCompleted listener) {
         executor.execute(new Runnable() {
             @Override
             public void run() {
+                System.out.println(contacts.toString());
+
                 Realm realm = Realm.getInstance(context);
 
                 ArrayList<Long> allIDs = new ArrayList<Long>();
@@ -45,9 +47,6 @@ public class UserServerSync {
                     if (allIDs.contains(user.getUserId()))
                         map.put(user.getUserId(), user);
                 }
-
-                System.out.println("Map: " + map.size());
-
                 allIDs.clear();
 
                 // update/create users
@@ -63,14 +62,13 @@ public class UserServerSync {
                             user = map.get(contacts.getJSONObject(i).getLong("id"));
                         }
 
-                        map.put(user.getUserId(), user);
-
                         if (user.getSyncStatus() == Utils.userSynced) {
                             realm.beginTransaction();
                             user = User.updateContact(user, realm, contacts.getJSONObject(i));
                             realm.commitTransaction();
                         }
 
+                        map.put(user.getUserId(), user);
                         allIDs.add(user.getUserId());
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -86,7 +84,7 @@ public class UserServerSync {
                 }
 
                 ArrayList<User> orderedArray = new ArrayList<User>();
-                for(Long id : allIDs) {
+                for (Long id : allIDs) {
                     orderedArray.add(map.get(id));
                 }
 

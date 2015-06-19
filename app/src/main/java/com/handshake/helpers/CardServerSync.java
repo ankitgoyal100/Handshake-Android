@@ -33,8 +33,6 @@ public class CardServerSync {
     private static Context context;
     private static SyncCompleted listener;
 
-    private static int counter = 0;
-
     public static void performSync(final Context c, final SyncCompleted l) {
 
         new Thread(new Runnable() {
@@ -53,16 +51,10 @@ public class CardServerSync {
         RestClientSync.get(context, "/cards", new RequestParams(), new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                System.out.println(response.toString());
-
                 final Realm realm = Realm.getInstance(context);
                 Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
 
-                System.out.println(account == null);
-
                 if (account == null) return;
-
-                System.out.println("Account: " + account.toString());
 
                 final HashMap<Long, JSONObject> map = new HashMap<Long, JSONObject>();
                 try {
@@ -103,8 +95,6 @@ public class CardServerSync {
                     currCards.add(card);
                     account.setCards(currCards);
                     realm.commitTransaction();
-
-                    System.out.println("Card added: " + card.toString());
                 }
 
                 RealmResults<Card> cards = realm.where(Card.class).notEqualTo("syncStatus", Utils.CardSynced)

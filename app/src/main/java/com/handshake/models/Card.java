@@ -127,7 +127,6 @@ public class Card extends RealmObject {
 
             RealmList<Phone> cardPhones = new RealmList<>();
             JSONArray phones = json.getJSONArray("phones");
-            System.out.println(phones.toString());
             for (int i = 0; i < phones.length(); i++) {
                 Phone phone = realm.createObject(Phone.class);
                 phone.setNumber(phones.getJSONObject(i).getString("number"));

@@ -53,18 +53,17 @@ public class ContactServerSync {
         //Get most recent contactUpdated date Mon Jun 15 21:04:57 PDT 2015
         String date = "";
         RealmResults<User> result = realm.where(User.class).equalTo("isContact", true).findAll();
-        result.sort("updatedAt", RealmResults.SORT_ORDER_DESCENDING);
+        result.sort("contactUpdated", RealmResults.SORT_ORDER_DESCENDING);
 
-        if (result.size() > 0) date = Utils.toGmtString(result.first().getUpdatedAt());
+        if (result.size() > 0) date = Utils.toGmtString(result.first().getContactUpdated());
 
         syncPage(1, date, new SyncCompleted() {
             @Override
             public void syncCompletedListener() {
-                System.out.println("Sync completed listener");
+                Realm realm = Realm.getInstance(context);
                 RealmResults<User> toDelete = realm.where(User.class).equalTo("syncStatus", Utils.userDeleted).findAll();
                 if (toDelete.size() == 0) listener.syncCompletedListener();
                 for (final User user : toDelete) {
-                    System.out.println("Deleting user: " + user);
                     counter++;
                     RestClientAsync.delete(context, "/users/" + user.getUserId(), new RequestParams(), new JsonHttpResponseHandler() {
                         @Override
@@ -84,7 +83,7 @@ public class ContactServerSync {
                     });
                 }
 
-                //TODO: Contact Sync
+                //TODO: Contact Sync to local address book
             }
         });
     }
@@ -97,8 +96,6 @@ public class ContactServerSync {
         RestClientSync.get(context, "/contacts", params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                System.out.println(response.toString());
-
                 try {
 
                     JSONArray contacts = response.getJSONArray("contacts");
@@ -108,7 +105,7 @@ public class ContactServerSync {
                         map.put(contacts.getJSONObject(i).getLong("id"), contacts.getJSONObject(i));
                     }
 
-                    UserServerSync.createUser(context, contacts, new UserSyncCompleted() {
+                    UserServerSync.cacheUser(context, contacts, new UserArraySyncCompleted() {
                         @Override
                         public void syncCompletedListener(ArrayList<User> users) {
                             Realm realm = Realm.getInstance(context);
@@ -133,7 +130,12 @@ public class ContactServerSync {
                     });
 
                     if (contacts.length() < 200) {
-                        listener.syncCompletedListener();
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                listener.syncCompletedListener();
+                            }
+                        });
                         return;
                     }
 

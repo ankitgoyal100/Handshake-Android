@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
-import com.handshake.models.Card;
+import com.handshake.models.User;
 
 import io.realm.Realm;
 import io.realm.RealmBaseAdapter;
@@ -17,11 +17,8 @@ import io.realm.RealmResults;
 
 
 public class HomeFragment extends ListFragment {
-    private static Realm realm;
-
-    public static HomeFragment newInstance(Realm r) {
+    public static HomeFragment newInstance() {
         HomeFragment fragment = new HomeFragment();
-        realm = r;
         return fragment;
     }
 
@@ -45,20 +42,21 @@ public class HomeFragment extends ListFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        MyAdapter myAdapter = new MyAdapter(getActivity(), realm.where(Card.class).findAll(), true);
+        Realm realm = Realm.getInstance(getActivity());
+        MyAdapter myAdapter = new MyAdapter(getActivity(), realm.where(User.class).equalTo("isContact", true).findAll(), true);
         setListAdapter(myAdapter);
     }
 
 }
 
-class MyAdapter extends RealmBaseAdapter<Card> implements ListAdapter {
+class MyAdapter extends RealmBaseAdapter<User> implements ListAdapter {
 
     private static class ViewHolder {
         TextView cardName;
     }
 
     public MyAdapter(Context context,
-                     RealmResults<Card> realmResults,
+                     RealmResults<User> realmResults,
                      boolean automaticUpdate) {
         super(context, realmResults, automaticUpdate);
     }
@@ -77,12 +75,12 @@ class MyAdapter extends RealmBaseAdapter<Card> implements ListAdapter {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        Card item = realmResults.get(position);
-        viewHolder.cardName.setText("Phone size: " + item.getPhones().size());
+        User item = realmResults.get(position);
+        viewHolder.cardName.setText(item.getFirstName() + " " + item.getLastName());
         return convertView;
     }
 
-    public RealmResults<Card> getRealmResults() {
+    public RealmResults<User> getRealmResults() {
         return realmResults;
     }
 }
