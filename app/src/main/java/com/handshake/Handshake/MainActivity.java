@@ -2,6 +2,7 @@ package com.handshake.Handshake;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
@@ -14,6 +15,9 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Button;
 
 import com.astuetz.PagerSlidingTabStrip;
 import com.handshake.helpers.AccountServerSync;
@@ -24,8 +28,6 @@ import com.handshake.helpers.GroupServerSync;
 import com.handshake.helpers.RequestServerSync;
 import com.handshake.helpers.SuggestionsServerSync;
 import com.handshake.helpers.SyncCompleted;
-
-import io.realm.Realm;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -49,6 +51,23 @@ public class MainActivity extends ActionBarActivity {
 
         session = new SessionManager(this);
         session.checkLogin();
+
+        this.getSupportActionBar().setDisplayShowCustomEnabled(true);
+        this.getSupportActionBar().setDisplayShowTitleEnabled(false);
+        this.getSupportActionBar().setDisplayShowHomeEnabled(false);
+
+        LayoutInflater inflator = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View v = inflator.inflate(R.layout.actionbar, null);
+        this.getSupportActionBar().setCustomView(v);
+
+        Button contactButton = (Button) v.findViewById(R.id.action_contacts);
+        contactButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, ContactActivity.class);
+                startActivity(intent);
+            }
+        });
 
         tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
         sPager = (ViewPager) findViewById(R.id.pager);
@@ -134,6 +153,31 @@ public class MainActivity extends ActionBarActivity {
         }).start();
     }
 
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        MenuInflater inflater = getMenuInflater();
+//        inflater.inflate(R.menu.menu_main, menu);
+//
+//        MenuItem searchViewItem = menu.findItem(R.id.menu_search);
+//        SearchView searchView = (SearchView) searchViewItem.getActionView();
+////        searchView.setIconifiedByDefault(false);
+//        searchView.setQueryHint("Search...");
+//        searchView.onActionViewExpanded();
+//
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle item selection
+//        switch (item.getItemId()) {
+//            case R.id.menu_search:
+//                return true;
+//            default:
+//                return super.onOptionsItemSelected(item);
+//        }
+//    }
+
     public class TabAdapter extends FragmentPagerAdapter implements PagerSlidingTabStrip.IconTabProvider {
 
         private final int[] ICONS = {
@@ -162,7 +206,14 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         public Fragment getItem(int position) {
-            return HomeFragment.newInstance();
+            if (position == 0)
+                return FeedFragment.newInstance();
+            else if (position == 1)
+                return RequestFragment.newInstance();
+            else if (position == 2)
+                return RequestFragment.newInstance();
+            else
+                return RequestFragment.newInstance();
         }
     }
 

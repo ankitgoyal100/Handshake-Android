@@ -8,4 +8,8 @@
         <item name="com.handshake.Handshake:font">assets/HelveticaNeue.ttf</item>
     </style>
 
+    <style name="listViewItem">
+        <item name="android:layout_height">@dimen/lvItemHeight</item>
+    </style>
+
 </resources>

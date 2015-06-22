@@ -25,6 +25,7 @@ dependencies {
     compile 'com.loopj.android:android-async-http:1.4.5'
     compile 'com.astuetz:pagerslidingtabstrip:1.0.1'
     compile 'io.realm:realm-android:0.80.3'
+    compile 'com.squareup.picasso:picasso:2.5.2'
     compile files('libs/httpclient-4.3.6.jar')
     compile files('libs/httpcore-4.3.3.jar')
     compile files('libs/httpmime-4.3.6.jar')
