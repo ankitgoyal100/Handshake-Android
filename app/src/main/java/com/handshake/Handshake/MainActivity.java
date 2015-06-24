@@ -186,7 +186,7 @@ public class MainActivity extends ActionBarActivity {
             else if (position == 1)
                 return RequestFragment.newInstance();
             else if (position == 2)
-                return RequestFragment.newInstance();
+                return GroupFragment.newInstance();
             else
                 return RequestFragment.newInstance();
         }

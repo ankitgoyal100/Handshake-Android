@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical">
+
+    <com.handshake.Handshake.TextViewCustomFont
+        android:id="@+id/group_code"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_margin="10dp"
+        android:background="@color/light_gray"
+        android:gravity="center"
+        android:textColor="@color/dark_gray" />
+
+    <com.handshake.Handshake.TextViewCustomFont
+        android:id="@+id/group_name"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="#040404"
+        android:textSize="18dip" />
+
+    <com.handshake.Handshake.TextViewCustomFont
+        android:id="@+id/num_members"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/name"
+        android:layout_marginTop="1dip"
+        android:layout_toRightOf="@+id/thumbnail"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:paddingBottom="10dp"
+        android:textColor="@color/dark_gray"
+        android:textSize="14dip" />
+
+</LinearLayout>

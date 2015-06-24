@@ -7,4 +7,5 @@
     <color name="orange">#ef9b55</color>
     <color name="divider">#ffc0c0c0</color>
     <color name="dark_gray">#ff979797</color>
+    <color name="light_gray">#ffe0e0e0</color>
 </resources>
