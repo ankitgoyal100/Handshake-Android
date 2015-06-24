@@ -26,8 +26,6 @@ public class UserServerSync {
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                System.out.println(contacts.toString());
-
                 Realm realm = Realm.getInstance(context);
 
                 ArrayList<Long> allIDs = new ArrayList<Long>();
@@ -42,7 +40,7 @@ public class UserServerSync {
                 final HashMap<Long, User> map = new HashMap<Long, User>();
 
                 // map ids to User objects
-                RealmResults<User> users = realm.allObjects(User.class);
+                RealmResults<User> users = realm.where(User.class).findAll();
                 for (User user : users) {
                     if (allIDs.contains(user.getUserId()))
                         map.put(user.getUserId(), user);

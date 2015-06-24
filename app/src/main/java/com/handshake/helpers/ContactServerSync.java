@@ -17,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import io.realm.Realm;
@@ -62,6 +63,8 @@ public class ContactServerSync {
             public void syncCompletedListener() {
                 Realm realm = Realm.getInstance(context);
                 RealmResults<User> toDelete = realm.where(User.class).equalTo("syncStatus", Utils.userDeleted).findAll();
+                for (User u : toDelete)
+                    System.out.println("To delete: " + u.toString());
                 if (toDelete.size() == 0) listener.syncCompletedListener();
                 for (final User user : toDelete) {
                     counter++;
@@ -148,8 +151,24 @@ public class ContactServerSync {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                if (errorResponse == null) return;
                 if (statusCode == 401) session.logoutUser();
             }
         });
+    }
+
+    public static void deleteContact(User user) {
+        if (!user.isContact()) return;
+
+        Realm realm = Realm.getInstance(context);
+        realm.beginTransaction();
+        user.setIsContact(false);
+        user.setContactUpdated(new Date(0));
+        user.setSyncStatus(Utils.userDeleted);
+
+        for (int i = 0; i < user.getFeedItems().size(); i++) {
+            user.getFeedItems().get(i).removeFromRealm();
+        }
+        realm.commitTransaction();
     }
 }

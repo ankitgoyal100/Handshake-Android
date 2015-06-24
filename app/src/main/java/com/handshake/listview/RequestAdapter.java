@@ -5,10 +5,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.handshake.Handshake.R;
+import com.handshake.Handshake.TextViewCustomFont;
 import com.handshake.helpers.RequestServerSync;
 import com.handshake.helpers.UserSyncCompleted;
 import com.handshake.models.User;
@@ -34,8 +34,8 @@ public class RequestAdapter extends RealmBaseAdapter<User> implements ListAdapte
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.request_list_item, parent, false);
             viewHolder = new ViewHolder();
-            viewHolder.personName = (TextView) convertView.findViewById(R.id.name);
-            viewHolder.description = (TextView) convertView.findViewById(R.id.description);
+            viewHolder.personName = (TextViewCustomFont) convertView.findViewById(R.id.name);
+            viewHolder.description = (TextViewCustomFont) convertView.findViewById(R.id.description);
             viewHolder.image = (ImageView) convertView.findViewById(R.id.image);
             viewHolder.acceptButton = (ImageView) convertView.findViewById(R.id.accept_image);
             viewHolder.declineButton = (ImageView) convertView.findViewById(R.id.decline_image);
@@ -47,16 +47,16 @@ public class RequestAdapter extends RealmBaseAdapter<User> implements ListAdapte
         final User item = realmResults.get(position);
 
         viewHolder.personName.setText(item.getFirstName() + " " + item.getLastName());
-        if (!item.getThumb().isEmpty())
-            Picasso.with(context).load(item.getThumb()).into(viewHolder.image);
+        if (!item.getThumb().isEmpty() && !item.getThumb().equals("null"))
+            Picasso.with(context).load(item.getThumb()).transform(new CircleTransform()).into(viewHolder.image);
         else
-            Picasso.with(context).load(R.drawable.default_profile).into(viewHolder.image);
+            Picasso.with(context).load(R.drawable.default_profile).transform(new CircleTransform()).into(viewHolder.image);
 
         viewHolder.acceptButton.setVisibility(View.GONE);
         viewHolder.declineButton.setVisibility(View.GONE);
-        if(item.isContact())
+        if (item.isContact())
             viewHolder.description.setText("Request accepted");
-        else if(!item.isRequestReceived())
+        else if (!item.isRequestReceived())
             viewHolder.description.setText("Request declined");
         else {
             if (item.getMutual() == 1)
@@ -74,7 +74,7 @@ public class RequestAdapter extends RealmBaseAdapter<User> implements ListAdapte
                 viewHolder.acceptButton.setVisibility(View.GONE);
                 viewHolder.declineButton.setVisibility(View.GONE);
 
-                viewHolder.description.setText("Request declined");
+                Toast.makeText(context, "Request accepted", Toast.LENGTH_SHORT).show();
 
                 RequestServerSync.acceptRequest(item, new UserSyncCompleted() {
                     @Override
@@ -96,7 +96,7 @@ public class RequestAdapter extends RealmBaseAdapter<User> implements ListAdapte
                 viewHolder.acceptButton.setVisibility(View.GONE);
                 viewHolder.declineButton.setVisibility(View.GONE);
 
-                viewHolder.description.setText("Request declined");
+                Toast.makeText(context, "Request declined", Toast.LENGTH_SHORT).show();
 
                 RequestServerSync.declineRequest(item, new UserSyncCompleted() {
                     @Override
@@ -121,8 +121,8 @@ public class RequestAdapter extends RealmBaseAdapter<User> implements ListAdapte
 
     class ViewHolder {
         ImageView image;
-        TextView personName;
-        TextView description;
+        TextViewCustomFont personName;
+        TextViewCustomFont description;
         ImageView acceptButton;
         ImageView declineButton;
     }

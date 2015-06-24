@@ -4,14 +4,18 @@ package com.handshake.listview;
  * Created by ankitgoyal on 6/19/15.
  */
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
-import android.widget.TextView;
 
 import com.handshake.Handshake.R;
+import com.handshake.Handshake.TextViewCustomFont;
+import com.handshake.helpers.ContactServerSync;
 import com.handshake.models.User;
 import com.squareup.picasso.Picasso;
 
@@ -48,27 +52,49 @@ public class ContactAdapter extends RealmBaseAdapter<User> implements ListAdapte
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.contact_list_item, parent, false);
             viewHolder = new ViewHolder();
-            viewHolder.personName = (TextView) convertView.findViewById(R.id.name);
-            viewHolder.description = (TextView) convertView.findViewById(R.id.description);
+            viewHolder.personName = (TextViewCustomFont) convertView.findViewById(R.id.name);
+            viewHolder.description = (TextViewCustomFont) convertView.findViewById(R.id.description);
             viewHolder.image = (ImageView) convertView.findViewById(R.id.image);
+            viewHolder.contactsButtonLayout = (LinearLayout) convertView.findViewById(R.id.contacts_button);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        User item = realmResults.get(position);
-
+        final User item = realmResults.get(position);
+        viewHolder.image.setVisibility(View.VISIBLE);
         viewHolder.personName.setText(item.getFirstName() + " " + item.getLastName());
 
-        if (!item.getThumb().isEmpty())
-            Picasso.with(context).load(item.getThumb()).into(viewHolder.image);
+        if (!item.getThumb().isEmpty() && !item.getThumb().equals("null"))
+            Picasso.with(context).load(item.getThumb()).transform(new CircleTransform()).into(viewHolder.image);
         else
-
+            Picasso.with(context).load(R.drawable.default_profile).transform(new CircleTransform()).into(viewHolder.image);
 
         if (item.getMutual() == 1)
             viewHolder.description.setText(item.getMutual() + " mutual contact");
         else
             viewHolder.description.setText(item.getMutual() + " mutual contacts");
+
+        viewHolder.contactsButtonLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new AlertDialog.Builder(context)
+                        .setTitle("Delete contact")
+                        .setMessage("Are you sure you want to delete this contact?")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                ContactServerSync.deleteContact(item);
+                                dialog.cancel();
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        })
+                        .show();
+            }
+        });
 
         return convertView;
     }
@@ -79,8 +105,9 @@ public class ContactAdapter extends RealmBaseAdapter<User> implements ListAdapte
 
     class ViewHolder {
         ImageView image;
-        TextView personName;
-        TextView description;
+        TextViewCustomFont personName;
+        TextViewCustomFont description;
+        LinearLayout contactsButtonLayout;
     }
 }
 

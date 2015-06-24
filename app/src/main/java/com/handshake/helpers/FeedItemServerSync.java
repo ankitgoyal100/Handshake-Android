@@ -211,6 +211,7 @@ public class FeedItemServerSync {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                if (errorResponse == null) return;
                 if (statusCode == 401) session.logoutUser();
             }
         });

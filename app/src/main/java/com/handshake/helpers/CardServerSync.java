@@ -91,9 +91,13 @@ public class CardServerSync {
                     card.setSyncStatus(Utils.CardSynced);
                     card.setAccount(account);
 
-                    RealmList<Card> currCards = account.getCards();
-                    currCards.add(card);
-                    account.setCards(currCards);
+                    System.out.println("New card: " + card.toString());
+
+                    account.getCards().add(realm.copyToRealm(card));
+
+                    for (int i = 0; i < account.getCards().size(); i++)
+                        System.out.println("Curr cards after addition: " + account.getCards().get(i).toString());
+
                     realm.commitTransaction();
                 }
 
@@ -179,6 +183,7 @@ public class CardServerSync {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                if (errorResponse == null) return;
                 if (statusCode == 401) session.logoutUser();
             }
         });

@@ -6,6 +6,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
+import com.handshake.models.Account;
+import com.handshake.models.Card;
+import com.handshake.models.FeedItem;
+import com.handshake.models.Suggestion;
+
+import io.realm.Realm;
+
 public class SessionManager {
     // Shared Preferences
     static SharedPreferences pref;
@@ -41,6 +48,14 @@ public class SessionManager {
      * Create login session
      */
     public void createLoginSession(long id, String token, String email) {
+        Realm realm = Realm.getInstance(sContext);
+        realm.beginTransaction();
+        realm.clear(Account.class);
+        realm.clear(Card.class);
+        realm.clear(FeedItem.class);
+        realm.clear(Suggestion.class);
+        realm.commitTransaction();
+        realm.close();
         // Storing login value as TRUE
         editor.putBoolean(sIsLogin, true);
 

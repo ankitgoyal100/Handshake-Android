@@ -158,7 +158,7 @@ public class GroupServerSync {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                System.out.println(errorResponse.toString());
+                if (errorResponse == null) return;
                 if (statusCode == 401) session.logoutUser();
                 else performSyncHelper();
             }
@@ -204,7 +204,7 @@ public class GroupServerSync {
                             group = map.get(jsonArray.getJSONObject(i).getLong("id"));
                         }
 
-                        if(group.getSyncStatus() == Utils.GroupSynced) {
+                        if (group.getSyncStatus() == Utils.GroupSynced) {
                             realm.beginTransaction();
                             group = Group.updateGroup(group, realm, jsonArray.getJSONObject(i));
                             realm.commitTransaction();
@@ -236,7 +236,7 @@ public class GroupServerSync {
 
     public static void loadGroupMembers(Group group) {
         final long groupId = group.getGroupId();
-        RestClientSync.get(context, "/groups/" + groupId +"/members", new RequestParams(), new JsonHttpResponseHandler() {
+        RestClientSync.get(context, "/groups/" + groupId + "/members", new RequestParams(), new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
@@ -247,14 +247,14 @@ public class GroupServerSync {
                             Realm realm = Realm.getInstance(context);
                             Group group = realm.where(Group.class).equalTo("groupId", groupId).findFirst();
 
-                            if(group == null) return;
+                            if (group == null) return;
 
                             realm.beginTransaction();
                             group.setMembers(new RealmList<GroupMember>());
                             realm.commitTransaction();
 
                             ArrayList<Long> allIDs = new ArrayList<Long>();
-                            for(int i = 0; i < membersJSON.length(); i++) {
+                            for (int i = 0; i < membersJSON.length(); i++) {
                                 try {
                                     allIDs.add(membersJSON.getJSONObject(i).getLong("id"));
                                 } catch (JSONException e) {
@@ -271,11 +271,11 @@ public class GroupServerSync {
                                     map.put(user.getUserId(), user);
                             }
 
-                            for(int i = 0; i < membersJSON.length(); i++) {
+                            for (int i = 0; i < membersJSON.length(); i++) {
                                 try {
                                     User user = map.get(membersJSON.getJSONObject(i).getLong("id"));
 
-                                    if(user == null) return;
+                                    if (user == null) return;
 
                                     realm.beginTransaction();
                                     GroupMember member = realm.createObject(GroupMember.class);
@@ -298,7 +298,7 @@ public class GroupServerSync {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                System.out.println(errorResponse.toString());
+                if (errorResponse == null) return;
                 if (statusCode == 401) session.logoutUser();
             }
         });

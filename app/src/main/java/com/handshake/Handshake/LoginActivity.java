@@ -45,7 +45,7 @@ public class LoginActivity extends ActionBarActivity {
 
         final EditText email = (EditText) findViewById(R.id.email);
         final EditText password = (EditText) findViewById(R.id.password);
-        Button login = (Button) findViewById(R.id.login);
+        final Button login = (Button) findViewById(R.id.login);
 
         login.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,20 +60,24 @@ public class LoginActivity extends ActionBarActivity {
                 params.add("email", email.getText().toString());
                 params.add("password", password.getText().toString());
 
+                login.setEnabled(false);
+
                 RestClientAsync.post(context, "/tokens", params, new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                        login.setEnabled(true);
+
                         try {
+                            session.createLoginSession(response.getJSONObject("user").getLong("id"), response.getString("auth_token"), email.getText().toString());
+
                             Realm realm = Realm.getInstance(context);
                             realm.beginTransaction();
                             Account account = realm.createObject(Account.class);
                             account = Account.updateAccount(account, realm, response.getJSONObject("user"));
                             realm.commitTransaction();
 
-                            session.createLoginSession(response.getJSONObject("user").getLong("id"), response.getString("auth_token"), email.getText().toString());
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             startActivity(intent);
-                            finish();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -81,6 +85,8 @@ public class LoginActivity extends ActionBarActivity {
 
                     @Override
                     public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                        login.setEnabled(true);
+
                         try {
                             Toast.makeText(context, errorResponse.getJSONArray("errors").getString(0), Toast.LENGTH_LONG).show();
                         } catch (JSONException e) {

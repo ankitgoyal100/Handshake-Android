@@ -17,7 +17,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 
 import com.astuetz.PagerSlidingTabStrip;
 import com.handshake.helpers.AccountServerSync;
@@ -60,7 +60,7 @@ public class MainActivity extends ActionBarActivity {
         View v = inflator.inflate(R.layout.actionbar, null);
         this.getSupportActionBar().setCustomView(v);
 
-        Button contactButton = (Button) v.findViewById(R.id.action_contacts);
+        ImageButton contactButton = (ImageButton) v.findViewById(R.id.action_contacts);
         contactButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -152,31 +152,6 @@ public class MainActivity extends ActionBarActivity {
             }
         }).start();
     }
-
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        MenuInflater inflater = getMenuInflater();
-//        inflater.inflate(R.menu.menu_main, menu);
-//
-//        MenuItem searchViewItem = menu.findItem(R.id.menu_search);
-//        SearchView searchView = (SearchView) searchViewItem.getActionView();
-////        searchView.setIconifiedByDefault(false);
-//        searchView.setQueryHint("Search...");
-//        searchView.onActionViewExpanded();
-//
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Handle item selection
-//        switch (item.getItemId()) {
-//            case R.id.menu_search:
-//                return true;
-//            default:
-//                return super.onOptionsItemSelected(item);
-//        }
-//    }
 
     public class TabAdapter extends FragmentPagerAdapter implements PagerSlidingTabStrip.IconTabProvider {
 
