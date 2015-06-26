@@ -323,4 +323,16 @@ public class GroupServerSync {
             }
         });
     }
+
+    public static void deleteGroup(Context context, Group group) {
+        Realm realm = Realm.getInstance(context);
+        realm.beginTransaction();
+        group.setSyncStatus(Utils.GroupDeleted);
+
+        for(int i = 0; i < group.getFeedItems().size(); i++) {
+            group.getFeedItems().get(i).removeFromRealm();
+        }
+
+        realm.commitTransaction();
+    }
 }

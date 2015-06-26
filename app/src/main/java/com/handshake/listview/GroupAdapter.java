@@ -60,6 +60,7 @@ public class GroupAdapter extends RealmBaseAdapter<Group> implements ListAdapter
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, GroupActivity.class);
+                intent.putExtra("id", item.getGroupId());
                 context.startActivity(intent);
             }
         });

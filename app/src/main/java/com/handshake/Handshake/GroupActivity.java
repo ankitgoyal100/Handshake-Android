@@ -1,6 +1,7 @@
 package com.handshake.Handshake;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -13,10 +14,19 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.handshake.helpers.GroupServerSync;
+import com.handshake.models.Group;
+
+import io.realm.Realm;
+
 public class GroupActivity extends ActionBarActivity {
 
     private final Handler handler = new Handler();
     private Drawable oldBackground = null;
+
+    private Context context = this;
+
+    private Group group;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +34,13 @@ public class GroupActivity extends ActionBarActivity {
         setContentView(R.layout.activity_group);
 
         changeColor(getResources().getColor(R.color.orange));
+
+        String id = getIntent().getStringExtra("id");
+
+        Realm realm = Realm.getInstance(context);
+        group = realm.where(Group.class).equalTo("groupId", id).findFirst();
+
+        if(group == null) finish();
     }
 
     @Override
@@ -47,6 +64,7 @@ public class GroupActivity extends ActionBarActivity {
                     .setMessage("You won't receive any new contacts from this group.")
                     .setPositiveButton("Leave", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
+                            GroupServerSync.deleteGroup(GroupActivity.this, group);
                             dialog.cancel();
                         }
                     })

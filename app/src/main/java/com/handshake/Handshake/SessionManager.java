@@ -37,6 +37,8 @@ public class SessionManager {
 
     public static final String KEY_EMAIL = "email";
 
+    public static final String KEY_LAST_COPIED_GROUP = "copiedGroup";
+
     // Constructor
     public SessionManager(Context context) {
         this.sContext = context;
@@ -125,4 +127,12 @@ public class SessionManager {
         return pref.getBoolean(sIsLogin, false);
     }
 
+    public static void setLastCopiedGroup(String code) {
+        editor.putString(KEY_LAST_COPIED_GROUP, code);
+        editor.commit();
+    }
+
+    public static String getLastCopiedGroup() {
+        return pref.getString(KEY_LAST_COPIED_GROUP, "");
+    }
 }

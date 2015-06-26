@@ -80,13 +80,6 @@ public class MainActivity extends ActionBarActivity {
 
         if(!session.isLoggedIn()) return;
 
-        ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-        String code = Utils.getCodes(context, clipboard.getPrimaryClip());
-        System.out.println("Code: " + code);
-        if (code != "") {
-            checkCode(code);
-        }
-
         this.getSupportActionBar().setDisplayShowCustomEnabled(true);
         this.getSupportActionBar().setDisplayShowTitleEnabled(false);
         this.getSupportActionBar().setDisplayShowHomeEnabled(false);
@@ -168,25 +161,30 @@ public class MainActivity extends ActionBarActivity {
 
         changeColor(getResources().getColor(R.color.orange));
 
-        performSyncs();
+        performSyncs(new SyncCompleted() {
+            @Override
+            public void syncCompletedListener() {
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                String code = Utils.getCodes(context, clipboard.getPrimaryClip());
+                if (code != "" && code != SessionManager.getLastCopiedGroup()) {
+                    checkCode(code);
+                }
+            }
+        });
     }
 
     private void checkCode(final String code) {
-        System.out.println(code);
-
         Realm realm = Realm.getInstance(context);
         Group group = realm.where(Group.class).equalTo("code", code).findFirst();
 
         if (group != null) {
-            System.out.println(group.toString());
             return;
         }
 
-        System.out.println("Finding group");
         RestClientAsync.get(context, "/groups/find/" + code, new RequestParams(), new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                System.out.println(response.toString());
+                SessionManager.setLastCopiedGroup(code);
 
                 LayoutInflater inflater = getLayoutInflater();
                 View dialoglayout = inflater.inflate(R.layout.join_group_dialog, null);
@@ -199,7 +197,6 @@ public class MainActivity extends ActionBarActivity {
                 builder.setView(dialoglayout);
                 final AlertDialog alertDialog = builder.create();
                 alertDialog.show();
-//                builder.show();
 
                 TextView text = (TextView) dialoglayout.findViewById(R.id.text);
                 try {
@@ -277,7 +274,7 @@ public class MainActivity extends ActionBarActivity {
         });
     }
 
-    private void performSyncs() {
+    private void performSyncs(final SyncCompleted listener) {
         ContactServerSync.performSync(context, new SyncCompleted() {
             @Override
             public void syncCompletedListener() {
@@ -340,6 +337,12 @@ public class MainActivity extends ActionBarActivity {
                 while (syncsCompleted != 7) {
                 }
                 System.out.println("All syncs completed!");
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.syncCompletedListener();
+                    }
+                });
             }
         }).start();
     }
