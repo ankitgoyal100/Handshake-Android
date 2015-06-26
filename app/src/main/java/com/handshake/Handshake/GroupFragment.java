@@ -16,7 +16,7 @@ import io.realm.RealmResults;
 /**
  * Created by ankitgoyal on 6/23/15.
  */
-public class GroupFragment  extends Fragment {
+public class GroupFragment extends Fragment {
     public static GroupFragment newInstance() {
         GroupFragment fragment = new GroupFragment();
         return fragment;
@@ -47,5 +47,9 @@ public class GroupFragment  extends Fragment {
         gridView.setAdapter(adapter);
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 }
 

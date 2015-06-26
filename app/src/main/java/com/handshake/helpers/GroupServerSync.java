@@ -241,6 +241,7 @@ public class GroupServerSync {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     final JSONArray membersJSON = response.getJSONArray("members");
+                    System.out.println("Caching user: " + membersJSON.toString());
                     UserServerSync.cacheUser(context, membersJSON, new UserArraySyncCompleted() {
                         @Override
                         public void syncCompletedListener(ArrayList<User> users) {
@@ -271,6 +272,8 @@ public class GroupServerSync {
                                     map.put(user.getUserId(), user);
                             }
 
+                            System.out.println("User map: " + map.toString());
+
                             for (int i = 0; i < membersJSON.length(); i++) {
                                 try {
                                     User user = map.get(membersJSON.getJSONObject(i).getLong("id"));
@@ -281,9 +284,8 @@ public class GroupServerSync {
                                     GroupMember member = realm.createObject(GroupMember.class);
                                     member.setUser(user);
 
-                                    RealmList<GroupMember> groupMembers = group.getMembers();
-                                    groupMembers.add(member);
-                                    group.setMembers(groupMembers);
+                                    group.getMembers().add(realm.copyToRealm(member));
+
                                     realm.commitTransaction();
                                 } catch (JSONException e) {
                                     e.printStackTrace();

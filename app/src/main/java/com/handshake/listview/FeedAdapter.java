@@ -53,6 +53,8 @@ public class FeedAdapter extends RealmBaseAdapter<FeedItem> implements ListAdapt
 
         FeedItem item = realmResults.get(position);
 
+        System.out.println(item.toString());
+
         if (item.getItemType().equals("new_contact") || item.getItemType().equals("card_updated") ||
                 item.getItemType().equals("new_group_member"))
             if (item.getUser() == null) return convertView;

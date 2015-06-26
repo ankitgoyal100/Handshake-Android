@@ -1,7 +1,10 @@
 package com.handshake.Handshake;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -28,6 +31,14 @@ import com.handshake.helpers.GroupServerSync;
 import com.handshake.helpers.RequestServerSync;
 import com.handshake.helpers.SuggestionsServerSync;
 import com.handshake.helpers.SyncCompleted;
+import com.handshake.models.Group;
+import com.loopj.android.http.JsonHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+
+import org.apache.http.Header;
+import org.json.JSONObject;
+
+import io.realm.Realm;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -44,6 +55,9 @@ public class MainActivity extends ActionBarActivity {
 
     int syncsCompleted = 0;
 
+    private int TAG_CONTACTS = 0;
+    private int TAG_ADD = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +65,13 @@ public class MainActivity extends ActionBarActivity {
 
         session = new SessionManager(this);
         session.checkLogin();
+
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        String code = Utils.getCodes(context, clipboard.getPrimaryClip());
+        System.out.println("Code: " + code);
+        if(code != "") {
+            checkCode(code);
+        }
 
         this.getSupportActionBar().setDisplayShowCustomEnabled(true);
         this.getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -60,12 +81,33 @@ public class MainActivity extends ActionBarActivity {
         View v = inflator.inflate(R.layout.actionbar, null);
         this.getSupportActionBar().setCustomView(v);
 
-        ImageButton contactButton = (ImageButton) v.findViewById(R.id.action_contacts);
+        final ImageButton contactButton = (ImageButton) v.findViewById(R.id.action_contacts);
+        contactButton.setTag(TAG_CONTACTS);
         contactButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, ContactActivity.class);
-                startActivity(intent);
+                if(contactButton.getTag() == TAG_CONTACTS) {
+                    Intent intent = new Intent(MainActivity.this, ContactActivity.class);
+                    startActivity(intent);
+                } else {
+                    new AlertDialog.Builder(context)
+                            .setMessage("Would you like to create a group or join a group?")
+                            .setPositiveButton("Join Group", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent intent = new Intent(context, JoinGroupActivity.class);
+                                    startActivity(intent);
+                                    dialog.cancel();
+                                }
+                            })
+                            .setNegativeButton("Create Group", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent intent = new Intent(context, CreateGroupActivity.class);
+                                    startActivity(intent);
+                                    dialog.cancel();
+                                }
+                            })
+                            .show();
+                }
             }
         });
 
@@ -81,9 +123,56 @@ public class MainActivity extends ActionBarActivity {
         tabs.setShouldExpand(true);
         tabs.setViewPager(sPager);
 
+        tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                if (position == 0 || position == 1 || position == 3) {
+                    contactButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_contacts_icon));
+                    contactButton.setTag(TAG_CONTACTS);
+                } else {
+                    contactButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_add));
+                    contactButton.setTag(TAG_ADD);
+                }
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if (position == 0 || position == 1 || position == 3) {
+                    contactButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_contacts_icon));
+                    contactButton.setTag(TAG_CONTACTS);
+                } else {
+                    contactButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_add));
+                    contactButton.setTag(TAG_ADD);
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
         changeColor(getResources().getColor(R.color.orange));
 
         performSyncs();
+    }
+
+    private void checkCode(String code) {
+        Realm realm = Realm.getInstance(context);
+        Group group = realm.where(Group.class).equalTo("code", code).findFirst();
+
+        if(group != null) return;
+
+        RestClientAsync.get(context, "/groups/find/" + code, new RequestParams(), new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+//                System.out.println(response.toString());
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+            }
+        });
     }
 
     private void performSyncs() {

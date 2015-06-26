@@ -35,6 +35,18 @@
             android:name=".ContactActivity"
             android:label="@string/title_activity_contact" >
         </activity>
+        <activity
+            android:name=".GroupActivity"
+            android:label="@string/title_activity_group" >
+        </activity>
+        <activity
+            android:name=".JoinGroupActivity"
+            android:label="@string/title_activity_join_group" >
+        </activity>
+        <activity
+            android:name=".CreateGroupActivity"
+            android:label="@string/title_activity_create_group" >
+        </activity>
     </application>
 
 </manifest>

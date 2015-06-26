@@ -162,11 +162,12 @@ public class FeedItemServerSync {
 
                                                     realm.beginTransaction();
                                                     feedItem = FeedItem.updateFeedItem(feedItem, realm, feedObjects.getJSONObject(i));
+
                                                     if (feedObjects.getJSONObject(i).has("user") && !feedObjects.getJSONObject(i).isNull("user"))
                                                         feedItem.setUser(usersMap.get(
                                                                 feedObjects.getJSONObject(i).getJSONObject("user").getLong("id")));
                                                     if (feedObjects.getJSONObject(i).has("group") && !feedObjects.getJSONObject(i).isNull("group"))
-                                                        feedItem.setUser(usersMap.get(
+                                                        feedItem.setGroup(groupsMap.get(
                                                                 feedObjects.getJSONObject(i).getJSONObject("group").getLong("id")));
                                                     realm.commitTransaction();
                                                 } catch (JSONException e) {

@@ -271,9 +271,10 @@ public class User extends RealmObject {
                         Card card = realm.createObject(Card.class);
                         card = Card.updateCard(card, realm, cards.getJSONObject(i));
 
-                        RealmList<Card> userCards = user.getCards();
-                        userCards.add(card);
-                        user.setCards(userCards);
+                        user.getCards().add(realm.copyToRealm(card));
+
+                        //TODO: Check to make sure card is being added to user object
+                        System.out.println(user.getCards().toString());
                     }
                 }
             }

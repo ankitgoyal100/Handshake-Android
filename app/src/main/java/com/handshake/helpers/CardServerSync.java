@@ -20,7 +20,6 @@ import org.json.JSONObject;
 import java.util.HashMap;
 
 import io.realm.Realm;
-import io.realm.RealmList;
 import io.realm.RealmResults;
 
 /**
@@ -70,9 +69,7 @@ public class CardServerSync {
                     if (card.getSyncStatus() == Utils.CardCreated) continue;
 
                     if (!map.containsKey(card.getCardId())) {
-                        RealmList<Card> currCards = account.getCards();
-                        currCards.remove(card);
-                        account.setCards(currCards);
+                        account.getCards().add(realm.copyToRealm(card));
                     } else if (card.getSyncStatus() == Utils.CardSynced) {
                         realm.beginTransaction();
                         card = Card.updateCard(card, realm, map.get(card.getCardId()));
@@ -91,12 +88,7 @@ public class CardServerSync {
                     card.setSyncStatus(Utils.CardSynced);
                     card.setAccount(account);
 
-                    System.out.println("New card: " + card.toString());
-
                     account.getCards().add(realm.copyToRealm(card));
-
-                    for (int i = 0; i < account.getCards().size(); i++)
-                        System.out.println("Curr cards after addition: " + account.getCards().get(i).toString());
 
                     realm.commitTransaction();
                 }

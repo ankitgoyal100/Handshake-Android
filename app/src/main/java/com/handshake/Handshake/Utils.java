@@ -1,7 +1,11 @@
 package com.handshake.Handshake;
 
+import android.content.ClipData;
+import android.content.Context;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -111,5 +115,23 @@ public class Utils {
         }
 
         return message;
+    }
+
+    public static String getCodes(Context context, ClipData clipboard) {
+        ArrayList<String> strings = new ArrayList<>();
+        for (int i = 0; i < clipboard.getItemCount(); i++) {
+            String[] s = clipboard.getItemAt(i).coerceToText(context).toString().split("\\s+");
+            for (int j = 0; j < s.length; j++)
+                strings.add(s[j]);
+        }
+
+        for (int i = 0; i < strings.size(); i++) {
+            if (strings.get(i).length() == 8 && strings.get(i).charAt(2) == '-' && strings.get(i).charAt(5) == '-') {
+                return (strings.get(i).substring(0, 2) + strings.get(i).substring(3, 5) +
+                        strings.get(i).substring(6)).toLowerCase();
+            }
+        }
+
+        return "";
     }
 }
