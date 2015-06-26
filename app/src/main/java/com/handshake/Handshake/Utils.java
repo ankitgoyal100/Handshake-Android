@@ -118,6 +118,7 @@ public class Utils {
     }
 
     public static String getCodes(Context context, ClipData clipboard) {
+        if(clipboard == null) return "";
         ArrayList<String> strings = new ArrayList<>();
         for (int i = 0; i < clipboard.getItemCount(); i++) {
             String[] s = clipboard.getItemAt(i).coerceToText(context).toString().split("\\s+");

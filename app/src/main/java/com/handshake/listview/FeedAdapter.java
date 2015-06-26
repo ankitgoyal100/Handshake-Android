@@ -55,11 +55,16 @@ public class FeedAdapter extends RealmBaseAdapter<FeedItem> implements ListAdapt
 
         System.out.println(item.toString());
 
+        Realm realm = Realm.getInstance(context);
         if (item.getItemType().equals("new_contact") || item.getItemType().equals("card_updated") ||
                 item.getItemType().equals("new_group_member"))
-            if (item.getUser() == null) return convertView;
+            if (item.getUser() == null) {
+                return convertView;
+            }
         if (item.getItemType().equals("group_joined") || item.getItemType().equals("new_group_member"))
-            if (item.getGroup() == null) return convertView;
+            if (item.getGroup() == null) {
+                return convertView;
+            }
 
         viewHolder.title.setText(getMessageForItem(item));
 
@@ -69,7 +74,6 @@ public class FeedAdapter extends RealmBaseAdapter<FeedItem> implements ListAdapt
             else
                 Picasso.with(context).load(R.drawable.default_profile).transform(new CircleTransform()).into(viewHolder.image);
         } else {
-            Realm realm = Realm.getInstance(context);
             Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
             if (!account.getThumb().isEmpty() && !account.getThumb().equals("null"))
                 Picasso.with(context).load(account.getThumb()).transform(new CircleTransform()).into(viewHolder.image);
@@ -94,28 +98,28 @@ public class FeedAdapter extends RealmBaseAdapter<FeedItem> implements ListAdapt
     }
 
     private Spannable getMessageForItem(FeedItem item) {
-            Spannable messageString = new SpannableString("");
-            if (item.getItemType().equals("new_contact")) {
-                messageString = new SpannableString(item.getUser().getFirstName() + " " + item.getUser().getLastName() + " added you!");
-                messageString.setSpan(new StyleSpan(Typeface.BOLD), 0, (item.getUser().getFirstName() + " " + item.getUser().getLastName()).length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                return messageString;
-            } else if (item.getItemType().equals("card_updated")) {
-                messageString = new SpannableString(item.getUser().getFirstName() + " " +
-                        item.getUser().getLastName() + " got new contact information.");
-                messageString.setSpan(new StyleSpan(Typeface.BOLD), 0, (item.getUser().getFirstName() + " " + item.getUser().getLastName()).length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                return messageString;
-            } else if (item.getItemType().equals("group_joined")) {
-                messageString = new SpannableString("You joined " + item.getGroup().getName() + ".");
-                messageString.setSpan(new StyleSpan(Typeface.BOLD), 0, (item.getGroup().getName()).length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                return messageString;
-            } else if (item.getItemType().equals("new_group_member")) {
-                messageString = new SpannableString(item.getUser().getFirstName() + " " + item.getUser().getLastName() +
-                        " joined " + item.getGroup().getName() + ".");
-                messageString.setSpan(new StyleSpan(Typeface.BOLD), 0, (item.getUser().getFirstName() + " " + item.getUser().getLastName()).length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                messageString.setSpan(new StyleSpan(Typeface.BOLD), (item.getUser().getFirstName() + " " + item.getUser().getLastName()).length() + 8, messageString.length() - 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                return messageString;
-            }
-
+        Spannable messageString = new SpannableString("");
+        if (item.getItemType().equals("new_contact")) {
+            messageString = new SpannableString(item.getUser().getFirstName() + " " + item.getUser().getLastName() + " added you!");
+            messageString.setSpan(new StyleSpan(Typeface.BOLD), 0, (item.getUser().getFirstName() + " " + item.getUser().getLastName()).length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            return messageString;
+        } else if (item.getItemType().equals("card_updated")) {
+            messageString = new SpannableString(item.getUser().getFirstName() + " " +
+                    item.getUser().getLastName() + " got new contact information.");
+            messageString.setSpan(new StyleSpan(Typeface.BOLD), 0, (item.getUser().getFirstName() + " " + item.getUser().getLastName()).length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            return messageString;
+        } else if (item.getItemType().equals("group_joined")) {
+            messageString = new SpannableString("You joined " + item.getGroup().getName() + ".");
+            messageString.setSpan(new StyleSpan(Typeface.BOLD), 0, (item.getGroup().getName()).length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            return messageString;
+        } else if (item.getItemType().equals("new_group_member")) {
+            messageString = new SpannableString(item.getUser().getFirstName() + " " + item.getUser().getLastName() +
+                    " joined " + item.getGroup().getName() + ".");
+            messageString.setSpan(new StyleSpan(Typeface.BOLD), 0, (item.getUser().getFirstName() + " " + item.getUser().getLastName()).length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            messageString.setSpan(new StyleSpan(Typeface.BOLD), (item.getUser().getFirstName() + " " + item.getUser().getLastName()).length() + 8, messageString.length() - 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             return messageString;
         }
+
+        return messageString;
     }
+}

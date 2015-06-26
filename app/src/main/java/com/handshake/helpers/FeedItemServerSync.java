@@ -69,10 +69,19 @@ public class FeedItemServerSync {
             @Override
             public void onSuccess(int statusCode, Header[] headers, final JSONObject response) {
                 try {
+                    System.out.println("Feed sync response: " + response.toString());
 
                     final JSONArray feedObjects = response.getJSONArray("feed");
 
-                    if (feedObjects.length() == 0) return;
+                    if (feedObjects.length() == 0) {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                listener.syncCompletedListener();
+                            }
+                        });
+                        return;
+                    }
 
                     final JSONArray users = new JSONArray();
                     final JSONArray groups = new JSONArray();
@@ -84,6 +93,7 @@ public class FeedItemServerSync {
                             groups.put(feedObjects.getJSONObject(i).getJSONObject("group"));
                         }
                     }
+
 
                     UserServerSync.cacheUser(context, users, new UserArraySyncCompleted() {
                         @Override
@@ -163,12 +173,18 @@ public class FeedItemServerSync {
                                                     realm.beginTransaction();
                                                     feedItem = FeedItem.updateFeedItem(feedItem, realm, feedObjects.getJSONObject(i));
 
-                                                    if (feedObjects.getJSONObject(i).has("user") && !feedObjects.getJSONObject(i).isNull("user"))
+                                                    if (feedObjects.getJSONObject(i).has("user") && !feedObjects.getJSONObject(i).isNull("user")) {
                                                         feedItem.setUser(usersMap.get(
                                                                 feedObjects.getJSONObject(i).getJSONObject("user").getLong("id")));
-                                                    if (feedObjects.getJSONObject(i).has("group") && !feedObjects.getJSONObject(i).isNull("group"))
+                                                        usersMap.get(
+                                                                feedObjects.getJSONObject(i).getJSONObject("user").getLong("id")).getFeedItems().add(realm.copyToRealm(feedItem));
+                                                    }
+                                                    if (feedObjects.getJSONObject(i).has("group") && !feedObjects.getJSONObject(i).isNull("group")) {
                                                         feedItem.setGroup(groupsMap.get(
                                                                 feedObjects.getJSONObject(i).getJSONObject("group").getLong("id")));
+                                                        groupsMap.get(
+                                                                feedObjects.getJSONObject(i).getJSONObject("group").getLong("id")).getFeedItems().add(realm.copyToRealm(feedItem));
+                                                    }
                                                     realm.commitTransaction();
                                                 } catch (JSONException e) {
                                                     e.printStackTrace();
@@ -213,6 +229,7 @@ public class FeedItemServerSync {
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 if (errorResponse == null) return;
+                System.out.println(errorResponse.toString());
                 if (statusCode == 401) session.logoutUser();
             }
         });

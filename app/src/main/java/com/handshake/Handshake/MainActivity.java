@@ -20,23 +20,35 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.astuetz.PagerSlidingTabStrip;
 import com.handshake.helpers.AccountServerSync;
 import com.handshake.helpers.CardServerSync;
 import com.handshake.helpers.ContactServerSync;
 import com.handshake.helpers.FeedItemServerSync;
+import com.handshake.helpers.GroupArraySyncCompleted;
 import com.handshake.helpers.GroupServerSync;
 import com.handshake.helpers.RequestServerSync;
 import com.handshake.helpers.SuggestionsServerSync;
 import com.handshake.helpers.SyncCompleted;
+import com.handshake.listview.CircleTransform;
+import com.handshake.models.Account;
 import com.handshake.models.Group;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
+import com.squareup.picasso.Picasso;
 
 import org.apache.http.Header;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 import io.realm.Realm;
 
@@ -66,10 +78,12 @@ public class MainActivity extends ActionBarActivity {
         session = new SessionManager(this);
         session.checkLogin();
 
+        if(!session.isLoggedIn()) return;
+
         ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         String code = Utils.getCodes(context, clipboard.getPrimaryClip());
         System.out.println("Code: " + code);
-        if(code != "") {
+        if (code != "") {
             checkCode(code);
         }
 
@@ -86,7 +100,7 @@ public class MainActivity extends ActionBarActivity {
         contactButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(contactButton.getTag() == TAG_CONTACTS) {
+                if (contactButton.getTag() == TAG_CONTACTS) {
                     Intent intent = new Intent(MainActivity.this, ContactActivity.class);
                     startActivity(intent);
                 } else {
@@ -157,16 +171,104 @@ public class MainActivity extends ActionBarActivity {
         performSyncs();
     }
 
-    private void checkCode(String code) {
+    private void checkCode(final String code) {
+        System.out.println(code);
+
         Realm realm = Realm.getInstance(context);
         Group group = realm.where(Group.class).equalTo("code", code).findFirst();
 
-        if(group != null) return;
+        if (group != null) {
+            System.out.println(group.toString());
+            return;
+        }
 
+        System.out.println("Finding group");
         RestClientAsync.get(context, "/groups/find/" + code, new RequestParams(), new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-//                System.out.println(response.toString());
+                System.out.println(response.toString());
+
+                LayoutInflater inflater = getLayoutInflater();
+                View dialoglayout = inflater.inflate(R.layout.join_group_dialog, null);
+
+                //TODO: fix group icon
+                ImageView groupIcon = (ImageView) dialoglayout.findViewById(R.id.group_icon);
+                Picasso.with(context).load(R.drawable.default_profile).transform(new CircleTransform()).into(groupIcon);
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setView(dialoglayout);
+                final AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+//                builder.show();
+
+                TextView text = (TextView) dialoglayout.findViewById(R.id.text);
+                try {
+                    text.setText("Want to join " + response.getJSONObject("group").getString("name") + "?");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                TextView exit = (TextView) dialoglayout.findViewById(R.id.no_thanks);
+                exit.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        alertDialog.dismiss();
+                    }
+                });
+
+                Button join = (Button) dialoglayout.findViewById(R.id.join_group);
+                join.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                       Realm realm = Realm.getInstance(context);
+                        Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+
+                        JSONArray cardIds = new JSONArray();
+                        cardIds.put(account.getCards().first().getCardId());
+
+                        JSONObject jsonParams = new JSONObject();
+                        try {
+                            jsonParams.put("code", code);
+                            jsonParams.put("card_ids", cardIds);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        RestClientAsync.post(context, "/groups/join/", jsonParams, "application/json", new JsonHttpResponseHandler() {
+                            @Override
+                            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                                try {
+                                    alertDialog.dismiss();
+                                    System.out.println(response.toString());
+                                    JSONObject groupJSONObject = response.getJSONObject("group");
+                                    JSONArray jsonArray = new JSONArray();
+                                    jsonArray.put(groupJSONObject);
+                                    GroupServerSync.cacheGroup(jsonArray, new GroupArraySyncCompleted() {
+                                        @Override
+                                        public void syncCompletedListener(ArrayList<Group> groups) {
+                                            System.out.println(groups.toString());
+                                            Group group = groups.get(0);
+                                            GroupServerSync.loadGroupMembers(group);
+                                            FeedItemServerSync.performSync(context, new SyncCompleted() {
+                                                @Override
+                                                public void syncCompletedListener() {
+
+                                                }
+                                            });
+                                        }
+                                    });
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                                Toast.makeText(context, "There was an error. Please try again.", Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+                });
             }
 
             @Override
@@ -180,7 +282,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
-//                System.out.println("Contact sync completed " + syncsCompleted);
+                System.out.println("Contact sync completed " + syncsCompleted);
             }
         });
 
@@ -188,7 +290,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
-//                System.out.println("Account sync completed " + syncsCompleted);
+                System.out.println("Account sync completed " + syncsCompleted);
             }
         });
 
@@ -196,7 +298,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
-//                System.out.println("Card sync completed " + syncsCompleted);
+                System.out.println("Card sync completed " + syncsCompleted);
             }
         });
 
@@ -204,7 +306,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
-//                System.out.println("FeedItem sync completed " + syncsCompleted);
+                System.out.println("FeedItem sync completed " + syncsCompleted);
             }
         });
 
@@ -212,7 +314,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
-//                System.out.println("Group sync completed " + syncsCompleted);
+                System.out.println("Group sync completed " + syncsCompleted);
             }
         });
 
@@ -220,7 +322,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
-//                System.out.println("Request sync completed " + syncsCompleted);
+                System.out.println("Request sync completed " + syncsCompleted);
             }
         });
 
@@ -228,7 +330,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
-//                System.out.println("Suggestion sync completed " + syncsCompleted);
+                System.out.println("Suggestion sync completed " + syncsCompleted);
             }
         });
 

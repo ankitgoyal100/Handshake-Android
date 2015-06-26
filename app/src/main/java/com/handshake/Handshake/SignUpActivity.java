@@ -1,5 +1,6 @@
 package com.handshake.Handshake;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
@@ -65,11 +66,13 @@ public class SignUpActivity extends ActionBarActivity {
                 params.add("password", password.getText().toString());
 
                 login.setEnabled(false);
+                final ProgressDialog dialog = ProgressDialog.show(context, "", "Signing up...", true);
 
                 RestClientAsync.post(context, "/account", params, new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                         login.setEnabled(true);
+                        dialog.cancel();
 
                         RequestParams params = new RequestParams();
                         params.add("email", email.getText().toString());
@@ -98,6 +101,8 @@ public class SignUpActivity extends ActionBarActivity {
                             @Override
                             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                                 login.setEnabled(true);
+                                dialog.cancel();
+
                                 try {
                                     Toast.makeText(context, errorResponse.getJSONArray("errors").getString(0), Toast.LENGTH_LONG).show();
                                 } catch (JSONException e) {

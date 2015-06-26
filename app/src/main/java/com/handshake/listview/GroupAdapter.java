@@ -43,9 +43,10 @@ public class GroupAdapter extends RealmBaseAdapter<Group> implements ListAdapter
 
         final Group item = realmResults.get(position);
 
-        if(item.getCode().length() == 0) return convertView;
-
         String code = item.getCode().toUpperCase();
+
+        if(code.length() != 6) return convertView;
+
         code = code.substring(0, 2) + "-" + code.substring(2, 4) + "-" + code.substring(4);
         viewHolder.code.setText(code);
         viewHolder.name.setText(item.getName());
