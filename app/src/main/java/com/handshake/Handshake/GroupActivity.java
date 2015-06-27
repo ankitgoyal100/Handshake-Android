@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.handshake.helpers.GroupServerSync;
 import com.handshake.models.Group;
@@ -70,6 +71,8 @@ public class GroupActivity extends ActionBarActivity {
                         public void onClick(DialogInterface dialog, int which) {
                             GroupServerSync.deleteGroup(GroupActivity.this, group);
                             dialog.cancel();
+                            Toast.makeText(context, "Left group.", Toast.LENGTH_SHORT).show();
+                            GroupActivity.this.finish();
                         }
                     })
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
