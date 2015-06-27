@@ -40,12 +40,6 @@ public class CreateGroupActivity extends ActionBarActivity {
 //            [GroupServerSync sync];
 //        }
 
-//        - (void)groupEdited:(Group *)group {
-//            group.createdAt = [NSDate date];
-//            group.syncStatus = [NSNumber numberWithInt:GroupCreated];
-//            [GroupServerSync sync];
-//        }
-
         final EditTextCustomFont groupName = (EditTextCustomFont) findViewById(R.id.group_name);
         ButtonCustomFont create = (ButtonCustomFont) findViewById(R.id.create);
 
@@ -58,13 +52,16 @@ public class CreateGroupActivity extends ActionBarActivity {
                 group.setName(groupName.getText().toString());
                 group.setCreatedAt(new Date(System.currentTimeMillis()));
                 group.setSyncStatus(Utils.GroupCreated);
+                realm.commitTransaction();
+
                 GroupServerSync.performSync(context, new SyncCompleted() {
                     @Override
                     public void syncCompletedListener() {
                         System.out.println("Create group sync listener completed");
                     }
                 });
-                realm.commitTransaction();
+
+                CreateGroupActivity.this.finish();
             }
         });
     }

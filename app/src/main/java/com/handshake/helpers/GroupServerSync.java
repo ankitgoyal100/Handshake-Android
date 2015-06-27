@@ -2,6 +2,7 @@ package com.handshake.helpers;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 
 import com.handshake.Handshake.RestClientAsync;
 import com.handshake.Handshake.RestClientSync;
@@ -90,19 +91,27 @@ public class GroupServerSync {
                                 }
                             }
 
-                            for (final Group group : requestedGroups) {
+                            for (int i = 0; i < requestedGroups.size(); i++) {
+                                final Group group = requestedGroups.get(i);
                                 if (group.getSyncStatus() == Utils.GroupCreated) {
-                                    RequestParams params = new RequestParams();
-                                    params.put("name", group.getName());
-                                    JSONArray cardIds = new JSONArray();
-                                    cardIds.put(account.getCards().first().getCardId());
-                                    params.put("card_ids", cardIds);
+                                    JSONObject params = new JSONObject();
+                                    try {
+                                        params.put("name", group.getName());
+                                        JSONArray cardIds = new JSONArray();
+                                        cardIds.put(account.getCards().first().getCardId());
+                                        params.put("card_ids", cardIds);
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
 
-                                    RestClientAsync.post(context, "/groups", params, new JsonHttpResponseHandler() {
+                                    System.out.println(params.toString());
+
+                                    Looper.prepare();
+                                    RestClientSync.post(context, "/groups", params, "application/json", new JsonHttpResponseHandler() {
                                         @Override
                                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                                            Realm realm = Realm.getInstance(context);
-                                            realm.beginTransaction();
+                                            System.out.println(response.toString());
+                                            Realm realm = Realm.getInstance(context);realm.beginTransaction();
                                             try {
                                                 Group.updateGroup(group, realm, response.getJSONObject("group"));
                                             } catch (JSONException e) {
@@ -120,6 +129,8 @@ public class GroupServerSync {
                                 } else if (group.getSyncStatus() == Utils.GroupUpdated) {
                                     RequestParams params = new RequestParams();
                                     params.put("name", group.getName());
+
+                                    Looper.prepare();
                                     RestClientAsync.put(context, "/groups/" + group.getGroupId(), params, new JsonHttpResponseHandler() {
                                         @Override
                                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -140,6 +151,7 @@ public class GroupServerSync {
                                         }
                                     });
                                 } else if (group.getSyncStatus() == Utils.GroupDeleted) {
+                                    Looper.prepare();
                                     RestClientAsync.delete(context, "/groups/" + group.getGroupId(), new RequestParams(), new JsonHttpResponseHandler() {
                                         @Override
                                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {

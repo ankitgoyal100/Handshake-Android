@@ -35,12 +35,15 @@ public class GroupActivity extends ActionBarActivity {
 
         changeColor(getResources().getColor(R.color.orange));
 
-        String id = getIntent().getStringExtra("id");
+        Long id = getIntent().getLongExtra("id", -1);
+        if(id == -1) finish();
 
         Realm realm = Realm.getInstance(context);
         group = realm.where(Group.class).equalTo("groupId", id).findFirst();
 
         if(group == null) finish();
+
+        System.out.println(group.toString());
     }
 
     @Override
