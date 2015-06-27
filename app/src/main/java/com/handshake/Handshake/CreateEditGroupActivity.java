@@ -1,6 +1,7 @@
 package com.handshake.Handshake;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
@@ -19,12 +20,13 @@ import java.util.Date;
 
 import io.realm.Realm;
 
-public class CreateGroupActivity extends ActionBarActivity {
+public class CreateEditGroupActivity extends ActionBarActivity {
 
     private final Handler handler = new Handler();
     private Drawable oldBackground = null;
 
     private Context context = this;
+    private Group group;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,35 +35,64 @@ public class CreateGroupActivity extends ActionBarActivity {
 
         changeColor(getResources().getColor(R.color.orange));
 
-//        - (void)groupEdited:(Group *)group {
-//            self.nameLabel.text = group.name;
-//            group.syncStatus = @(GroupUpdated);
-//
-//            [GroupServerSync sync];
-//        }
+        final boolean isEdit = getIntent().getBooleanExtra("isEdit", false);
 
         final EditTextCustomFont groupName = (EditTextCustomFont) findViewById(R.id.group_name);
         ButtonCustomFont create = (ButtonCustomFont) findViewById(R.id.create);
+
+        if (isEdit) {
+            long groupId = getIntent().getLongExtra("groupId", -1);
+
+            Realm realm = Realm.getInstance(context);
+            group = realm.where(Group.class).equalTo("groupId", groupId).findFirst();
+
+            if (group == null) finish();
+
+            groupName.setText(group.getName());
+
+            create.setText("Save");
+        } else {
+            create.setText("Create");
+        }
 
         create.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Realm realm = Realm.getInstance(context);
-                realm.beginTransaction();
-                Group group = realm.createObject(Group.class);
-                group.setName(groupName.getText().toString());
-                group.setCreatedAt(new Date(System.currentTimeMillis()));
-                group.setSyncStatus(Utils.GroupCreated);
-                realm.commitTransaction();
+                if (isEdit) {
+                    realm.beginTransaction();
+                    group.setName(groupName.getText().toString());
+                    group.setSyncStatus(Utils.GroupUpdated);
+                    realm.commitTransaction();
 
-                GroupServerSync.performSync(context, new SyncCompleted() {
-                    @Override
-                    public void syncCompletedListener() {
-                        System.out.println("Create group sync listener completed");
-                    }
-                });
+                    GroupServerSync.performSync(context, new SyncCompleted() {
+                        @Override
+                        public void syncCompletedListener() {
 
-                CreateGroupActivity.this.finish();
+                        }
+                    });
+
+                    Intent returnIntent = new Intent();
+                    returnIntent.putExtra("groupName", group.getName());
+                    setResult(RESULT_OK, returnIntent);
+
+                    CreateEditGroupActivity.this.finish();
+                } else {
+                    realm.beginTransaction();
+                    Group newGroup = realm.createObject(Group.class);
+                    newGroup.setName(groupName.getText().toString());
+                    newGroup.setCreatedAt(new Date(System.currentTimeMillis()));
+                    newGroup.setSyncStatus(Utils.GroupCreated);
+                    realm.commitTransaction();
+
+                    GroupServerSync.performSync(context, new SyncCompleted() {
+                        @Override
+                        public void syncCompletedListener() {
+                        }
+                    });
+
+                    CreateEditGroupActivity.this.finish();
+                }
             }
         });
     }

@@ -78,6 +78,7 @@ public class ContactAdapter extends RealmBaseAdapter<User> implements ListAdapte
         viewHolder.contactsButtonLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //TODO: redesign this
                 new AlertDialog.Builder(context)
                         .setTitle("Delete contact")
                         .setMessage("Are you sure you want to delete this contact?")

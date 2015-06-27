@@ -108,7 +108,8 @@ public class MainActivity extends ActionBarActivity {
                             })
                             .setNegativeButton("Create Group", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
-                                    Intent intent = new Intent(context, CreateGroupActivity.class);
+                                    Intent intent = new Intent(context, CreateEditGroupActivity.class);
+                                    intent.putExtra("isEdit", false);
                                     startActivity(intent);
                                     dialog.cancel();
                                 }

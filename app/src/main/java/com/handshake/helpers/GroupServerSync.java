@@ -79,16 +79,20 @@ public class GroupServerSync {
                             }
                             RealmResults<Group> syncedGroups = realm.where(Group.class).equalTo("syncStatus", Utils.GroupSynced).findAll();
                             for (int i = 0; i < syncedGroups.size(); i++) {
-                                if(!allIDs.contains(syncedGroups.get(i).getGroupId())) {
+                                if (!allIDs.contains(syncedGroups.get(i).getGroupId())) {
                                     realm.beginTransaction();
 
-                                    for(int j = 0; j < syncedGroups.get(i).getFeedItems().size(); j++) {
+                                    for (int j = 0; j < syncedGroups.get(i).getFeedItems().size(); j++) {
                                         syncedGroups.get(i).getFeedItems().get(j).removeFromRealm();
                                     }
 
                                     syncedGroups.get(i).removeFromRealm();
                                     realm.commitTransaction();
                                 }
+                            }
+
+                            if (Looper.myLooper() == null) {
+                                Looper.prepare();
                             }
 
                             for (int i = 0; i < requestedGroups.size(); i++) {
@@ -106,12 +110,12 @@ public class GroupServerSync {
 
                                     System.out.println(params.toString());
 
-                                    Looper.prepare();
                                     RestClientSync.post(context, "/groups", params, "application/json", new JsonHttpResponseHandler() {
                                         @Override
                                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                                             System.out.println(response.toString());
-                                            Realm realm = Realm.getInstance(context);realm.beginTransaction();
+                                            Realm realm = Realm.getInstance(context);
+                                            realm.beginTransaction();
                                             try {
                                                 Group.updateGroup(group, realm, response.getJSONObject("group"));
                                             } catch (JSONException e) {
@@ -130,7 +134,6 @@ public class GroupServerSync {
                                     RequestParams params = new RequestParams();
                                     params.put("name", group.getName());
 
-                                    Looper.prepare();
                                     RestClientAsync.put(context, "/groups/" + group.getGroupId(), params, new JsonHttpResponseHandler() {
                                         @Override
                                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -151,7 +154,6 @@ public class GroupServerSync {
                                         }
                                     });
                                 } else if (group.getSyncStatus() == Utils.GroupDeleted) {
-                                    Looper.prepare();
                                     RestClientAsync.delete(context, "/groups/" + group.getGroupId(), new RequestParams(), new JsonHttpResponseHandler() {
                                         @Override
                                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -341,7 +343,7 @@ public class GroupServerSync {
         realm.beginTransaction();
         group.setSyncStatus(Utils.GroupDeleted);
 
-        for(int i = 0; i < group.getFeedItems().size(); i++) {
+        for (int i = 0; i < group.getFeedItems().size(); i++) {
             group.getFeedItems().get(i).removeFromRealm();
         }
 

@@ -3,6 +3,7 @@ package com.handshake.Handshake;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
@@ -13,10 +14,13 @@ import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.handshake.helpers.GroupServerSync;
 import com.handshake.models.Group;
+import com.handshake.models.User;
+import com.squareup.picasso.Picasso;
 
 import io.realm.Realm;
 
@@ -28,6 +32,7 @@ public class GroupActivity extends ActionBarActivity {
     private Context context = this;
 
     private Group group;
+    private TextViewCustomFont groupName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,14 +42,68 @@ public class GroupActivity extends ActionBarActivity {
         changeColor(getResources().getColor(R.color.orange));
 
         Long id = getIntent().getLongExtra("id", -1);
-        if(id == -1) finish();
+        if (id == -1) finish();
 
         Realm realm = Realm.getInstance(context);
         group = realm.where(Group.class).equalTo("groupId", id).findFirst();
 
-        if(group == null) finish();
+        if (group == null) finish();
 
-        System.out.println(group.toString());
+        int position = 0;
+
+        Icon iv1 = (Icon) findViewById(R.id.imageView1);
+        Icon iv2 = (Icon) findViewById(R.id.imageView2);
+        Icon iv3 = (Icon) findViewById(R.id.imageView3);
+
+        Icon[] imageViews = new Icon[3];
+        imageViews[0] = iv1;
+        imageViews[1] = iv2;
+        imageViews[2] = iv3;
+
+        for (int i = 0; i < group.getMembers().size(); i++) {
+            User user = group.getMembers().get(i).getUser();
+            System.out.println("Group user: " + user.toString());
+            if (!user.getThumb().isEmpty() && !user.getThumb().equals("null") && position < imageViews.length) {
+                Picasso.with(context).load(user.getThumb()).into(imageViews[position]);
+                position++;
+            }
+        }
+
+        TextViewCustomFont groupCode = (TextViewCustomFont) findViewById(R.id.group_code);
+        String code = group.getCode().substring(0, 2) + "-" + group.getCode().substring(2, 4) + "-" + group.getCode().substring(4);
+        groupCode.setText(code.toUpperCase());
+
+        groupName = (TextViewCustomFont) findViewById(R.id.group_name);
+        groupName.setText(group.getName());
+
+        TextViewCustomFont members = (TextViewCustomFont) findViewById(R.id.members);
+        members.setText("Members (" + group.getMembers().size() + ")");
+        members.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //TODO:
+            }
+        });
+
+        TextViewCustomFont editName = (TextViewCustomFont) findViewById(R.id.edit_name);
+        editName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(GroupActivity.this, CreateEditGroupActivity.class);
+                intent.putExtra("isEdit", true);
+                intent.putExtra("groupId", group.getGroupId());
+                startActivityForResult(intent, 1);
+            }
+        });
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 1) {
+            if (resultCode == RESULT_OK) {
+                String newName = data.getStringExtra("groupName");
+                groupName.setText(newName);
+            }
+        }
     }
 
     @Override

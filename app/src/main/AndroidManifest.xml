@@ -44,7 +44,7 @@
             android:label="@string/title_activity_join_group" >
         </activity>
         <activity
-            android:name=".CreateGroupActivity"
+            android:name=".CreateEditGroupActivity"
             android:label="@string/title_activity_create_group" >
         </activity>
     </application>
