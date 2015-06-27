@@ -110,7 +110,7 @@ public class FeedAdapter extends RealmBaseAdapter<FeedItem> implements ListAdapt
             return messageString;
         } else if (item.getItemType().equals("group_joined")) {
             messageString = new SpannableString("You joined " + item.getGroup().getName() + ".");
-            messageString.setSpan(new StyleSpan(Typeface.BOLD), 0, (item.getGroup().getName()).length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            messageString.setSpan(new StyleSpan(Typeface.BOLD), 0, 3, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             return messageString;
         } else if (item.getItemType().equals("new_group_member")) {
             messageString = new SpannableString(item.getUser().getFirstName() + " " + item.getUser().getLastName() +

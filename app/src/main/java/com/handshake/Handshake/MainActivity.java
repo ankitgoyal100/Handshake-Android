@@ -78,7 +78,7 @@ public class MainActivity extends ActionBarActivity {
         session = new SessionManager(this);
         session.checkLogin();
 
-        if(!session.isLoggedIn()) return;
+        if (!session.isLoggedIn()) return;
 
         this.getSupportActionBar().setDisplayShowCustomEnabled(true);
         this.getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -217,7 +217,7 @@ public class MainActivity extends ActionBarActivity {
                 join.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                       Realm realm = Realm.getInstance(context);
+                        Realm realm = Realm.getInstance(context);
                         Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
 
                         JSONArray cardIds = new JSONArray();

@@ -1,37 +1,125 @@
 package com.handshake.Handshake;
 
-import android.support.v7.app.ActionBarActivity;
+import android.content.Context;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.TransitionDrawable;
+import android.os.Build;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.os.Handler;
+import android.support.v7.app.ActionBarActivity;
+import android.view.View;
+
+import com.handshake.helpers.GroupServerSync;
+import com.handshake.helpers.SyncCompleted;
+import com.handshake.models.Group;
+
+import java.util.Date;
+
+import io.realm.Realm;
 
 public class CreateGroupActivity extends ActionBarActivity {
+
+    private final Handler handler = new Handler();
+    private Drawable oldBackground = null;
+
+    private Context context = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_group);
+
+        changeColor(getResources().getColor(R.color.orange));
+
+//        - (void)groupEdited:(Group *)group {
+//            self.nameLabel.text = group.name;
+//            group.syncStatus = @(GroupUpdated);
+//
+//            [GroupServerSync sync];
+//        }
+
+//        - (void)groupEdited:(Group *)group {
+//            group.createdAt = [NSDate date];
+//            group.syncStatus = [NSNumber numberWithInt:GroupCreated];
+//            [GroupServerSync sync];
+//        }
+
+        final EditTextCustomFont groupName = (EditTextCustomFont) findViewById(R.id.group_name);
+        ButtonCustomFont create = (ButtonCustomFont) findViewById(R.id.create);
+
+        create.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Realm realm = Realm.getInstance(context);
+                realm.beginTransaction();
+                Group group = realm.createObject(Group.class);
+                group.setName(groupName.getText().toString());
+                group.setCreatedAt(new Date(System.currentTimeMillis()));
+                group.setSyncStatus(Utils.GroupCreated);
+                GroupServerSync.performSync(context, new SyncCompleted() {
+                    @Override
+                    public void syncCompletedListener() {
+                        System.out.println("Create group sync listener completed");
+                    }
+                });
+                realm.commitTransaction();
+            }
+        });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_create_group, menu);
-        return true;
+    public void changeColor(int newColor) {
+        // change ActionBar color just if an ActionBar is available
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+
+            Drawable colorDrawable = new ColorDrawable(newColor);
+            LayerDrawable ld = new LayerDrawable(new Drawable[]{colorDrawable});
+
+            if (oldBackground == null) {
+
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                    ld.setCallback(drawableCallback);
+                } else {
+                    getSupportActionBar().setBackgroundDrawable(ld);
+                }
+
+            } else {
+
+                TransitionDrawable td = new TransitionDrawable(new Drawable[]{oldBackground, ld});
+
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                    td.setCallback(drawableCallback);
+                } else {
+                    getSupportActionBar().setBackgroundDrawable(td);
+                }
+
+                td.startTransition(200);
+
+            }
+
+            oldBackground = ld;
+
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            getSupportActionBar().setDisplayShowTitleEnabled(true);
+
+        }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+    private Drawable.Callback drawableCallback = new Drawable.Callback() {
+        @Override
+        public void invalidateDrawable(Drawable who) {
+            getSupportActionBar().setBackgroundDrawable(who);
         }
 
-        return super.onOptionsItemSelected(item);
-    }
+        @Override
+        public void scheduleDrawable(Drawable who, Runnable what, long when) {
+            handler.postAtTime(what, when);
+        }
+
+        @Override
+        public void unscheduleDrawable(Drawable who, Runnable what) {
+            handler.removeCallbacks(what);
+        }
+    };
 }

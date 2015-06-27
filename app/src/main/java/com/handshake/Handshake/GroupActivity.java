@@ -59,6 +59,7 @@ public class GroupActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_leave_group) {
+            //TODO: Redesign the alert dialog
             new AlertDialog.Builder(this)
                     .setTitle("Are you sure?")
                     .setMessage("You won't receive any new contacts from this group.")
