@@ -108,12 +108,9 @@ public class GroupServerSync {
                                         e.printStackTrace();
                                     }
 
-                                    System.out.println(params.toString());
-
                                     RestClientSync.post(context, "/groups", params, "application/json", new JsonHttpResponseHandler() {
                                         @Override
                                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                                            System.out.println(response.toString());
                                             Realm realm = Realm.getInstance(context);
                                             realm.beginTransaction();
                                             try {
@@ -250,8 +247,6 @@ public class GroupServerSync {
                 map.clear();
 
                 groups = realm.allObjects(Group.class);
-                System.out.println(groups.toString());
-                System.out.println(allIDs.toString());
 
                 for (int i = 0; i < groups.size(); i++) {
                     Group group = groups.get(i);
@@ -316,6 +311,8 @@ public class GroupServerSync {
                                     realm.beginTransaction();
                                     GroupMember member = realm.createObject(GroupMember.class);
                                     member.setUser(user);
+                                    member.setName(user.getFirstName() + " " + user.getLastName());
+                                    member.setGroup(group);
 
                                     group.getMembers().add(realm.copyToRealm(member));
 

@@ -69,8 +69,6 @@ public class FeedItemServerSync {
             @Override
             public void onSuccess(int statusCode, Header[] headers, final JSONObject response) {
                 try {
-                    System.out.println("Feed sync response: " + response.toString());
-
                     final JSONArray feedObjects = response.getJSONArray("feed");
 
                     if (feedObjects.length() == 0) {
@@ -229,7 +227,6 @@ public class FeedItemServerSync {
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 if (errorResponse == null) return;
-                System.out.println(errorResponse.toString());
                 if (statusCode == 401) session.logoutUser();
             }
         });

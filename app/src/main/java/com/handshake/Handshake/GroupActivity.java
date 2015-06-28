@@ -62,7 +62,6 @@ public class GroupActivity extends ActionBarActivity {
 
         for (int i = 0; i < group.getMembers().size(); i++) {
             User user = group.getMembers().get(i).getUser();
-            System.out.println("Group user: " + user.toString());
             if (!user.getThumb().isEmpty() && !user.getThumb().equals("null") && position < imageViews.length) {
                 Picasso.with(context).load(user.getThumb()).into(imageViews[position]);
                 position++;
@@ -81,7 +80,9 @@ public class GroupActivity extends ActionBarActivity {
         members.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO:
+                Intent intent = new Intent(GroupActivity.this, GroupMemberActivity.class);
+                intent.putExtra("groupId", group.getGroupId());
+                startActivity(intent);
             }
         });
 
