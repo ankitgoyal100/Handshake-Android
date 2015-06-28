@@ -9,6 +9,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.handshake.listview.GroupMemberAdapter;
@@ -43,6 +45,10 @@ public class GroupMemberActivity extends ActionBarActivity {
         groupMembers.sort("name", true);
         GroupMemberAdapter myAdapter = new GroupMemberAdapter(this, groupMembers, true);
         list.setAdapter(myAdapter);
+
+        View empty = getLayoutInflater().inflate(R.layout.empty_list_view, null, false);
+        addContentView(empty, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        list.setEmptyView(empty);
     }
 
     public void changeColor(int newColor) {

@@ -280,7 +280,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
-                System.out.println("Contact sync completed " + syncsCompleted);
+//                System.out.println("Contact sync completed " + syncsCompleted);
             }
         });
 
@@ -288,7 +288,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
-                System.out.println("Account sync completed " + syncsCompleted);
+//                System.out.println("Account sync completed " + syncsCompleted);
             }
         });
 
@@ -296,7 +296,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
-                System.out.println("Card sync completed " + syncsCompleted);
+//                System.out.println("Card sync completed " + syncsCompleted);
             }
         });
 
@@ -304,7 +304,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
-                System.out.println("FeedItem sync completed " + syncsCompleted);
+//                System.out.println("FeedItem sync completed " + syncsCompleted);
             }
         });
 
@@ -312,7 +312,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
-                System.out.println("Group sync completed " + syncsCompleted);
+//                System.out.println("Group sync completed " + syncsCompleted);
             }
         });
 
@@ -320,7 +320,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
-                System.out.println("Request sync completed " + syncsCompleted);
+//                System.out.println("Request sync completed " + syncsCompleted);
             }
         });
 
@@ -328,7 +328,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
-                System.out.println("Suggestion sync completed " + syncsCompleted);
+//                System.out.println("Suggestion sync completed " + syncsCompleted);
             }
         });
 
