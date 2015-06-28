@@ -26,7 +26,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import io.realm.Realm;
-import io.realm.RealmList;
 import io.realm.RealmResults;
 
 /**
@@ -281,7 +280,8 @@ public class GroupServerSync {
                             if (group == null) return;
 
                             realm.beginTransaction();
-                            group.setMembers(new RealmList<GroupMember>());
+                            for (int i = 0; i < group.getMembers().size(); i++)
+                                group.getMembers().get(i).removeFromRealm();
                             realm.commitTransaction();
 
                             ArrayList<Long> allIDs = new ArrayList<Long>();
