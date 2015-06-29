@@ -1,6 +1,5 @@
 package com.handshake.Handshake;
 
-import android.app.AlertDialog;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -19,6 +18,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.handshake.helpers.FeedItemServerSync;
 import com.handshake.helpers.GroupArraySyncCompleted;
 import com.handshake.helpers.GroupServerSync;
@@ -342,8 +342,7 @@ public class JoinGroupActivity extends ActionBarActivity {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 SessionManager.setLastCopiedGroup(code);
-                //TODO: Redesign the alert dialog
-                new AlertDialog.Builder(context)
+                new AlertDialogWrapper.Builder(context)
                         .setTitle("Paste code?")
                         .setMessage("Would you like to paste the copied group code?")
                         .setPositiveButton("Paste", new DialogInterface.OnClickListener() {

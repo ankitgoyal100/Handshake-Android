@@ -4,7 +4,6 @@ package com.handshake.listview;
  * Created by ankitgoyal on 6/19/15.
  */
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.view.View;
@@ -13,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 
+import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.handshake.Handshake.R;
 import com.handshake.Handshake.TextViewCustomFont;
 import com.handshake.helpers.ContactServerSync;
@@ -78,8 +78,7 @@ public class ContactAdapter extends RealmBaseAdapter<User> implements ListAdapte
         viewHolder.contactsButtonLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: redesign this
-                new AlertDialog.Builder(context)
+                new AlertDialogWrapper.Builder(context)
                         .setTitle("Delete contact")
                         .setMessage("Are you sure you want to delete this contact?")
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {

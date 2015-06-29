@@ -21,7 +21,7 @@
             android:layout_width="60dip"
             android:layout_height="60dip"
             android:layout_gravity="center"
-            android:scaleType="centerInside"
+            android:scaleType="fitCenter"
             android:src="@drawable/default_profile" />
     </LinearLayout>
 

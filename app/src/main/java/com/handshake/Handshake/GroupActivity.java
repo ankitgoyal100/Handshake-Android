@@ -1,6 +1,5 @@
 package com.handshake.Handshake;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.handshake.helpers.GroupServerSync;
 import com.handshake.models.Group;
 import com.handshake.models.User;
@@ -123,8 +123,7 @@ public class GroupActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_leave_group) {
-            //TODO: Redesign the alert dialog
-            new AlertDialog.Builder(this)
+            new AlertDialogWrapper.Builder(this)
                     .setTitle("Are you sure?")
                     .setMessage("You won't receive any new contacts from this group.")
                     .setPositiveButton("Leave", new DialogInterface.OnClickListener() {

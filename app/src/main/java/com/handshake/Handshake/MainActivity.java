@@ -70,6 +70,10 @@ public class MainActivity extends ActionBarActivity {
     private int TAG_CONTACTS = 0;
     private int TAG_ADD = 1;
 
+    public static boolean cardSyncCompleted = false;
+
+    public static int dividerColor = 436207616;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -131,27 +135,17 @@ public class MainActivity extends ActionBarActivity {
         tabs.setShouldExpand(true);
         tabs.setViewPager(sPager);
 
+        findViewById(R.id.top_divider).setBackgroundColor(dividerColor);
+
         tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                if (position == 0 || position == 1 || position == 3) {
-                    contactButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_contacts_icon));
-                    contactButton.setTag(TAG_CONTACTS);
-                } else {
-                    contactButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_add));
-                    contactButton.setTag(TAG_ADD);
-                }
+                pageChanged(position, contactButton);
             }
 
             @Override
             public void onPageSelected(int position) {
-                if (position == 0 || position == 1 || position == 3) {
-                    contactButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_contacts_icon));
-                    contactButton.setTag(TAG_CONTACTS);
-                } else {
-                    contactButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_add));
-                    contactButton.setTag(TAG_ADD);
-                }
+                pageChanged(position, contactButton);
             }
 
             @Override
@@ -172,6 +166,16 @@ public class MainActivity extends ActionBarActivity {
                 }
             }
         });
+    }
+
+    private void pageChanged(int position, ImageButton contactButton) {
+        if (position == 0 || position == 1 || position == 3) {
+            contactButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_contacts_icon));
+            contactButton.setTag(TAG_CONTACTS);
+        } else {
+            contactButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_add));
+            contactButton.setTag(TAG_ADD);
+        }
     }
 
     private void checkCode(final String code) {
@@ -296,6 +300,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
+                cardSyncCompleted = true;
 //                System.out.println("Card sync completed " + syncsCompleted);
             }
         });
@@ -383,7 +388,7 @@ public class MainActivity extends ActionBarActivity {
             else if (position == 2)
                 return GroupFragment.newInstance();
             else
-                return RequestFragment.newInstance();
+                return ProfileFragment.newInstance();
         }
     }
 
