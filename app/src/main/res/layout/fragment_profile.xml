@@ -36,6 +36,7 @@
             app:contentScrim="@color/translucent"
             app:expandedTitleMarginEnd="64dp"
             app:expandedTitleMarginStart="48dp"
+            app:layout_collapseMode="pin"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <ImageView
@@ -126,7 +127,8 @@
         app:border_color="@android:color/white"
         app:border_width="2dp"
         app:layout_anchor="@id/appbar"
-        app:layout_anchorGravity="bottom|left" />
+        app:layout_anchorGravity="bottom|left"
+        app:layout_collapseMode="pin" />
 
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"

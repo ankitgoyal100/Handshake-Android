@@ -21,7 +21,13 @@ import java.io.UnsupportedEncodingException;
 public class RestClientAsync {
     private static final String BASE_URL = "https://handshakeapi11.herokuapp.com";
 
-        private static AsyncHttpClient client = new AsyncHttpClient();
+    private static AsyncHttpClient client = new AsyncHttpClient();
+
+    public static void get(Context context, String url, AsyncHttpResponseHandler responseHandler) {
+        client.addHeader("Accept", "application/json");
+        client.addHeader("Content-type", "application/json");
+        client.get(context, getAbsoluteUrl(url), new RequestParams(), responseHandler);
+    }
 
     public static void get(Context context, String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
         client.addHeader("Accept", "application/json");

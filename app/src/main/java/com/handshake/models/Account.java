@@ -159,7 +159,8 @@ public class Account extends RealmObject {
         RequestParams params = new RequestParams();
         params.put("email", account.getEmail());
         if (account.getFirstName().length() > 0) params.put("first_name", account.getFirstName());
-        if (account.getLastName().length() > 0) params.put("last_name", account.getLastName());
+        if (account.getLastName().length() > 0 && !account.getLastName().equals("null"))
+            params.put("last_name", account.getLastName());
 
         return params;
     }

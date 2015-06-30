@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
@@ -23,7 +24,12 @@ import com.handshake.models.Card;
 import com.handshake.models.Email;
 import com.handshake.models.Phone;
 import com.handshake.models.Social;
+import com.loopj.android.http.JsonHttpResponseHandler;
 import com.squareup.picasso.Picasso;
+
+import org.apache.http.Header;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
@@ -58,7 +64,10 @@ public class ProfileFragment extends Fragment {
         final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
 
         TextViewCustomFont name = (TextViewCustomFont) getView().findViewById(R.id.name);
-        name.setText(account.getFirstName() + " " + account.getLastName());
+        String lastName = "";
+        if (!account.getLastName().equals("null"))
+            lastName = account.getLastName();
+        name.setText(account.getFirstName() + " " + lastName);
 
         final View[] dividers = {getView().findViewById(R.id.divider1),
                 getView().findViewById(R.id.divider2)};
@@ -268,20 +277,37 @@ public class ProfileFragment extends Fragment {
                             divider.setBackgroundColor(MainActivity.dividerColor);
 
                             if (network.equals("facebook")) {
-                                imageView1.setImageDrawable(getResources().getDrawable(R.mipmap.facebook_icon));
-                                title.setText(username);
+                                System.out.println("Fb username: " + username);
+                                RestClientAsync.get(getActivity(), "http://graph.facebook.com/" + username, new JsonHttpResponseHandler() {
+                                    @Override
+                                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                                        imageView1.setImageDrawable(getResources().getDrawable(R.mipmap.facebook_icon));
+                                        try {
+                                            title.setText(response.getString("name"));
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                        socialLayout.addView(mLinearView);
+                                    }
+
+                                    @Override
+                                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                                        Toast.makeText(getActivity(), "There was an error loading your facebook username.", Toast.LENGTH_LONG).show();
+                                    }
+                                });
                             } else if (network.equals("twitter")) {
                                 imageView1.setImageDrawable(getResources().getDrawable(R.mipmap.twitter_icon));
                                 title.setText("@" + username);
+                                socialLayout.addView(mLinearView);
                             } else if (network.equals("instagram")) {
                                 imageView1.setImageDrawable(getResources().getDrawable(R.mipmap.instagram_icon));
                                 title.setText("@" + username);
+                                socialLayout.addView(mLinearView);
                             } else if (network.equals("snapchat")) {
                                 imageView1.setImageDrawable(getResources().getDrawable(R.mipmap.snapchat_icon));
                                 title.setText(username);
+                                socialLayout.addView(mLinearView);
                             }
-
-                            socialLayout.addView(mLinearView);
                         }
                     });
                 }
