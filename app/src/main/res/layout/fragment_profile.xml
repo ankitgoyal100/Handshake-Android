@@ -62,7 +62,7 @@
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        app:layout_behavior="com.handshake.Handshake.FixedScrollingViewBehavior">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -91,7 +91,9 @@
                 android:id="@+id/divider1"
                 android:layout_width="fill_parent"
                 android:layout_height="1dip"
-                android:background="@android:color/darker_gray" />
+                android:background="@android:color/darker_gray"
+                android:visibility="gone" />
+
 
             <LinearLayout
                 android:id="@+id/linear_layout_2"
@@ -105,7 +107,8 @@
                 android:layout_width="fill_parent"
                 android:layout_height="1dip"
                 android:layout_marginBottom="16dp"
-                android:background="@android:color/darker_gray" />
+                android:background="@android:color/darker_gray"
+                android:visibility="gone" />
 
         </LinearLayout>
 
@@ -117,17 +120,20 @@
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_margin="16dp"
+        android:fitsSystemWindows="true"
         android:src="@drawable/default_profile"
+        android:visibility="visible"
         app:border_color="@android:color/white"
         app:border_width="2dp"
         app:layout_anchor="@id/appbar"
-        app:layout_anchorGravity="bottom|left|end" />
+        app:layout_anchorGravity="bottom|left" />
 
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:clickable="true"
+        android:fitsSystemWindows="true"
         android:src="@android:drawable/ic_menu_edit"
         app:backgroundTint="@color/orange"
         app:layout_anchor="@id/appbar"

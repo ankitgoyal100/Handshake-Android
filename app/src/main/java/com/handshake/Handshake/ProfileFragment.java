@@ -1,6 +1,8 @@
 package com.handshake.Handshake;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -58,11 +60,8 @@ public class ProfileFragment extends Fragment {
         TextViewCustomFont name = (TextViewCustomFont) getView().findViewById(R.id.name);
         name.setText(account.getFirstName() + " " + account.getLastName());
 
-        getView().findViewById(R.id.divider1).setBackgroundColor(MainActivity.dividerColor);
-        getView().findViewById(R.id.divider2).setBackgroundColor(MainActivity.dividerColor);
-
-        if (account.getCards().first().getSocials().size() == 0)
-            getView().findViewById(R.id.divider2).setVisibility(View.GONE);
+        final View[] dividers = {getView().findViewById(R.id.divider1),
+                getView().findViewById(R.id.divider2)};
 
         CircleImageView profileImage = (CircleImageView) getView().findViewById(R.id.profile_image);
         ImageView backdrop = (ImageView) getView().findViewById(R.id.backdrop);
@@ -70,7 +69,7 @@ public class ProfileFragment extends Fragment {
 
         if (!account.getThumb().isEmpty() && !account.getThumb().equals("null")) {
             Picasso.with(getActivity()).load(account.getThumb()).transform(new CircleTransform()).into(profileImage);
-            Picasso.with(getActivity()).load(account.getThumb()).transform(new CircleTransform()).into(backdrop);
+            Picasso.with(getActivity()).load(account.getThumb()).into(backdrop);
         } else {
             Picasso.with(getActivity()).load(R.drawable.default_profile).transform(new CircleTransform()).into(profileImage);
             collabsingToolbar.setContentScrimColor(getResources().getColor(R.color.background_window));
@@ -88,8 +87,8 @@ public class ProfileFragment extends Fragment {
 
                 Realm realm = Realm.getInstance(getActivity());
 
-                Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
-                Card card = account.getCards().first();
+                final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+                final Card card = account.getCards().first();
 
                 for (final Phone phone : card.getPhones()) {
                     LayoutInflater inflater = (LayoutInflater) getActivity().getApplicationContext()
@@ -108,12 +107,36 @@ public class ProfileFragment extends Fragment {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
+                            dividers[0].setBackgroundColor(MainActivity.dividerColor);
+                            dividers[1].setBackgroundColor(MainActivity.dividerColor);
+
+                            dividers[0].setVisibility(View.VISIBLE);
+
                             divider.setBackgroundColor(MainActivity.dividerColor);
 
                             imageView1.setVisibility(View.VISIBLE);
                             imageView2.setVisibility(View.VISIBLE);
                             imageView1.setImageDrawable(getResources().getDrawable(R.mipmap.message_button));
                             imageView2.setImageDrawable(getResources().getDrawable(R.mipmap.call_button));
+
+                            imageView1.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Intent sendIntent = new Intent(Intent.ACTION_VIEW);
+                                    sendIntent.setData(Uri.parse("sms:" + phoneNumber));
+                                    startActivity(sendIntent);
+                                }
+                            });
+
+                            imageView2.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    String uri = "tel:" + phoneNumber;
+                                    Intent intent = new Intent(Intent.ACTION_CALL);
+                                    intent.setData(Uri.parse(uri));
+                                    startActivity(intent);
+                                }
+                            });
 
                             description.setText(phoneLabel);
                             infoLayout.addView(mLinearView);
@@ -152,6 +175,15 @@ public class ProfileFragment extends Fragment {
                             imageView2.setVisibility(View.VISIBLE);
                             imageView2.setImageDrawable(getResources().getDrawable(R.mipmap.email_button));
 
+                            imageView2.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                                            "mailto", emailAddress, null));
+                                    startActivity(Intent.createChooser(emailIntent, "Send email"));
+                                }
+                            });
+
                             title.setText(emailAddress);
                             description.setText(emailLabel);
                             infoLayout.addView(mLinearView);
@@ -183,6 +215,24 @@ public class ProfileFragment extends Fragment {
                             imageView2.setVisibility(View.VISIBLE);
                             imageView2.setImageDrawable(getResources().getDrawable(R.mipmap.maps_button));
 
+                            imageView2.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    String address;
+                                    if (addressStreet2.length() != 0)
+                                        address = addressStreet1 + ", " + addressStreet2 + ", " +
+                                                addressCity + ", " + addressState + " " + addressZip;
+                                    else
+                                        address = addressStreet1 + ", " +
+                                                addressCity + ", " + addressState + " " + addressZip;
+
+                                    Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + address);
+                                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                                    mapIntent.setPackage("com.google.android.apps.maps");
+                                    startActivity(mapIntent);
+                                }
+                            });
+
                             if (addressStreet2.length() != 0)
                                 title.setText(addressStreet1 + "\n" + addressStreet2 + "\n" +
                                         addressCity + ", " + addressState + " " + addressZip);
@@ -209,6 +259,12 @@ public class ProfileFragment extends Fragment {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
+                            if (card.getSocials().size() == 0) {
+                                dividers[1].setVisibility(View.GONE);
+                            } else {
+                                dividers[1].setVisibility(View.VISIBLE);
+                            }
+
                             divider.setBackgroundColor(MainActivity.dividerColor);
 
                             if (network.equals("facebook")) {

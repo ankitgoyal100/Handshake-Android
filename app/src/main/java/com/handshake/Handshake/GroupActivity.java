@@ -10,7 +10,7 @@ import android.graphics.drawable.TransitionDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,7 +24,7 @@ import com.squareup.picasso.Picasso;
 
 import io.realm.Realm;
 
-public class GroupActivity extends ActionBarActivity {
+public class GroupActivity extends AppCompatActivity {
 
     private final Handler handler = new Handler();
     private Drawable oldBackground = null;

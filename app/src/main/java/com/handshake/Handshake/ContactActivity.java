@@ -8,7 +8,7 @@ import android.graphics.drawable.TransitionDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.ListView;
 
 import com.handshake.listview.ContactAdapter;
@@ -18,7 +18,7 @@ import io.realm.Realm;
 import io.realm.RealmResults;
 
 
-public class ContactActivity extends ActionBarActivity {
+public class ContactActivity extends AppCompatActivity {
 
     private final Handler handler = new Handler();
     private Drawable oldBackground = null;

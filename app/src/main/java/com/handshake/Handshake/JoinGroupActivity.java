@@ -10,7 +10,7 @@ import android.graphics.drawable.TransitionDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -37,7 +37,7 @@ import java.util.ArrayList;
 
 import io.realm.Realm;
 
-public class JoinGroupActivity extends ActionBarActivity {
+public class JoinGroupActivity extends AppCompatActivity {
 
     private final Handler handler = new Handler();
     private Drawable oldBackground = null;

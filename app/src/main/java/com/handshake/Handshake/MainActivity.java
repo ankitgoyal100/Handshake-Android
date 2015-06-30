@@ -17,7 +17,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -53,7 +54,7 @@ import java.util.ArrayList;
 import io.realm.Realm;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
 
     private final Handler handler = new Handler();
     private Drawable oldBackground = null;
@@ -84,13 +85,8 @@ public class MainActivity extends ActionBarActivity {
 
         if (!session.isLoggedIn()) return;
 
-        this.getSupportActionBar().setDisplayShowCustomEnabled(true);
-        this.getSupportActionBar().setDisplayShowTitleEnabled(false);
-        this.getSupportActionBar().setDisplayShowHomeEnabled(false);
-
-        LayoutInflater inflator = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View v = inflator.inflate(R.layout.actionbar, null);
-        this.getSupportActionBar().setCustomView(v);
+        Toolbar v = (Toolbar) findViewById(R.id.actionBar);
+        setSupportActionBar(v);
 
         final ImageButton contactButton = (ImageButton) v.findViewById(R.id.action_contacts);
         contactButton.setTag(TAG_CONTACTS);

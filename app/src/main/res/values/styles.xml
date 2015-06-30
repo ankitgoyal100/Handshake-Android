@@ -1,8 +1,17 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-    </style>
+    <!--<style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar"></style>-->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar"/>
+        <!--<item name="windowActionBar">false</item>-->
+        <!--<item name="android:windowNoTitle">true</item>-->
+    <!--<style name="AppTheme" parent="Theme.AppCompat">-->
+    <!--<item name="toolbarStyle">@style/AppThemeToolbar</item>-->
+    <!--</style>-->
+
+    <!--<style name="AppThemeToolbar" parent="Widget.AppCompat.Toolbar">-->
+    <!--<item name="contentInsetStart">0dp</item>-->
+    <!--</style>-->
 
     <style name="button" parent="@android:style/Widget.Button">
         <item name="com.handshake.Handshake:font">assets/HelveticaNeue.ttf</item>

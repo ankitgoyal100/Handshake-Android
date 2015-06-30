@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.handshake.Handshake" >
+    package="com.handshake.Handshake">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:label="@string/app_name">
         <activity
             android:name=".IntroActivity"
             android:label="@string/app_name"
@@ -17,14 +17,17 @@
         <activity
             android:name=".LoginActivity"
             android:label="@string/title_activity_login"
-            android:parentActivityName=".IntroActivity" />
+            android:parentActivityName=".IntroActivity"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
         <activity
             android:name=".SignUpActivity"
             android:label="@string/title_activity_sign_up"
-            android:parentActivityName=".IntroActivity" />
+            android:parentActivityName=".IntroActivity"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -33,24 +36,24 @@
         </activity>
         <activity
             android:name=".ContactActivity"
-            android:label="@string/title_activity_contact" >
-        </activity>
+            android:label="@string/title_activity_contact"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"></activity>
         <activity
             android:name=".GroupActivity"
-            android:label="@string/title_activity_group" >
-        </activity>
+            android:label="@string/title_activity_group"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"></activity>
         <activity
             android:name=".JoinGroupActivity"
-            android:label="@string/title_activity_join_group" >
-        </activity>
+            android:label="@string/title_activity_join_group"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"></activity>
         <activity
             android:name=".CreateEditGroupActivity"
-            android:label="@string/title_activity_create_group" >
-        </activity>
+            android:label="@string/title_activity_create_group"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"></activity>
         <activity
             android:name=".GroupMemberActivity"
-            android:label="@string/title_activity_group_member" >
-        </activity>
+            android:label="@string/title_activity_group_member"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"></activity>
     </application>
 
 </manifest>

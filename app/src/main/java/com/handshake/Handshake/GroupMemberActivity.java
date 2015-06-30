@@ -8,7 +8,7 @@ import android.graphics.drawable.TransitionDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -19,7 +19,7 @@ import com.handshake.models.GroupMember;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
-public class GroupMemberActivity extends ActionBarActivity {
+public class GroupMemberActivity extends AppCompatActivity {
 
     private final Handler handler = new Handler();
     private Drawable oldBackground = null;

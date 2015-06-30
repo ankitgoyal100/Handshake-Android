@@ -9,7 +9,7 @@ import android.graphics.drawable.TransitionDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import com.handshake.helpers.GroupServerSync;
@@ -20,7 +20,7 @@ import java.util.Date;
 
 import io.realm.Realm;
 
-public class CreateEditGroupActivity extends ActionBarActivity {
+public class CreateEditGroupActivity extends AppCompatActivity {
 
     private final Handler handler = new Handler();
     private Drawable oldBackground = null;
