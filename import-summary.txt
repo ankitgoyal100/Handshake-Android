@@ -17,8 +17,6 @@ The following files were *not* copied into the new Gradle project; you
 should evaluate whether these are still needed in your project and if
 so manually move them:
 
-* .gitignore
-* README.md
 * proguard-project.txt
 
 Replaced Jars with Dependencies:
@@ -31,17 +29,16 @@ the .jar file in your project was of an older version than the
 dependency we picked, which could render the project not compileable.
 You can disable the jar replacement in the import wizard and try again:
 
-android-support-v4.jar => com.android.support:support-v4:21.+
+android-support-v4.jar => com.android.support:support-v4:19.+
 
 Moved Files:
 ------------
 Android Gradle projects use a different directory structure than ADT
 Eclipse projects. Here's how the projects were restructured:
 
-* AndroidManifest.xml => android_anndblur/src/main/AndroidManifest.xml
-* res/ => android_anndblur/src/main/res/
-* src/ => android_anndblur/src/main/java/
-* src/fi/harism/anndblur/StackBlur.rs => android_anndblur/src/main/rs/StackBlur.rs
+* AndroidManifest.xml => countryPickerLib/src/main/AndroidManifest.xml
+* res/ => countryPickerLib/src/main/res/
+* src/ => countryPickerLib/src/main/java/
 
 Missing Android Support Repository:
 -----------------------------------

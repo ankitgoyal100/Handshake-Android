@@ -30,6 +30,9 @@ import com.handshake.models.Social;
 import com.handshake.views.TextViewCustomFont;
 import com.squareup.picasso.Picasso;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
 
@@ -38,6 +41,9 @@ import io.realm.Realm;
  */
 public class ProfileFragment extends Fragment {
     private Handler handler = new Handler();
+    private LinearLayout infoLayout;
+    private LinearLayout socialLayout;
+    private static Executor executor = Executors.newSingleThreadExecutor();
 
     public static ProfileFragment newInstance() {
         ProfileFragment fragment = new ProfileFragment();
@@ -59,6 +65,8 @@ public class ProfileFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        infoLayout = (LinearLayout) getView().findViewById(R.id.linear_layout);
+        socialLayout = (LinearLayout) getView().findViewById(R.id.linear_layout_2);
         fillViews();
     }
 
@@ -87,11 +95,6 @@ public class ProfileFragment extends Fragment {
             collabsingToolbar.setContentScrimColor(getResources().getColor(R.color.background_window));
         }
 
-        final LinearLayout infoLayout = (LinearLayout) getView().findViewById(R.id.linear_layout);
-        final LinearLayout socialLayout = (LinearLayout) getView().findViewById(R.id.linear_layout_2);
-        infoLayout.removeAllViews();
-        socialLayout.removeAllViews();
-
         FloatingActionButton editButton = (FloatingActionButton) getView().findViewById(R.id.edit_button);
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -103,7 +106,7 @@ public class ProfileFragment extends Fragment {
 
         final ProgressDialog dialog = ProgressDialog.show(getActivity(), "", "Loading profile...", true);
 
-        new Thread(new Runnable() {
+        executor.execute(new Runnable() {
             @Override
             public void run() {
                 while (!MainActivity.cardSyncCompleted) {
@@ -132,6 +135,9 @@ public class ProfileFragment extends Fragment {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
+                            infoLayout.removeAllViews();
+                            socialLayout.removeAllViews();
+
                             dialog.cancel();
                             dividers[0].setBackgroundColor(MainActivity.dividerColor);
                             dividers[1].setBackgroundColor(MainActivity.dividerColor);
@@ -358,7 +364,7 @@ public class ProfileFragment extends Fragment {
                     });
                 }
             }
-        }).start();
+        });
     }
 
     @Override

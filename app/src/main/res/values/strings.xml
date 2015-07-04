@@ -17,5 +17,7 @@
     <string name="title_activity_group_member">Members</string>
     <string name="title_activity_edit_profile">Edit Profile</string>
     <string name="title_activity_edit_name">Edit Name</string>
+    <string name="title_activity_edit_social">EditSocialActivity</string>
+    <string name="title_activity_edit_phone">EditPhoneActivity</string>
 
 </resources>

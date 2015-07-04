@@ -38,6 +38,7 @@ import com.handshake.models.Email;
 import com.handshake.models.Phone;
 import com.handshake.models.Social;
 import com.handshake.views.TextViewCustomFont;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
@@ -176,6 +177,15 @@ public class EditProfileActivity extends AppCompatActivity {
                     }
 
                     description.setText(phoneLabel);
+                    mLinearView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent i = new Intent(context, EditPhoneActivity.class);
+                            i.putExtra("number", phoneNumber);
+                            i.putExtra("code", phoneCountryCode);
+                            startActivityForResult(i, 0);
+                        }
+                    });
 
                     infoLayout.addView(mLinearView);
                 }
@@ -400,7 +410,7 @@ public class EditProfileActivity extends AppCompatActivity {
                             })
                             .show();
                 } else if (facebookView.getTag() == VIEW_ADD) {
-
+                    //TODO: add fb view
                 }
             }
         });
@@ -432,6 +442,9 @@ public class EditProfileActivity extends AppCompatActivity {
                             .show();
                 } else if (twitterView.getTag() == VIEW_ADD) {
                     twitterView.setTag(VIEW_REMOVE);
+                    Intent intent = new Intent(context, EditSocialActivity.class);
+                    intent.putExtra("network", "Twitter");
+                    startActivityForResult(intent, 0);
                 }
             }
         });
@@ -463,7 +476,9 @@ public class EditProfileActivity extends AppCompatActivity {
                             .show();
                 } else if (instagramView.getTag() == VIEW_ADD) {
                     instagramView.setTag(VIEW_REMOVE);
-
+                    Intent intent = new Intent(context, EditSocialActivity.class);
+                    intent.putExtra("network", "Instagram");
+                    startActivityForResult(intent, 0);
                 }
             }
         });
@@ -495,7 +510,9 @@ public class EditProfileActivity extends AppCompatActivity {
                             .show();
                 } else if (snapchatView.getTag() == VIEW_ADD) {
                     snapchatView.setTag(VIEW_REMOVE);
-
+                    Intent intent = new Intent(context, EditSocialActivity.class);
+                    intent.putExtra("network", "Snapchat");
+                    startActivityForResult(intent, 0);
                 }
             }
         });
@@ -544,15 +561,23 @@ public class EditProfileActivity extends AppCompatActivity {
         }
     }
 
-    private void updateImage(ImageView profileImage, Intent data) {
+    private void updateImage(final ImageView profileImage, Intent data) {
         Uri selectedImage = data.getData();
-        Picasso.with(this).load(selectedImage).transform(new CircleTransform()).into(profileImage);
+        Picasso.with(this).load(selectedImage).transform(new CircleTransform()).into(profileImage, new Callback() {
+            @Override
+            public void onSuccess() {
+                Realm realm = Realm.getInstance(context);
+                final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+                realm.beginTransaction();
+                account.setPictureData(getBytesFromBitmap(((BitmapDrawable) profileImage.getDrawable()).getBitmap()));
+                realm.commitTransaction();
+            }
 
-        Realm realm = Realm.getInstance(context);
-        final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
-        realm.beginTransaction();
-        account.setPictureData(getBytesFromBitmap(((BitmapDrawable) profileImage.getDrawable()).getBitmap()));
-        realm.commitTransaction();
+            @Override
+            public void onError() {
+
+            }
+        });
     }
 
     public byte[] getBytesFromBitmap(Bitmap bitmap) {

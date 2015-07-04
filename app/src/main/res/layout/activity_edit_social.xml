@@ -1,0 +1,50 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.handshake.Handshake.LoginActivity">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:orientation="horizontal">
+
+        <com.handshake.views.TextViewCustomFont
+            android:id="@+id/prefix"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            android:text="\@" />
+
+        <com.handshake.views.EditTextCustomFont
+            android:id="@+id/username"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:ems="10"
+            android:hint="Username"
+            android:inputType="textPersonName"
+            android:padding="10dp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:background="@color/divider" />
+
+    <com.handshake.views.ButtonCustomFont
+        android:id="@+id/save"
+        style="@style/button"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/button_orange"
+        android:text="Save"
+        android:textColor="@android:color/white"
+        android:textSize="18sp" />
+
+</LinearLayout>
