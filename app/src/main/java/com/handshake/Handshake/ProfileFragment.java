@@ -59,6 +59,10 @@ public class ProfileFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        fillViews();
+    }
+
+    private void fillViews() {
         final Realm realm = Realm.getInstance(getActivity());
         final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
 
@@ -85,6 +89,8 @@ public class ProfileFragment extends Fragment {
 
         final LinearLayout infoLayout = (LinearLayout) getView().findViewById(R.id.linear_layout);
         final LinearLayout socialLayout = (LinearLayout) getView().findViewById(R.id.linear_layout_2);
+        infoLayout.removeAllViews();
+        socialLayout.removeAllViews();
 
         FloatingActionButton editButton = (FloatingActionButton) getView().findViewById(R.id.edit_button);
         editButton.setOnClickListener(new View.OnClickListener() {
@@ -164,6 +170,7 @@ public class ProfileFragment extends Fragment {
                             PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
                             try {
                                 Phonenumber.PhoneNumber numberObject = phoneUtil.parse(phoneNumber, phoneCountryCode);
+                                System.out.println(numberObject.toString());
                                 if (phoneUtil.isValidNumber(numberObject))
                                     title.setText(phoneUtil.format(numberObject, PhoneNumberUtil.PhoneNumberFormat.NATIONAL));
                             } catch (NumberParseException e) {
@@ -352,5 +359,12 @@ public class ProfileFragment extends Fragment {
                 }
             }
         }).start();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        fillViews();
     }
 }

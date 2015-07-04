@@ -3,6 +3,8 @@ package com.handshake.Handshake;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
@@ -38,6 +40,7 @@ import com.handshake.models.Social;
 import com.handshake.views.TextViewCustomFont;
 import com.squareup.picasso.Picasso;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
 import io.realm.Realm;
@@ -88,6 +91,8 @@ public class EditProfileActivity extends AppCompatActivity {
 
                     }
                 });
+
+                finish();
             }
         });
     }
@@ -118,6 +123,7 @@ public class EditProfileActivity extends AppCompatActivity {
             findViewById(R.id.divider3).setVisibility(View.GONE);
 
         final LinearLayout infoLayout = (LinearLayout) findViewById(R.id.linear_layout);
+        infoLayout.removeAllViews();
 
         for (int i = 0; i < card.getPhones().size(); i++) {
             final Phone phone = card.getPhones().get(i);
@@ -141,7 +147,7 @@ public class EditProfileActivity extends AppCompatActivity {
                         public void onClick(View v) {
                             new AlertDialogWrapper.Builder(context)
                                     .setMessage("Are you sure?")
-                                    .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                                    .setPositiveButton("Remove", new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int which) {
                                             infoLayout.removeView(mLinearView);
                                             Realm realm = Realm.getInstance(context);
@@ -198,7 +204,7 @@ public class EditProfileActivity extends AppCompatActivity {
                         public void onClick(View v) {
                             new AlertDialogWrapper.Builder(context)
                                     .setMessage("Are you sure?")
-                                    .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                                    .setPositiveButton("Remove", new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int which) {
                                             infoLayout.removeView(mLinearView);
                                             Realm realm = Realm.getInstance(context);
@@ -249,7 +255,7 @@ public class EditProfileActivity extends AppCompatActivity {
                         public void onClick(View v) {
                             new AlertDialogWrapper.Builder(context)
                                     .setMessage("Are you sure?")
-                                    .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                                    .setPositiveButton("Remove", new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int which) {
                                             infoLayout.removeView(mLinearView);
                                             Realm realm = Realm.getInstance(context);
@@ -374,7 +380,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 if (facebookView.getTag() == VIEW_REMOVE) {
                     new AlertDialogWrapper.Builder(context)
                             .setMessage("Are you sure?")
-                            .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                            .setPositiveButton("Remove", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     facebookView.setTag(VIEW_ADD);
                                     ((TextView) facebookView.findViewById(R.id.title)).setText("Add Facebook");
@@ -405,7 +411,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 if (twitterView.getTag() == VIEW_REMOVE) {
                     new AlertDialogWrapper.Builder(context)
                             .setMessage("Are you sure?")
-                            .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                            .setPositiveButton("Remove", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     twitterView.setTag(VIEW_ADD);
                                     ((TextView) twitterView.findViewById(R.id.title)).setText("Add Twitter");
@@ -436,7 +442,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 if (instagramView.getTag() == VIEW_REMOVE) {
                     new AlertDialogWrapper.Builder(context)
                             .setMessage("Are you sure?")
-                            .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                            .setPositiveButton("Remove", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     instagramView.setTag(VIEW_ADD);
                                     ((TextView) instagramView.findViewById(R.id.title)).setText("Add Instagram");
@@ -468,7 +474,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 if (snapchatView.getTag() == VIEW_REMOVE) {
                     new AlertDialogWrapper.Builder(context)
                             .setMessage("Are you sure?")
-                            .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                            .setPositiveButton("Remove", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     snapchatView.setTag(VIEW_ADD);
                                     ((TextView) snapchatView.findViewById(R.id.title)).setText("Add Snapchat");
@@ -505,7 +511,7 @@ public class EditProfileActivity extends AppCompatActivity {
         }
 
         LinearLayout profileLayout = (LinearLayout) findViewById(R.id.edit_picture);
-        profileImage.setOnClickListener(new View.OnClickListener() {
+        profileLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 CharSequence[] items = {"Image from Camera", "Image from Library"};
@@ -514,13 +520,13 @@ public class EditProfileActivity extends AppCompatActivity {
                         .itemsCallback(new MaterialDialog.ListCallback() {
                             @Override
                             public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
-                                if(which == 0) {
+                                if (which == 0) {
                                     Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                                     startActivityForResult(takePicture, 1);
                                 } else {
                                     Intent pickPhoto = new Intent(Intent.ACTION_PICK,
                                             android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                                    startActivityForResult(pickPhoto , 2);
+                                    startActivityForResult(pickPhoto, 2);
                                 }
                             }
                         })
@@ -531,16 +537,28 @@ public class EditProfileActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
         if (requestCode == 0 && resultCode == RESULT_OK) {
             fillViews();
-        } else if(requestCode == 1 && resultCode == RESULT_OK) {
-            Uri selectedImage = data.getData();
-            profileImage.setImageURI(selectedImage);
-        } else if(requestCode == 2 && resultCode == RESULT_OK) {
-            Uri selectedImage = data.getData();
-            profileImage.setImageURI(selectedImage);
+        } else if ((requestCode == 1 || requestCode == 2) && resultCode == RESULT_OK) {
+            updateImage(profileImage, data);
         }
+    }
+
+    private void updateImage(ImageView profileImage, Intent data) {
+        Uri selectedImage = data.getData();
+        Picasso.with(this).load(selectedImage).transform(new CircleTransform()).into(profileImage);
+
+        Realm realm = Realm.getInstance(context);
+        final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+        realm.beginTransaction();
+        account.setPictureData(getBytesFromBitmap(((BitmapDrawable) profileImage.getDrawable()).getBitmap()));
+        realm.commitTransaction();
+    }
+
+    public byte[] getBytesFromBitmap(Bitmap bitmap) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream);
+        return stream.toByteArray();
     }
 
     public void changeColor(int newColor) {

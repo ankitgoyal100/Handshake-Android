@@ -2,6 +2,7 @@ package com.handshake.helpers;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 
 import com.handshake.Handshake.RestClientAsync;
 import com.handshake.Handshake.RestClientSync;
@@ -95,6 +96,10 @@ public class CardServerSync {
 
                 RealmResults<Card> cards = realm.where(Card.class).notEqualTo("syncStatus", Utils.CardSynced)
                         .equalTo("account.userId", account.getUserId()).findAll();
+
+                if (Looper.myLooper() == null) {
+                    Looper.prepare();
+                }
 
                 for (final Card c : cards) {
                     if (c.getSyncStatus() == Utils.CardCreated) {
