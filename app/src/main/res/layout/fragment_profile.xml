@@ -37,7 +37,7 @@
             app:expandedTitleMarginEnd="64dp"
             app:expandedTitleMarginStart="48dp"
             app:layout_collapseMode="pin"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+            app:layout_scrollFlags="scroll|enterAlways">
 
             <ImageView
                 android:id="@+id/backdrop"
@@ -71,7 +71,7 @@
             android:orientation="vertical"
             android:paddingTop="8dp">
 
-            <com.handshake.Handshake.TextViewCustomFont
+            <com.handshake.views.TextViewCustomFont
                 android:id="@+id/name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -131,6 +131,7 @@
         app:layout_collapseMode="pin" />
 
     <android.support.design.widget.FloatingActionButton
+        android:id="@+id/edit_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"

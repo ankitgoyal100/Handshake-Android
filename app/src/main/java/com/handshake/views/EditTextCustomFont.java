@@ -1,4 +1,4 @@
-package com.handshake.Handshake;
+package com.handshake.views;
 
 import android.content.Context;
 import android.graphics.Typeface;

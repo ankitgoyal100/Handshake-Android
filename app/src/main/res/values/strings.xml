@@ -1,4 +1,6 @@
 <resources>
+    <string name="facebook_app_id">209231715947381</string>
+
     <string name="app_name">Handshake</string>
 
     <string name="hello_world">Hello world!</string>
@@ -13,12 +15,7 @@
     <string name="title_activity_join_group">Join Group</string>
     <string name="title_activity_create_group">Create Group</string>
     <string name="title_activity_group_member">Members</string>
-
-
-  <string name="cheese_ipsum">Jarlsberg lancashire edam. Dolcelatte hard cheese brie st. agur blue
-    cheese caerphilly bavarian bergkase cheese and biscuits mascarpone. Cheeseburger swiss bavarian
-    bergkase cream cheese fromage frais cheesy feet port-salut airedale. St. agur blue cheese rubber
-    cheese caerphilly cheddar cheesecake cream cheese manchego lancashire. Roquefort squirty cheese
-    the big cheese.</string>
+    <string name="title_activity_edit_profile">Edit Profile</string>
+    <string name="title_activity_edit_name">Edit Name</string>
 
 </resources>

@@ -6,7 +6,7 @@
     tools:context="com.handshake.Handshake.CreateEditGroupActivity">
 
 
-    <com.handshake.Handshake.EditTextCustomFont
+    <com.handshake.views.EditTextCustomFont
         android:id="@+id/group_name"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -21,7 +21,7 @@
         android:layout_height="1dip"
         android:background="@color/divider" />
 
-    <com.handshake.Handshake.ButtonCustomFont
+    <com.handshake.views.ButtonCustomFont
         android:id="@+id/create"
         style="@style/button"
         android:layout_width="fill_parent"

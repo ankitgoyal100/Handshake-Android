@@ -15,6 +15,8 @@ import android.view.View;
 import com.handshake.helpers.GroupServerSync;
 import com.handshake.helpers.SyncCompleted;
 import com.handshake.models.Group;
+import com.handshake.views.ButtonCustomFont;
+import com.handshake.views.EditTextCustomFont;
 
 import java.util.Date;
 

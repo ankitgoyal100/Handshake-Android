@@ -1,11 +1,14 @@
 package com.handshake.Handshake;
 
+import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,12 +27,8 @@ import com.handshake.models.Card;
 import com.handshake.models.Email;
 import com.handshake.models.Phone;
 import com.handshake.models.Social;
-import com.loopj.android.http.JsonHttpResponseHandler;
+import com.handshake.views.TextViewCustomFont;
 import com.squareup.picasso.Picasso;
-
-import org.apache.http.Header;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
@@ -87,6 +86,17 @@ public class ProfileFragment extends Fragment {
         final LinearLayout infoLayout = (LinearLayout) getView().findViewById(R.id.linear_layout);
         final LinearLayout socialLayout = (LinearLayout) getView().findViewById(R.id.linear_layout_2);
 
+        FloatingActionButton editButton = (FloatingActionButton) getView().findViewById(R.id.edit_button);
+        editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getActivity(), EditProfileActivity.class);
+                startActivity(i);
+            }
+        });
+
+        final ProgressDialog dialog = ProgressDialog.show(getActivity(), "", "Loading profile...", true);
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -116,6 +126,7 @@ public class ProfileFragment extends Fragment {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
+                            dialog.cancel();
                             dividers[0].setBackgroundColor(MainActivity.dividerColor);
                             dividers[1].setBackgroundColor(MainActivity.dividerColor);
 
@@ -153,7 +164,6 @@ public class ProfileFragment extends Fragment {
                             PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
                             try {
                                 Phonenumber.PhoneNumber numberObject = phoneUtil.parse(phoneNumber, phoneCountryCode);
-                                System.out.println(numberObject.toString());
                                 if (phoneUtil.isValidNumber(numberObject))
                                     title.setText(phoneUtil.format(numberObject, PhoneNumberUtil.PhoneNumberFormat.NATIONAL));
                             } catch (NumberParseException e) {
@@ -277,37 +287,66 @@ public class ProfileFragment extends Fragment {
                             divider.setBackgroundColor(MainActivity.dividerColor);
 
                             if (network.equals("facebook")) {
-                                System.out.println("Fb username: " + username);
-                                RestClientAsync.get(getActivity(), "http://graph.facebook.com/" + username, new JsonHttpResponseHandler() {
+                                imageView1.setImageDrawable(getResources().getDrawable(R.mipmap.facebook_icon));
+                                title.setText("Facebook");
+                                mLinearView.setOnClickListener(new View.OnClickListener() {
                                     @Override
-                                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                                        imageView1.setImageDrawable(getResources().getDrawable(R.mipmap.facebook_icon));
+                                    public void onClick(View v) {
                                         try {
-                                            title.setText(response.getString("name"));
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
+                                            getActivity().getPackageManager().getPackageInfo("com.facebook.katana", 0);
+                                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("fb://profile/" + username)));
+                                        } catch (Exception e) {
+                                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://facebook.com/" + username)));
                                         }
-                                        socialLayout.addView(mLinearView);
-                                    }
-
-                                    @Override
-                                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                                        Toast.makeText(getActivity(), "There was an error loading your facebook username.", Toast.LENGTH_LONG).show();
                                     }
                                 });
                             } else if (network.equals("twitter")) {
                                 imageView1.setImageDrawable(getResources().getDrawable(R.mipmap.twitter_icon));
                                 title.setText("@" + username);
-                                socialLayout.addView(mLinearView);
+                                mLinearView.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        try {
+                                            startActivity(new Intent(Intent.ACTION_VIEW,
+                                                    Uri.parse("twitter://user?screen_name=" + username)));
+                                        } catch (Exception e) {
+                                            startActivity(new Intent(Intent.ACTION_VIEW,
+                                                    Uri.parse("https://twitter.com/#!/" + username)));
+                                        }
+                                    }
+                                });
                             } else if (network.equals("instagram")) {
                                 imageView1.setImageDrawable(getResources().getDrawable(R.mipmap.instagram_icon));
                                 title.setText("@" + username);
-                                socialLayout.addView(mLinearView);
+                                mLinearView.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        Uri uri = Uri.parse("http://instagram.com/_u/" + username + "/");
+                                        Intent likeIng = new Intent(Intent.ACTION_VIEW, uri);
+
+                                        likeIng.setPackage("com.instagram.android");
+
+                                        try {
+                                            startActivity(likeIng);
+                                        } catch (ActivityNotFoundException e) {
+                                            startActivity(new Intent(Intent.ACTION_VIEW,
+                                                    Uri.parse("http://instagram.com/_u/" + username + "/")));
+                                        }
+                                    }
+                                });
                             } else if (network.equals("snapchat")) {
                                 imageView1.setImageDrawable(getResources().getDrawable(R.mipmap.snapchat_icon));
                                 title.setText(username);
-                                socialLayout.addView(mLinearView);
+                                mLinearView.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        Toast.makeText(getActivity(),
+                                                "Unable to open Snapchat. Please manually add the user via the Snapchat application.", Toast.LENGTH_LONG).show();
+                                    }
+                                });
                             }
+
+                            socialLayout.addView(mLinearView);
                         }
                     });
                 }

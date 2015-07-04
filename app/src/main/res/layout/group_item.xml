@@ -6,7 +6,7 @@
     android:background="@android:color/white"
     android:orientation="vertical">
 
-    <com.handshake.Handshake.TextViewCustomFont
+    <com.handshake.views.TextViewCustomFont
         android:id="@+id/group_code"
         android:layout_width="match_parent"
         android:layout_height="80dp"
@@ -15,7 +15,7 @@
         android:gravity="center"
         android:textColor="@color/dark_gray" />
 
-    <com.handshake.Handshake.TextViewCustomFont
+    <com.handshake.views.TextViewCustomFont
         android:id="@+id/group_name"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -23,7 +23,7 @@
         android:textColor="#040404"
         android:textSize="18sp" />
 
-    <com.handshake.Handshake.TextViewCustomFont
+    <com.handshake.views.TextViewCustomFont
         android:id="@+id/num_members"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"

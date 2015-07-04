@@ -14,7 +14,7 @@ import android.widget.ListAdapter;
 
 import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.handshake.Handshake.R;
-import com.handshake.Handshake.TextViewCustomFont;
+import com.handshake.views.TextViewCustomFont;
 import com.handshake.helpers.ContactServerSync;
 import com.handshake.models.User;
 import com.squareup.picasso.Picasso;

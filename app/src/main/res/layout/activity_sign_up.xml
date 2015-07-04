@@ -5,7 +5,7 @@
     android:orientation="vertical"
     tools:context="com.handshake.Handshake.LoginActivity">
 
-    <com.handshake.Handshake.EditTextCustomFont
+    <com.handshake.views.EditTextCustomFont
         android:id="@+id/first_name"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -20,7 +20,7 @@
         android:layout_height="1dip"
         android:background="@color/divider" />
 
-    <com.handshake.Handshake.EditTextCustomFont
+    <com.handshake.views.EditTextCustomFont
         android:id="@+id/email"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
         android:layout_height="1dip"
         android:background="@color/divider" />
 
-    <com.handshake.Handshake.EditTextCustomFont
+    <com.handshake.views.EditTextCustomFont
         android:id="@+id/password"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -50,7 +50,7 @@
         android:layout_height="1dip"
         android:background="@color/divider" />
 
-    <com.handshake.Handshake.ButtonCustomFont
+    <com.handshake.views.ButtonCustomFont
         android:id="@+id/login"
         style="@style/button"
         android:layout_width="fill_parent"
@@ -63,7 +63,7 @@
         android:textColor="@android:color/white"
         android:textSize="18sp" />
 
-    <com.handshake.Handshake.TextViewCustomFont
+    <com.handshake.views.TextViewCustomFont
         android:id="@+id/forgot_password"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"

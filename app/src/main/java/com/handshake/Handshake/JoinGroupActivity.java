@@ -25,6 +25,7 @@ import com.handshake.helpers.GroupServerSync;
 import com.handshake.helpers.SyncCompleted;
 import com.handshake.models.Account;
 import com.handshake.models.Group;
+import com.handshake.views.EditTextCustomFont;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 

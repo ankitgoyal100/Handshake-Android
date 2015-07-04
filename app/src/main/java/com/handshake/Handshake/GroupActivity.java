@@ -20,6 +20,7 @@ import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.handshake.helpers.GroupServerSync;
 import com.handshake.models.Group;
 import com.handshake.models.User;
+import com.handshake.views.TextViewCustomFont;
 import com.squareup.picasso.Picasso;
 
 import io.realm.Realm;

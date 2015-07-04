@@ -9,7 +9,7 @@ import android.widget.ListAdapter;
 
 import com.handshake.Handshake.GroupActivity;
 import com.handshake.Handshake.R;
-import com.handshake.Handshake.TextViewCustomFont;
+import com.handshake.views.TextViewCustomFont;
 import com.handshake.models.Group;
 
 import io.realm.RealmBaseAdapter;

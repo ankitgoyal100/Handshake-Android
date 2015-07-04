@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.handshake.Handshake.TextViewCustomFont
+    <com.handshake.views.TextViewCustomFont
         android:id="@+id/empty_list_item"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"

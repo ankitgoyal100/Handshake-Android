@@ -14,7 +14,7 @@
         android:layout_marginTop="16dp"
         android:scaleType="fitCenter" />
 
-    <com.handshake.Handshake.TextViewCustomFont
+    <com.handshake.views.TextViewCustomFont
         android:id="@+id/text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -24,7 +24,7 @@
         android:textSize="17dip"
         android:textStyle="bold" />
 
-    <com.handshake.Handshake.ButtonCustomFont
+    <com.handshake.views.ButtonCustomFont
         android:id="@+id/join_group"
         style="@style/button"
         android:layout_width="match_parent"
@@ -37,7 +37,7 @@
         android:textColor="@android:color/white"
         android:textSize="18sp" />
 
-    <com.handshake.Handshake.TextViewCustomFont
+    <com.handshake.views.TextViewCustomFont
         android:id="@+id/no_thanks"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

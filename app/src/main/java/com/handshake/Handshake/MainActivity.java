@@ -28,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.astuetz.PagerSlidingTabStrip;
+import com.facebook.FacebookSdk;
 import com.handshake.helpers.AccountServerSync;
 import com.handshake.helpers.CardServerSync;
 import com.handshake.helpers.ContactServerSync;
@@ -84,6 +85,8 @@ public class MainActivity extends AppCompatActivity {
         session.checkLogin();
 
         if (!session.isLoggedIn()) return;
+
+        FacebookSdk.sdkInitialize(getApplicationContext());
 
         Toolbar v = (Toolbar) findViewById(R.id.actionBar);
         setSupportActionBar(v);

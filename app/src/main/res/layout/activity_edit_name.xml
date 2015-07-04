@@ -6,14 +6,13 @@
     tools:context="com.handshake.Handshake.LoginActivity">
 
     <com.handshake.views.EditTextCustomFont
-        android:text="ankitgoyal100@gmail.com"
-        android:id="@+id/email"
+        android:id="@+id/first_name"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/white"
         android:ems="10"
-        android:hint="Email"
-        android:inputType="textEmailAddress"
+        android:hint="First Name"
+        android:inputType="textPersonName"
         android:padding="10dp" />
 
     <View
@@ -22,14 +21,13 @@
         android:background="@color/divider" />
 
     <com.handshake.views.EditTextCustomFont
-        android:text="ashwinankit"
-        android:id="@+id/password"
+        android:id="@+id/last_name"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/white"
         android:ems="10"
-        android:hint="Password"
-        android:inputType="textPassword"
+        android:hint="Last Name"
+        android:inputType="textPersonName"
         android:padding="10dp" />
 
     <View
@@ -38,7 +36,7 @@
         android:background="@color/divider" />
 
     <com.handshake.views.ButtonCustomFont
-        android:id="@+id/login"
+        android:id="@+id/save"
         style="@style/button"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -46,19 +44,8 @@
         android:layout_marginRight="16dp"
         android:layout_marginTop="16dp"
         android:background="@drawable/button_orange"
-        android:text="Log In"
+        android:text="Save"
         android:textColor="@android:color/white"
         android:textSize="18sp" />
-
-    <com.handshake.views.TextViewCustomFont
-        android:id="@+id/forgot_password"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:gravity="center_horizontal"
-        android:text="Forgot Password?"
-        android:textColor="@color/dark_gray"
-        android:textSize="14sp"
-        android:textStyle="bold" />
 
 </LinearLayout>

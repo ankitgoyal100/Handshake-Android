@@ -5,7 +5,7 @@
     android:orientation="vertical"
     tools:context="com.handshake.Handshake.CreateEditGroupActivity">
 
-    <com.handshake.Handshake.TextViewCustomFont
+    <com.handshake.views.TextViewCustomFont
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
@@ -22,7 +22,7 @@
         android:gravity="center_horizontal"
         android:orientation="horizontal">
 
-        <com.handshake.Handshake.EditTextCustomFont
+        <com.handshake.views.EditTextCustomFont
             android:id="@+id/editText1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -36,7 +36,7 @@
             android:textSize="28sp"
             android:textStyle="bold" />
 
-        <com.handshake.Handshake.EditTextCustomFont
+        <com.handshake.views.EditTextCustomFont
             android:id="@+id/editText2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -51,7 +51,7 @@
             android:textSize="28sp"
             android:textStyle="bold" />
 
-        <com.handshake.Handshake.TextViewCustomFont
+        <com.handshake.views.TextViewCustomFont
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="4dp"
@@ -60,7 +60,7 @@
             android:textSize="24sp"
             android:textStyle="bold" />
 
-        <com.handshake.Handshake.EditTextCustomFont
+        <com.handshake.views.EditTextCustomFont
             android:id="@+id/editText3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -75,7 +75,7 @@
             android:textSize="28sp"
             android:textStyle="bold" />
 
-        <com.handshake.Handshake.EditTextCustomFont
+        <com.handshake.views.EditTextCustomFont
             android:id="@+id/editText4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -90,7 +90,7 @@
             android:textSize="28sp"
             android:textStyle="bold" />
 
-        <com.handshake.Handshake.TextViewCustomFont
+        <com.handshake.views.TextViewCustomFont
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="4dp"
@@ -99,7 +99,7 @@
             android:textSize="24sp"
             android:textStyle="bold" />
 
-        <com.handshake.Handshake.EditTextCustomFont
+        <com.handshake.views.EditTextCustomFont
             android:id="@+id/editText5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -114,7 +114,7 @@
             android:textSize="28sp"
             android:textStyle="bold" />
 
-        <com.handshake.Handshake.EditTextCustomFont
+        <com.handshake.views.EditTextCustomFont
             android:id="@+id/editText6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -130,7 +130,7 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <com.handshake.Handshake.ButtonCustomFont
+    <com.handshake.views.ButtonCustomFont
         android:id="@+id/join"
         style="@style/button"
         android:layout_width="fill_parent"

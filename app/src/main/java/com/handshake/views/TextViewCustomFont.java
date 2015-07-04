@@ -1,8 +1,10 @@
-package com.handshake.Handshake;
+package com.handshake.views;
 
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.TextView;
+
+import com.handshake.Handshake.CustomFontHelper;
 
 /**
  * Created by ankitgoyal on 6/11/15.
