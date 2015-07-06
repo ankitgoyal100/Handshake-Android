@@ -74,8 +74,6 @@ public class MainActivity extends AppCompatActivity {
 
     public static boolean cardSyncCompleted = false;
 
-    public static int dividerColor = 436207616;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -133,8 +131,6 @@ public class MainActivity extends AppCompatActivity {
         tabs.setTabPaddingLeftRight(16);
         tabs.setShouldExpand(true);
         tabs.setViewPager(sPager);
-
-        findViewById(R.id.top_divider).setBackgroundColor(dividerColor);
 
         tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override

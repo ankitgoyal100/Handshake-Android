@@ -25,9 +25,9 @@
         tools:context=".MainActivity" />
 
     <View
-        android:id="@+id/top_divider"
         android:layout_width="fill_parent"
-        android:layout_height="1dip" />
+        android:layout_height="1dip"
+        android:background="@color/divider" />
 
     <com.astuetz.PagerSlidingTabStrip
         android:id="@+id/tabs"

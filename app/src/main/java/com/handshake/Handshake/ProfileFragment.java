@@ -81,9 +81,6 @@ public class ProfileFragment extends Fragment {
             lastName = account.getLastName();
         name.setText(account.getFirstName() + " " + lastName);
 
-        final View[] dividers = {getView().findViewById(R.id.divider1),
-                getView().findViewById(R.id.divider2)};
-
         CircleImageView profileImage = (CircleImageView) getView().findViewById(R.id.profile_image);
         ImageView backdrop = (ImageView) getView().findViewById(R.id.backdrop);
         CollapsingToolbarLayout collabsingToolbar = (CollapsingToolbarLayout) getView().findViewById(R.id.collapsing_toolbar);
@@ -140,12 +137,8 @@ public class ProfileFragment extends Fragment {
 //                            socialLayout.removeAllViews();
 
                             dialog.cancel();
-                            dividers[0].setBackgroundColor(MainActivity.dividerColor);
-                            dividers[1].setBackgroundColor(MainActivity.dividerColor);
 
-                            dividers[0].setVisibility(View.VISIBLE);
-
-                            divider.setBackgroundColor(MainActivity.dividerColor);
+                            getView().findViewById(R.id.divider1).setVisibility(View.VISIBLE);
 
                             imageView1.setVisibility(View.VISIBLE);
                             imageView2.setVisibility(View.VISIBLE);
@@ -198,12 +191,10 @@ public class ProfileFragment extends Fragment {
                     final ImageView imageView2 = (ImageView) mLinearView.findViewById(R.id.imageView2);
                     final String emailAddress = email.getAddress();
                     final String emailLabel = email.getLabel();
-                    final View divider = mLinearView.findViewById(R.id.divider);
 
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            divider.setBackgroundColor(MainActivity.dividerColor);
                             imageView1.setVisibility(View.GONE);
                             imageView2.setVisibility(View.VISIBLE);
                             imageView2.setImageDrawable(getResources().getDrawable(R.mipmap.email_button));
@@ -238,12 +229,10 @@ public class ProfileFragment extends Fragment {
                     final String addressState = address.getState();
                     final String addressZip = address.getZip();
                     final String addressLabel = address.getLabel();
-                    final View divider = mLinearView.findViewById(R.id.divider);
 
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            divider.setBackgroundColor(MainActivity.dividerColor);
                             imageView1.setVisibility(View.GONE);
                             imageView2.setVisibility(View.VISIBLE);
                             imageView2.setImageDrawable(getResources().getDrawable(R.mipmap.maps_button));
@@ -287,18 +276,15 @@ public class ProfileFragment extends Fragment {
                     final ImageView imageView1 = (ImageView) mLinearView.findViewById(R.id.imageView1);
                     final String username = social.getUsername();
                     final String network = social.getNetwork();
-                    final View divider = mLinearView.findViewById(R.id.divider);
 
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
                             if (card.getSocials().size() == 0) {
-                                dividers[1].setVisibility(View.GONE);
+                                getView().findViewById(R.id.divider2).setVisibility(View.GONE);
                             } else {
-                                dividers[1].setVisibility(View.VISIBLE);
+                                getView().findViewById(R.id.divider2).setVisibility(View.VISIBLE);
                             }
-
-                            divider.setBackgroundColor(MainActivity.dividerColor);
 
                             if (network.equals("facebook")) {
                                 imageView1.setImageDrawable(getResources().getDrawable(R.mipmap.facebook_icon));

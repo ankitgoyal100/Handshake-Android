@@ -20,5 +20,6 @@
     <string name="title_activity_edit_social">EditSocialActivity</string>
     <string name="title_activity_edit_phone">EditPhoneActivity</string>
     <string name="title_activity_edit_email">EditEmailActivity</string>
+    <string name="title_activity_edit_address">EditAddressActivity</string>
 
 </resources>

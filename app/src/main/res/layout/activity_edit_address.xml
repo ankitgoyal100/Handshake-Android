@@ -3,18 +3,33 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.handshake.editor.EditProfileActivity">
+    tools:context="com.handshake.editor.EditEmailActivity">
 
-    <com.handshake.views.TextViewCustomFont
-        android:id="@+id/country_code"
+    <com.handshake.views.EditTextCustomFont
+        android:id="@+id/street1"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/white"
         android:ems="10"
-        android:padding="15dp"
-        android:text="United States (+1)"
-        android:textColor="@color/orange"
-        android:textSize="18sp" />
+        android:hint="Street address"
+        android:nextFocusForward="@+id/street2"
+        android:padding="15dp" />
+
+    <View
+        android:id="@+id/divider2"
+        android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:background="@color/divider" />
+
+    <com.handshake.views.EditTextCustomFont
+        android:id="@id/street2"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:ems="10"
+        android:hint="Street address (cont.)"
+        android:nextFocusForward="@+id/city"
+        android:padding="15dp" />
 
     <View
         android:layout_width="fill_parent"
@@ -22,14 +37,51 @@
         android:background="@color/divider" />
 
     <com.handshake.views.EditTextCustomFont
-        android:id="@+id/number"
+        android:id="@id/city"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/white"
         android:ems="10"
-        android:hint="Phone number"
-        android:inputType="phone"
+        android:hint="City"
+        android:nextFocusForward="@+id/state"
         android:padding="15dp" />
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:background="@color/divider" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.handshake.views.EditTextCustomFont
+            android:id="@id/state"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@android:color/white"
+            android:ems="10"
+            android:hint="State"
+            android:nextFocusForward="@+id/zip"
+            android:padding="15dp" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="fill_parent"
+            android:background="@color/divider" />
+
+        <com.handshake.views.EditTextCustomFont
+            android:id="@id/zip"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@android:color/white"
+            android:ems="10"
+            android:hint="Zip code"
+            android:padding="15dp" />
+    </LinearLayout>
 
     <View
         android:layout_width="fill_parent"
@@ -75,37 +127,6 @@
         android:background="@color/divider" />
 
     <LinearLayout
-        android:id="@+id/mobile"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/white"
-        android:orientation="horizontal">
-
-        <com.handshake.views.TextViewCustomFont
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ems="10"
-            android:padding="15dp"
-            android:text="Mobile"
-            android:textColor="#040404"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <ImageView
-            android:id="@+id/checkbox2"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginRight="15dp" />
-    </LinearLayout>
-
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="1dip"
-        android:background="@color/divider" />
-
-    <LinearLayout
         android:id="@+id/work"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -124,7 +145,7 @@
             android:textStyle="bold" />
 
         <ImageView
-            android:id="@+id/checkbox3"
+            android:id="@+id/checkbox2"
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_gravity="center_vertical"
@@ -155,7 +176,7 @@
             android:textStyle="bold" />
 
         <ImageView
-            android:id="@+id/checkbox4"
+            android:id="@+id/checkbox3"
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_gravity="center_vertical"

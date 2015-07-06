@@ -29,7 +29,6 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
-import com.handshake.Handshake.MainActivity;
 import com.handshake.Handshake.R;
 import com.handshake.Handshake.SessionManager;
 import com.handshake.Handshake.Utils;
@@ -48,7 +47,6 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
 
 import io.realm.Realm;
 
@@ -110,14 +108,6 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     private void fillViews() {
-        ArrayList<View> dividers = new ArrayList<>();
-        dividers.add(findViewById(R.id.divider1));
-        dividers.add(findViewById(R.id.divider2));
-        dividers.add(findViewById(R.id.divider3));
-        dividers.add(findViewById(R.id.divider4));
-        dividers.add(findViewById(R.id.divider5));
-        dividers.add(findViewById(R.id.divider6));
-
         final Realm realm = Realm.getInstance(this);
         final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
         final Card card = account.getCards().first();
@@ -125,14 +115,14 @@ public class EditProfileActivity extends AppCompatActivity {
         setName(account);
         setImage(account);
         setContactInformation(card);
-        setSocials(card, dividers);
+        setSocials(card);
     }
 
     private void setContactInformation(Card card) {
         if (card.getPhones().size() == 0 && card.getEmails().size() == 0 && card.getAddresses().size() == 0)
-            findViewById(R.id.divider3).setVisibility(View.VISIBLE);
+            findViewById(R.id.divider).setVisibility(View.VISIBLE);
         else
-            findViewById(R.id.divider3).setVisibility(View.GONE);
+            findViewById(R.id.divider).setVisibility(View.GONE);
 
         final LinearLayout infoLayout = (LinearLayout) findViewById(R.id.linear_layout);
         infoLayout.removeAllViews();
@@ -153,7 +143,6 @@ public class EditProfileActivity extends AppCompatActivity {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    divider.setBackgroundColor(MainActivity.dividerColor);
                     imageView1.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -219,8 +208,6 @@ public class EditProfileActivity extends AppCompatActivity {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    divider.setBackgroundColor(MainActivity.dividerColor);
-
                     imageView1.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -280,8 +267,6 @@ public class EditProfileActivity extends AppCompatActivity {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    divider.setBackgroundColor(MainActivity.dividerColor);
-
                     imageView1.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -313,6 +298,19 @@ public class EditProfileActivity extends AppCompatActivity {
                                 addressCity + ", " + addressState + " " + addressZip);
 
                     description.setText(addressLabel);
+                    mLinearView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent i = new Intent(context, EditAddressActivity.class);
+                            i.putExtra("street1", addressStreet1);
+                            i.putExtra("street2", addressStreet2);
+                            i.putExtra("city", addressCity);
+                            i.putExtra("state", addressState);
+                            i.putExtra("zip", addressZip);
+                            i.putExtra("label", addressLabel);
+                            startActivityForResult(i, 0);
+                        }
+                    });
                     infoLayout.addView(mLinearView);
                 }
             });
@@ -337,19 +335,11 @@ public class EditProfileActivity extends AppCompatActivity {
         });
     }
 
-    private void setSocials(final Card card, ArrayList<View> dividers) {
+    private void setSocials(final Card card) {
         facebookView = findViewById(R.id.facebook);
         twitterView = findViewById(R.id.twitter);
         instagramView = findViewById(R.id.instagram);
         snapchatView = findViewById(R.id.snapchat);
-
-        dividers.add(facebookView.findViewById(R.id.divider));
-        dividers.add(twitterView.findViewById(R.id.divider));
-        dividers.add(instagramView.findViewById(R.id.divider));
-        dividers.add(snapchatView.findViewById(R.id.divider));
-
-        for (int i = 0; i < dividers.size(); i++)
-            dividers.get(i).setBackgroundColor(MainActivity.dividerColor);
 
         for (Social social : card.getSocials()) {
             if (social.getNetwork().equals("facebook")) {
