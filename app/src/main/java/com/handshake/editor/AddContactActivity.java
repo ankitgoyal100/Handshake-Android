@@ -26,6 +26,8 @@ public class AddContactActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_contact);
 
+        changeColor(getResources().getColor(R.color.orange));
+
         LinearLayout phone = (LinearLayout) findViewById(R.id.phone);
         LinearLayout email = (LinearLayout) findViewById(R.id.email);
         LinearLayout address = (LinearLayout) findViewById(R.id.address);
