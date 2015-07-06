@@ -135,8 +135,8 @@ public class ProfileFragment extends Fragment {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            infoLayout.removeAllViews();
-                            socialLayout.removeAllViews();
+//                            infoLayout.removeAllViews();
+//                            socialLayout.removeAllViews();
 
                             dialog.cancel();
                             dividers[0].setBackgroundColor(MainActivity.dividerColor);
@@ -371,6 +371,6 @@ public class ProfileFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        fillViews();
+//        fillViews();
     }
 }

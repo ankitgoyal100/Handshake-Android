@@ -5,29 +5,36 @@
     android:orientation="vertical"
     tools:context="com.handshake.Handshake.LoginActivity">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/white"
         android:orientation="horizontal">
 
-        <com.handshake.views.TextViewCustomFont
-            android:id="@+id/prefix"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingLeft="10dp"
-            android:text="\@" />
-
         <com.handshake.views.EditTextCustomFont
             android:id="@+id/username"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/prefix"
             android:background="@android:color/white"
             android:ems="10"
             android:hint="Username"
             android:inputType="textPersonName"
-            android:padding="10dp" />
-    </LinearLayout>
+            android:paddingBottom="15dp"
+            android:paddingLeft="15dp"
+            android:paddingTop="15dp" />
+
+        <com.handshake.views.TextViewCustomFont
+            android:id="@id/prefix"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="-12dp"
+            android:paddingLeft="15dp"
+            android:text="\@"
+            android:textSize="18sp" />
+    </RelativeLayout>
 
     <View
         android:layout_width="fill_parent"

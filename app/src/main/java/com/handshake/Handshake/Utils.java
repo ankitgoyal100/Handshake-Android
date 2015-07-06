@@ -14,6 +14,9 @@ import java.util.TimeZone;
  * Created by ankitgoyal on 6/13/15.
  */
 public class Utils {
+    public static String[] threeLabels = {"Home", "Work", "Other"};
+    public static String[] fourLabels = {"Home", "Mobile", "Work", "Other"};
+
     public static short userSynced = 0;
     public static short userDeleted = 1;
 
@@ -29,6 +32,17 @@ public class Utils {
     public static short GroupCreated = 1;
     public static short GroupUpdated = 2;
     public static short GroupDeleted = 3;
+
+    public static int getIndexOfLabel(String label, boolean isThree) {
+        if (label.equals("Home")) return 0;
+        else if (label.equals("Mobile") && !isThree) return 1;
+        else if (label.equals("Work") && !isThree) return 2;
+        else if (label.equals("Work") && isThree) return 1;
+        else if (label.equals("Other") && !isThree) return 3;
+        else if (label.equals("Other") && isThree) return 2;
+
+        return 0;
+    }
 
     public static Date formatDate(String str) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
@@ -118,7 +132,7 @@ public class Utils {
     }
 
     public static String getCodes(Context context, ClipData clipboard) {
-        if(clipboard == null) return "";
+        if (clipboard == null) return "";
         ArrayList<String> strings = new ArrayList<>();
         for (int i = 0; i < clipboard.getItemCount(); i++) {
             String[] s = clipboard.getItemAt(i).coerceToText(context).toString().split("\\s+");

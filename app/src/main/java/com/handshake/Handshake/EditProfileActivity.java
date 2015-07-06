@@ -16,6 +16,8 @@ import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -56,6 +58,11 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private Context context = this;
     private ImageView profileImage;
+
+    private View facebookView;
+    private View twitterView;
+    private View instagramView;
+    private View snapchatView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -183,6 +190,7 @@ public class EditProfileActivity extends AppCompatActivity {
                             Intent i = new Intent(context, EditPhoneActivity.class);
                             i.putExtra("number", phoneNumber);
                             i.putExtra("code", phoneCountryCode);
+                            i.putExtra("label", phoneLabel);
                             startActivityForResult(i, 0);
                         }
                     });
@@ -234,6 +242,16 @@ public class EditProfileActivity extends AppCompatActivity {
 
                     title.setText(emailAddress);
                     description.setText(emailLabel);
+                    mLinearView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent i = new Intent(context, EditEmailActivity.class);
+                            i.putExtra("address", emailAddress);
+                            i.putExtra("label", emailLabel);
+                            startActivityForResult(i, 0);
+                        }
+                    });
+
                     infoLayout.addView(mLinearView);
                 }
             });
@@ -316,10 +334,10 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     private void setSocials(final Card card, ArrayList<View> dividers) {
-        final View facebookView = findViewById(R.id.facebook);
-        final View twitterView = findViewById(R.id.twitter);
-        final View instagramView = findViewById(R.id.instagram);
-        final View snapchatView = findViewById(R.id.snapchat);
+        facebookView = findViewById(R.id.facebook);
+        twitterView = findViewById(R.id.twitter);
+        instagramView = findViewById(R.id.instagram);
+        snapchatView = findViewById(R.id.snapchat);
 
         dividers.add(facebookView.findViewById(R.id.divider));
         dividers.add(twitterView.findViewById(R.id.divider));
@@ -441,10 +459,9 @@ public class EditProfileActivity extends AppCompatActivity {
                             })
                             .show();
                 } else if (twitterView.getTag() == VIEW_ADD) {
-                    twitterView.setTag(VIEW_REMOVE);
                     Intent intent = new Intent(context, EditSocialActivity.class);
                     intent.putExtra("network", "Twitter");
-                    startActivityForResult(intent, 0);
+                    startActivityForResult(intent, 1);
                 }
             }
         });
@@ -475,10 +492,9 @@ public class EditProfileActivity extends AppCompatActivity {
                             })
                             .show();
                 } else if (instagramView.getTag() == VIEW_ADD) {
-                    instagramView.setTag(VIEW_REMOVE);
                     Intent intent = new Intent(context, EditSocialActivity.class);
                     intent.putExtra("network", "Instagram");
-                    startActivityForResult(intent, 0);
+                    startActivityForResult(intent, 2);
                 }
             }
         });
@@ -509,10 +525,9 @@ public class EditProfileActivity extends AppCompatActivity {
                             })
                             .show();
                 } else if (snapchatView.getTag() == VIEW_ADD) {
-                    snapchatView.setTag(VIEW_REMOVE);
                     Intent intent = new Intent(context, EditSocialActivity.class);
                     intent.putExtra("network", "Snapchat");
-                    startActivityForResult(intent, 0);
+                    startActivityForResult(intent, 3);
                 }
             }
         });
@@ -539,11 +554,11 @@ public class EditProfileActivity extends AppCompatActivity {
                             public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
                                 if (which == 0) {
                                     Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                                    startActivityForResult(takePicture, 1);
+                                    startActivityForResult(takePicture, 4);
                                 } else {
                                     Intent pickPhoto = new Intent(Intent.ACTION_PICK,
                                             android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                                    startActivityForResult(pickPhoto, 2);
+                                    startActivityForResult(pickPhoto, 4);
                                 }
                             }
                         })
@@ -556,7 +571,16 @@ public class EditProfileActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 0 && resultCode == RESULT_OK) {
             fillViews();
-        } else if ((requestCode == 1 || requestCode == 2) && resultCode == RESULT_OK) {
+        } else if (requestCode == 1 && resultCode == RESULT_OK) {
+            twitterView.setTag(VIEW_REMOVE);
+            fillViews();
+        } else if (requestCode == 2 && resultCode == RESULT_OK) {
+            instagramView.setTag(VIEW_REMOVE);
+            fillViews();
+        } else if (requestCode == 3 && resultCode == RESULT_OK) {
+            snapchatView.setTag(VIEW_REMOVE);
+            fillViews();
+        } else if (requestCode == 4 && resultCode == RESULT_OK) {
             updateImage(profileImage, data);
         }
     }
@@ -639,4 +663,27 @@ public class EditProfileActivity extends AppCompatActivity {
             handler.removeCallbacks(what);
         }
     };
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_edit_name, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_cancel) {
+            finish();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 }

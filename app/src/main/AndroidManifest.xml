@@ -78,7 +78,11 @@
         <activity
             android:name=".EditPhoneActivity"
             android:label="@string/title_activity_edit_phone"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"/>
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+        <activity
+            android:name=".EditEmailActivity"
+            android:label="@string/title_activity_edit_email"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
     </application>
 
 </manifest>
