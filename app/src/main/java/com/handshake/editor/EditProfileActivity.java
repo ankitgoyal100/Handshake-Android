@@ -116,6 +116,15 @@ public class EditProfileActivity extends AppCompatActivity {
         setImage(account);
         setContactInformation(card);
         setSocials(card);
+
+        TextViewCustomFont addInformation = (TextViewCustomFont) findViewById(R.id.add_information);
+        addInformation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(context, AddContactActivity.class);
+                startActivityForResult(i, 0);
+            }
+        });
     }
 
     private void setContactInformation(Card card) {
@@ -138,7 +147,6 @@ public class EditProfileActivity extends AppCompatActivity {
             final String phoneNumber = phone.getNumber();
             final String phoneCountryCode = phone.getCountryCode();
             final String phoneLabel = phone.getLabel();
-            final View divider = mLinearView.findViewById(R.id.divider);
 
             handler.post(new Runnable() {
                 @Override
