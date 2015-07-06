@@ -27,6 +27,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.astuetz.PagerSlidingTabStrip;
 import com.facebook.FacebookSdk;
 import com.handshake.helpers.AccountServerSync;
@@ -98,21 +99,22 @@ public class MainActivity extends AppCompatActivity {
                     Intent intent = new Intent(MainActivity.this, ContactActivity.class);
                     startActivity(intent);
                 } else {
-                    new AlertDialog.Builder(context)
-                            .setMessage("Would you like to create a group or join a group?")
-                            .setPositiveButton("Join Group", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    Intent intent = new Intent(context, JoinGroupActivity.class);
-                                    startActivity(intent);
-                                    dialog.cancel();
-                                }
-                            })
-                            .setNegativeButton("Create Group", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    Intent intent = new Intent(context, CreateEditGroupActivity.class);
-                                    intent.putExtra("isEdit", false);
-                                    startActivity(intent);
-                                    dialog.cancel();
+                    CharSequence[] items = {"Join Group", "Create Group"};
+                    new MaterialDialog.Builder(context)
+                            .items(items)
+                            .itemsCallback(new MaterialDialog.ListCallback() {
+                                @Override
+                                public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+                                    if (which == 0) {
+                                        Intent intent = new Intent(context, JoinGroupActivity.class);
+                                        startActivity(intent);
+                                        dialog.cancel();
+                                    } else {
+                                        Intent intent = new Intent(context, CreateEditGroupActivity.class);
+                                        intent.putExtra("isEdit", false);
+                                        startActivity(intent);
+                                        dialog.cancel();
+                                    }
                                 }
                             })
                             .show();
