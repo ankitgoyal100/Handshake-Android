@@ -211,7 +211,6 @@ public class EditProfileActivity extends AppCompatActivity {
             final ImageView imageView1 = (ImageView) mLinearView.findViewById(R.id.imageView1);
             final String emailAddress = email.getAddress();
             final String emailLabel = email.getLabel();
-            final View divider = mLinearView.findViewById(R.id.divider);
 
             handler.post(new Runnable() {
                 @Override
@@ -270,7 +269,6 @@ public class EditProfileActivity extends AppCompatActivity {
             final String addressState = address.getState();
             final String addressZip = address.getZip();
             final String addressLabel = address.getLabel();
-            final View divider = mLinearView.findViewById(R.id.divider);
 
             handler.post(new Runnable() {
                 @Override
