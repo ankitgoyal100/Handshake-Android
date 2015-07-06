@@ -14,7 +14,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <com.handshake.Handshake.Icon
+            <com.handshake.views.Icon
                 android:id="@+id/imageView1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -22,7 +22,7 @@
                 android:scaleType="fitCenter"
                 android:src="@color/dark_gray" />
 
-            <com.handshake.Handshake.Icon
+            <com.handshake.views.Icon
                 android:id="@+id/imageView2"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -30,7 +30,7 @@
                 android:scaleType="fitCenter"
                 android:src="@color/dark_gray" />
 
-            <com.handshake.Handshake.Icon
+            <com.handshake.views.Icon
                 android:id="@+id/imageView3"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

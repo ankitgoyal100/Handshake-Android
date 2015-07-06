@@ -1,4 +1,4 @@
-package com.handshake.Handshake;
+package com.handshake.editor;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -29,6 +29,10 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
+import com.handshake.Handshake.MainActivity;
+import com.handshake.Handshake.R;
+import com.handshake.Handshake.SessionManager;
+import com.handshake.Handshake.Utils;
 import com.handshake.helpers.AccountServerSync;
 import com.handshake.helpers.CardServerSync;
 import com.handshake.helpers.SyncCompleted;

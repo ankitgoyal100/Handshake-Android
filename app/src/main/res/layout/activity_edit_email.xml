@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.handshake.Handshake.EditEmailActivity">
+    tools:context="com.handshake.editor.EditEmailActivity">
 
     <com.handshake.views.EditTextCustomFont
         android:id="@+id/email"

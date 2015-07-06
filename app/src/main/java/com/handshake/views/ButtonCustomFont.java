@@ -4,8 +4,6 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.Button;
 
-import com.handshake.Handshake.CustomFontHelper;
-
 /**
  * Created by ankitgoyal on 6/11/15.
  */

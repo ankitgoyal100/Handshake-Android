@@ -1,4 +1,4 @@
-package com.handshake.Handshake;
+package com.handshake.editor;
 
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
@@ -13,13 +13,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.handshake.Handshake.R;
+import com.handshake.Handshake.SessionManager;
 import com.handshake.models.Account;
+import com.handshake.models.Card;
+import com.handshake.models.Social;
 import com.handshake.views.ButtonCustomFont;
 import com.handshake.views.EditTextCustomFont;
+import com.handshake.views.TextViewCustomFont;
 
 import io.realm.Realm;
 
-public class EditNameActivity extends AppCompatActivity {
+public class EditSocialActivity extends AppCompatActivity {
 
     private final Handler handler = new Handler();
     private Drawable oldBackground = null;
@@ -27,27 +32,35 @@ public class EditNameActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_name);
+        setContentView(R.layout.activity_edit_social);
 
         changeColor(getResources().getColor(R.color.orange));
 
+        TextViewCustomFont prefix = (TextViewCustomFont) findViewById(R.id.prefix);
+        final EditTextCustomFont username = (EditTextCustomFont) findViewById(R.id.username);
+
+        if(getIntent().getStringExtra("network").equals("Twitter") ||
+                getIntent().getStringExtra("network").equals("Instagram")) {
+            prefix.setVisibility(View.VISIBLE);
+            setTitle("Add " + getIntent().getStringExtra("network"));
+        } else {
+            prefix.setVisibility(View.GONE);
+            setTitle("Add Snapchat");
+        }
+
         final Realm realm = Realm.getInstance(this);
         final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
-
-        final EditTextCustomFont firstName = (EditTextCustomFont) findViewById(R.id.first_name);
-        final EditTextCustomFont lastName = (EditTextCustomFont) findViewById(R.id.last_name);
-
-        firstName.setText(account.getFirstName());
-        if (!account.getLastName().equals("null"))
-            lastName.setText(account.getLastName());
+        final Card card = account.getCards().first();
 
         ButtonCustomFont saveButton = (ButtonCustomFont) findViewById(R.id.save);
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 realm.beginTransaction();
-                account.setFirstName(firstName.getText().toString());
-                account.setLastName(lastName.getText().toString());
+                Social social = realm.createObject(Social.class);
+                social.setNetwork(getIntent().getStringExtra("network").toLowerCase());
+                social.setUsername(username.getText().toString());
+                card.getSocials().add(realm.copyToRealm(social));
                 realm.commitTransaction();
 
                 Intent returnIntent = new Intent();

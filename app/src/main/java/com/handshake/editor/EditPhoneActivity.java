@@ -1,4 +1,4 @@
-package com.handshake.Handshake;
+package com.handshake.editor;
 
 import android.content.Context;
 import android.content.Intent;
@@ -22,6 +22,9 @@ import com.countrypicker.CountryPickerListener;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
+import com.handshake.Handshake.R;
+import com.handshake.Handshake.SessionManager;
+import com.handshake.Handshake.Utils;
 import com.handshake.models.Account;
 import com.handshake.models.Card;
 import com.handshake.models.Phone;

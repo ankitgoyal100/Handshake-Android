@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.handshake.Handshake.EditProfileActivity">
+    tools:context="com.handshake.editor.EditProfileActivity">
 
     <com.handshake.views.TextViewCustomFont
         android:id="@+id/country_code"

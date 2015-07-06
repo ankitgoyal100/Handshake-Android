@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    tools:context="com.handshake.Handshake.EditProfileActivity">
+    tools:context="com.handshake.editor.EditProfileActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
