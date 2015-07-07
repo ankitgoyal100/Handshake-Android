@@ -22,5 +22,6 @@
     <string name="title_activity_edit_email">EditEmailActivity</string>
     <string name="title_activity_edit_address">EditAddressActivity</string>
     <string name="title_activity_add_contact">Add</string>
+    <string name="title_activity_settings">Settings</string>
 
 </resources>

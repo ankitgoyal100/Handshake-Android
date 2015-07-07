@@ -31,6 +31,7 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 import com.handshake.Handshake.R;
 import com.handshake.Handshake.SessionManager;
+import com.handshake.Handshake.SettingsActivity;
 import com.handshake.Handshake.Utils;
 import com.handshake.helpers.AccountServerSync;
 import com.handshake.helpers.CardServerSync;
@@ -568,6 +569,23 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        new AlertDialogWrapper.Builder(context)
+                .setMessage("Are you sure?")
+                .setPositiveButton("Leave", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        EditProfileActivity.this.finish();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                })
+                .show();
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 0 && resultCode == RESULT_OK) {
             fillViews();
@@ -667,7 +685,7 @@ public class EditProfileActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_edit_name, menu);
+        getMenuInflater().inflate(R.menu.menu_edit_profile, menu);
         return true;
     }
 
@@ -679,8 +697,9 @@ public class EditProfileActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_cancel) {
-            finish();
+        if (id == R.id.action_settings) {
+            Intent i = new Intent(EditProfileActivity.this, SettingsActivity.class);
+            startActivity(i);
             return true;
         }
 

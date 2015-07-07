@@ -88,6 +88,11 @@
         <activity
             android:name="com.handshake.editor.AddContactActivity"
             android:label="@string/title_activity_add_contact"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" >
+        </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
         </activity>
     </application>
