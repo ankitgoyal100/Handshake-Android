@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 
 import com.handshake.Handshake.R;
+import com.handshake.views.CircleTransform;
 import com.handshake.views.TextViewCustomFont;
 import com.handshake.models.GroupMember;
 import com.squareup.picasso.Picasso;

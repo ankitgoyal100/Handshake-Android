@@ -1,4 +1,4 @@
-package com.handshake.listview;
+package com.handshake.views;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;

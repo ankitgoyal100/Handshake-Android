@@ -8,6 +8,7 @@ import android.widget.ListAdapter;
 import android.widget.Toast;
 
 import com.handshake.Handshake.R;
+import com.handshake.views.CircleTransform;
 import com.handshake.views.TextViewCustomFont;
 import com.handshake.helpers.RequestServerSync;
 import com.handshake.helpers.UserSyncCompleted;

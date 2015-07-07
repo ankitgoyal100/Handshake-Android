@@ -36,13 +36,13 @@ import com.handshake.Handshake.Utils;
 import com.handshake.helpers.AccountServerSync;
 import com.handshake.helpers.CardServerSync;
 import com.handshake.helpers.SyncCompleted;
-import com.handshake.listview.CircleTransform;
 import com.handshake.models.Account;
 import com.handshake.models.Address;
 import com.handshake.models.Card;
 import com.handshake.models.Email;
 import com.handshake.models.Phone;
 import com.handshake.models.Social;
+import com.handshake.views.CircleTransform;
 import com.handshake.views.TextViewCustomFont;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -559,7 +559,7 @@ public class EditProfileActivity extends AppCompatActivity {
                                 } else {
                                     Intent pickPhoto = new Intent(Intent.ACTION_PICK,
                                             android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                                    startActivityForResult(pickPhoto, 4);
+                                    startActivityForResult(pickPhoto, 5);
                                 }
                             }
                         })
@@ -599,27 +599,28 @@ public class EditProfileActivity extends AppCompatActivity {
             snapchatView.setTag(VIEW_REMOVE);
             fillViews();
         } else if (requestCode == 4 && resultCode == RESULT_OK) {
-            updateImage(profileImage, data);
+            Bitmap photo = (Bitmap) data.getExtras().get("data");
+            CircleTransform transform = new CircleTransform();
+            Bitmap circle = transform.transform(photo);
+            profileImage.setImageBitmap(circle);
+        } else if (requestCode == 5 && resultCode == RESULT_OK) {
+            Uri selectedImage = data.getData();
+            Picasso.with(this).load(selectedImage).transform(new CircleTransform()).into(profileImage, new Callback() {
+                @Override
+                public void onSuccess() {
+                    Realm realm = Realm.getInstance(context);
+                    final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+                    realm.beginTransaction();
+                    account.setPictureData(getBytesFromBitmap(((BitmapDrawable) profileImage.getDrawable()).getBitmap()));
+                    realm.commitTransaction();
+                }
+
+                @Override
+                public void onError() {
+
+                }
+            });
         }
-    }
-
-    private void updateImage(final ImageView profileImage, Intent data) {
-        Uri selectedImage = data.getData();
-        Picasso.with(this).load(selectedImage).transform(new CircleTransform()).into(profileImage, new Callback() {
-            @Override
-            public void onSuccess() {
-                Realm realm = Realm.getInstance(context);
-                final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
-                realm.beginTransaction();
-                account.setPictureData(getBytesFromBitmap(((BitmapDrawable) profileImage.getDrawable()).getBitmap()));
-                realm.commitTransaction();
-            }
-
-            @Override
-            public void onError() {
-
-            }
-        });
     }
 
     public byte[] getBytesFromBitmap(Bitmap bitmap) {

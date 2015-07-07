@@ -12,6 +12,7 @@ import android.widget.ListAdapter;
 
 import com.handshake.Handshake.R;
 import com.handshake.Handshake.SessionManager;
+import com.handshake.views.CircleTransform;
 import com.handshake.views.TextViewCustomFont;
 import com.handshake.Handshake.Utils;
 import com.handshake.models.Account;

@@ -20,7 +20,7 @@ import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 import com.handshake.editor.EditProfileActivity;
-import com.handshake.listview.CircleTransform;
+import com.handshake.views.CircleTransform;
 import com.handshake.models.Account;
 import com.handshake.models.Address;
 import com.handshake.models.Card;
