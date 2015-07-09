@@ -152,6 +152,10 @@ public class EditPhoneActivity extends AppCompatActivity {
                             realm.commitTransaction();
                         }
                     }
+
+                    Intent returnIntent = new Intent();
+                    setResult(RESULT_OK, returnIntent);
+                    finish();
                 } else {
                     realm.beginTransaction();
                     Phone phone = realm.createObject(Phone.class);
@@ -170,11 +174,12 @@ public class EditPhoneActivity extends AppCompatActivity {
                     phone.setLabel(label);
                     card.getPhones().add(realm.copyToRealm(phone));
                     realm.commitTransaction();
-                }
 
-                Intent returnIntent = new Intent();
-                setResult(RESULT_OK, returnIntent);
-                finish();
+                    Intent intent = new Intent(EditPhoneActivity.this, EditProfileActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    finish();
+                }
             }
         });
     }

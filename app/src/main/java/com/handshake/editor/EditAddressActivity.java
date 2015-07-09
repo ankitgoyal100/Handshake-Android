@@ -116,6 +116,10 @@ public class EditAddressActivity extends AppCompatActivity {
                             realm.commitTransaction();
                         }
                     }
+
+                    Intent returnIntent = new Intent();
+                    setResult(RESULT_OK, returnIntent);
+                    finish();
                 } else {
                     realm.beginTransaction();
                     Address address = realm.createObject(Address.class);
@@ -127,11 +131,12 @@ public class EditAddressActivity extends AppCompatActivity {
                     address.setLabel(label);
                     card.getAddresses().add(realm.copyToRealm(address));
                     realm.commitTransaction();
-                }
 
-                Intent returnIntent = new Intent();
-                setResult(RESULT_OK, returnIntent);
-                finish();
+                    Intent intent = new Intent(EditAddressActivity.this, EditProfileActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    finish();
+                }
             }
         });
     }

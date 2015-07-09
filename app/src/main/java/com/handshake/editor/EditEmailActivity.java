@@ -95,6 +95,10 @@ public class EditEmailActivity extends AppCompatActivity {
                             realm.commitTransaction();
                         }
                     }
+
+                    Intent returnIntent = new Intent();
+                    setResult(RESULT_OK, returnIntent);
+                    finish();
                 } else {
                     realm.beginTransaction();
                     Email email = realm.createObject(Email.class);
@@ -102,11 +106,12 @@ public class EditEmailActivity extends AppCompatActivity {
                     email.setLabel(label);
                     card.getEmails().add(realm.copyToRealm(email));
                     realm.commitTransaction();
-                }
 
-                Intent returnIntent = new Intent();
-                setResult(RESULT_OK, returnIntent);
-                finish();
+                    Intent intent = new Intent(EditEmailActivity.this, EditProfileActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    finish();
+                }
             }
         });
     }
