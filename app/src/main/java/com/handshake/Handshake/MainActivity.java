@@ -128,16 +128,16 @@ public class MainActivity extends AppCompatActivity {
 
         final Realm realm = Realm.getInstance(this);
 
-        final DelayAutoCompleteTextView bookTitle = (DelayAutoCompleteTextView) v.findViewById(R.id.search);
-        bookTitle.setAdapter(new SearchAdapter(this)); // 'this' is Activity instance
-        bookTitle.setLoadingIndicator(
+        final DelayAutoCompleteTextView searchView = (DelayAutoCompleteTextView) v.findViewById(R.id.search);
+        searchView.setAdapter(new SearchAdapter(this)); // 'this' is Activity instance
+        searchView.setLoadingIndicator(
                 (android.widget.ProgressBar) findViewById(R.id.pb_loading_indicator));
-        bookTitle.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        searchView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 Long userId = (Long) adapterView.getItemAtPosition(position);
                 User user = realm.where(User.class).equalTo("userId", userId).findFirst();
-                System.out.println(user);
+                searchView.setText(user.getFirstName() + " " + user.getLastName());
             }
         });
 
