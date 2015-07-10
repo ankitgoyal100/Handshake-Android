@@ -36,6 +36,7 @@ public class User extends RealmObject {
     private Date updatedAt;
     private long userId;
     private boolean notifications;
+    private String json;
 
     private RealmList<Card> cards = new RealmList<>();
     private RealmList<FeedItem> feedItems = new RealmList<>();
@@ -227,18 +228,31 @@ public class User extends RealmObject {
         this.suggestion = suggestion;
     }
 
+    public String getJson() {
+        return json;
+    }
+
+    public void setJson(String json) {
+        this.json = json;
+    }
+
     public static User updateContact(User user, Realm realm, JSONObject json) {
         try {
+            user.setJson(json.toString());
+
             user.setUserId(json.getInt("id"));
             user.setCreatedAt(Utils.formatDate(json.getString("created_at")));
             user.setUpdatedAt(Utils.formatDate(json.getString("updated_at")));
 
             user.setFirstName(json.getString("first_name"));
-            user.setLastName(json.getString("last_name"));
+            if (!json.isNull("last_name"))
+                user.setLastName(json.getString("last_name"));
 
             user.setIsContact(json.getBoolean("is_contact"));
-            user.setRequestSent(json.getBoolean("request_sent"));
-            user.setRequestReceived(json.getBoolean("request_received"));
+            if (!json.isNull("request_sent"))
+                user.setRequestSent(json.getBoolean("request_sent"));
+            if (!json.isNull("request_received"))
+                user.setRequestReceived(json.getBoolean("request_received"));
 
             user.setNotifications(json.getBoolean("notifications"));
 
@@ -259,7 +273,7 @@ public class User extends RealmObject {
             user.setContacts(json.getInt("contacts"));
             user.setMutual(json.getInt("mutual"));
 
-            if(json.has("cards")) {
+            if (json.has("cards")) {
                 JSONArray cards = json.getJSONArray("cards");
                 for (int i = 0; i < cards.length(); i++) {
                     RealmResults<Card> result = realm.where(Card.class).equalTo("cardId", cards.getJSONObject(i).getInt("id")).findAll();

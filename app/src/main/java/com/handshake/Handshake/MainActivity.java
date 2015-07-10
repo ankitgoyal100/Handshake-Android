@@ -20,6 +20,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -38,9 +39,12 @@ import com.handshake.helpers.GroupServerSync;
 import com.handshake.helpers.RequestServerSync;
 import com.handshake.helpers.SuggestionsServerSync;
 import com.handshake.helpers.SyncCompleted;
-import com.handshake.views.CircleTransform;
+import com.handshake.listview.SearchAdapter;
 import com.handshake.models.Account;
 import com.handshake.models.Group;
+import com.handshake.models.User;
+import com.handshake.views.CircleTransform;
+import com.handshake.views.DelayAutoCompleteTextView;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 import com.squareup.picasso.Picasso;
@@ -73,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
     private int TAG_ADD = 1;
 
     public static boolean cardSyncCompleted = false;
+    public static SearchAdapter searchAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +125,22 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        final Realm realm = Realm.getInstance(this);
+
+        final DelayAutoCompleteTextView bookTitle = (DelayAutoCompleteTextView) v.findViewById(R.id.search);
+        bookTitle.setAdapter(new SearchAdapter(this)); // 'this' is Activity instance
+        bookTitle.setLoadingIndicator(
+                (android.widget.ProgressBar) findViewById(R.id.pb_loading_indicator));
+        bookTitle.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                Long userId = (Long) adapterView.getItemAtPosition(position);
+                User user = realm.where(User.class).equalTo("userId", userId).findFirst();
+                System.out.println(user);
+            }
+        });
+
 
         tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
         sPager = (ViewPager) findViewById(R.id.pager);
