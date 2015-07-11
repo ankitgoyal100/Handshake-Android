@@ -2,6 +2,7 @@ package com.handshake.listview;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.net.Uri;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -126,8 +127,7 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
             protected FilterResults performFiltering(final CharSequence constraint) {
                 final FilterResults filterResults = new FilterResults();
                 if (constraint != null) {
-                    System.out.println("Constraint: " + constraint);
-                    RestClientAsync.get(mContext, "/search/?q=" + constraint, new RequestParams(), new JsonHttpResponseHandler() {
+                    RestClientAsync.get(mContext, "/search/?q=" + Uri.encode(constraint.toString()), new RequestParams(), new JsonHttpResponseHandler() {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                             try {
