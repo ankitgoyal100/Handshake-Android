@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
@@ -147,8 +148,12 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
                                             array.add(u.getUserId());
                                         filterResults.values = array;
                                         filterResults.count = array.size();
-                                        publishResults(constraint, filterResults);
-
+                                        handler.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                publishResults(constraint, filterResults);
+                                            }
+                                        });
                                     }
                                 });
                             } catch (JSONException e) {
