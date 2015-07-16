@@ -42,7 +42,6 @@ import com.handshake.helpers.SyncCompleted;
 import com.handshake.listview.SearchAdapter;
 import com.handshake.models.Account;
 import com.handshake.models.Group;
-import com.handshake.models.User;
 import com.handshake.views.CircleTransform;
 import com.handshake.views.DelayAutoCompleteTextView;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -134,13 +133,12 @@ public class MainActivity extends AppCompatActivity {
                 (android.widget.ProgressBar) findViewById(R.id.pb_loading_indicator));
         searchView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                Long userId = (Long) adapterView.getItemAtPosition(position);
-                User user = realm.where(User.class).equalTo("userId", userId).findFirst();
-                searchView.setText(user.getFirstName() + " " + user.getLastName());
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent i = new Intent(MainActivity.this, UserProfileActivity.class);
+                i.putExtra("userId", (Long) parent.getItemAtPosition(position));
+                startActivity(i);
             }
         });
-
 
         tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
         sPager = (ViewPager) findViewById(R.id.pager);

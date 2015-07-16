@@ -27,6 +27,7 @@ import com.handshake.models.Card;
 import com.handshake.models.Email;
 import com.handshake.models.Phone;
 import com.handshake.models.Social;
+import com.handshake.models.User;
 import com.handshake.views.CircleTransform;
 import com.handshake.views.TextViewCustomFont;
 import com.squareup.picasso.Picasso;
@@ -40,18 +41,22 @@ import io.realm.Realm;
 /**
  * Created by ankitgoyal on 6/27/15.
  */
-public class ProfileFragment extends Fragment {
+public class UserProfileFragment extends Fragment {
     private Handler handler = new Handler();
     private LinearLayout infoLayout;
     private LinearLayout socialLayout;
     private static Executor executor = Executors.newSingleThreadExecutor();
+    private User user;
 
-    public static ProfileFragment newInstance() {
-        ProfileFragment fragment = new ProfileFragment();
+    public static UserProfileFragment newInstance(Long userId) {
+        UserProfileFragment fragment = new UserProfileFragment();
+        Bundle args = new Bundle();
+        args.putLong("userId", userId);
+        fragment.setArguments(args);
         return fragment;
     }
 
-    public ProfileFragment() {
+    public UserProfileFragment() {
         // Required empty public constructor
     }
 
@@ -73,21 +78,22 @@ public class ProfileFragment extends Fragment {
 
     private void fillViews() {
         final Realm realm = Realm.getInstance(getActivity());
-        final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+        user = realm.where(User.class).equalTo("userId", getArguments().getLong("userId")).findFirst();
+
 
         TextViewCustomFont name = (TextViewCustomFont) getView().findViewById(R.id.name);
         String lastName = "";
-        if (!account.getLastName().equals("null"))
-            lastName = account.getLastName();
-        name.setText(account.getFirstName() + " " + lastName);
+        if (!user.getLastName().equals("null"))
+            lastName = user.getLastName();
+        name.setText(user.getFirstName() + " " + lastName);
 
         CircleImageView profileImage = (CircleImageView) getView().findViewById(R.id.profile_image);
         ImageView backdrop = (ImageView) getView().findViewById(R.id.backdrop);
         CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) getView().findViewById(R.id.collapsing_toolbar);
 
-        if (!account.getThumb().isEmpty() && !account.getThumb().equals("null")) {
-            Picasso.with(getActivity()).load(account.getThumb()).transform(new CircleTransform()).into(profileImage);
-            Picasso.with(getActivity()).load(account.getThumb()).into(backdrop);
+        if (!user.getThumb().isEmpty() && !user.getThumb().equals("null")) {
+            Picasso.with(getActivity()).load(user.getThumb()).transform(new CircleTransform()).into(profileImage);
+            Picasso.with(getActivity()).load(user.getThumb()).into(backdrop);
         } else {
             Picasso.with(getActivity()).load(R.drawable.default_profile).transform(new CircleTransform()).into(profileImage);
             collapsingToolbar.setContentScrimColor(getResources().getColor(R.color.background_window));

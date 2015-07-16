@@ -4,15 +4,18 @@ import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -20,13 +23,12 @@ import android.widget.Toast;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
-import com.handshake.editor.EditProfileActivity;
-import com.handshake.models.Account;
 import com.handshake.models.Address;
 import com.handshake.models.Card;
 import com.handshake.models.Email;
 import com.handshake.models.Phone;
 import com.handshake.models.Social;
+import com.handshake.models.User;
 import com.handshake.views.CircleTransform;
 import com.handshake.views.TextViewCustomFont;
 import com.squareup.picasso.Picasso;
@@ -40,69 +42,53 @@ import io.realm.Realm;
 /**
  * Created by ankitgoyal on 6/27/15.
  */
-public class ProfileFragment extends Fragment {
+public class UserProfileActivity extends AppCompatActivity {
+    private Drawable oldBackground = null;
+
+    private Context context = this;
+
     private Handler handler = new Handler();
     private LinearLayout infoLayout;
     private LinearLayout socialLayout;
     private static Executor executor = Executors.newSingleThreadExecutor();
-
-    public static ProfileFragment newInstance() {
-        ProfileFragment fragment = new ProfileFragment();
-        return fragment;
-    }
-
-    public ProfileFragment() {
-        // Required empty public constructor
-    }
-
+    private User user;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_profile, container, false);
-    }
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_user_profile);
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+        changeColor(getResources().getColor(R.color.orange));
 
-        infoLayout = (LinearLayout) getView().findViewById(R.id.linear_layout);
-        socialLayout = (LinearLayout) getView().findViewById(R.id.linear_layout_2);
+        infoLayout = (LinearLayout) findViewById(R.id.linear_layout);
+        socialLayout = (LinearLayout) findViewById(R.id.linear_layout_2);
         fillViews();
     }
 
     private void fillViews() {
-        final Realm realm = Realm.getInstance(getActivity());
-        final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+        final Realm realm = Realm.getInstance(this);
+        user = realm.where(User.class).equalTo("userId", getIntent().getLongExtra("userId", 1)).findFirst();
 
-        TextViewCustomFont name = (TextViewCustomFont) getView().findViewById(R.id.name);
+        TextViewCustomFont name = (TextViewCustomFont) findViewById(R.id.name);
         String lastName = "";
-        if (!account.getLastName().equals("null"))
-            lastName = account.getLastName();
-        name.setText(account.getFirstName() + " " + lastName);
+        if (!user.getLastName().equals("null"))
+            lastName = user.getLastName();
+        name.setText(user.getFirstName() + " " + lastName);
+        setTitle(name.getText());
 
-        CircleImageView profileImage = (CircleImageView) getView().findViewById(R.id.profile_image);
-        ImageView backdrop = (ImageView) getView().findViewById(R.id.backdrop);
-        CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) getView().findViewById(R.id.collapsing_toolbar);
+        CircleImageView profileImage = (CircleImageView) findViewById(R.id.profile_image);
+        ImageView backdrop = (ImageView) findViewById(R.id.backdrop);
+        CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
 
-        if (!account.getThumb().isEmpty() && !account.getThumb().equals("null")) {
-            Picasso.with(getActivity()).load(account.getThumb()).transform(new CircleTransform()).into(profileImage);
-            Picasso.with(getActivity()).load(account.getThumb()).into(backdrop);
+        if (!user.getThumb().isEmpty() && !user.getThumb().equals("null")) {
+            Picasso.with(context).load(user.getThumb()).transform(new CircleTransform()).into(profileImage);
+            Picasso.with(context).load(user.getThumb()).into(backdrop);
         } else {
-            Picasso.with(getActivity()).load(R.drawable.default_profile).transform(new CircleTransform()).into(profileImage);
+            Picasso.with(context).load(R.drawable.default_profile).transform(new CircleTransform()).into(profileImage);
             collapsingToolbar.setContentScrimColor(getResources().getColor(R.color.background_window));
         }
 
-        FloatingActionButton editButton = (FloatingActionButton) getView().findViewById(R.id.edit_button);
-        editButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(getActivity(), EditProfileActivity.class);
-                startActivity(i);
-            }
-        });
-
-        final ProgressDialog dialog = ProgressDialog.show(getActivity(), "", "Loading profile...", true);
+        final ProgressDialog dialog = ProgressDialog.show(context, "", "Loading profile...", true);
 
         executor.execute(new Runnable() {
             @Override
@@ -119,13 +105,23 @@ public class ProfileFragment extends Fragment {
 
                 }
 
-                Realm realm = Realm.getInstance(getActivity());
+                final Realm realm = Realm.getInstance(context);
+                user = realm.where(User.class).equalTo("userId", getIntent().getLongExtra("userId", 1)).findFirst();
 
-                final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
-                final Card card = account.getCards().first();
+                if (!user.isContact()) {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.cancel();
+                        }
+                    });
+                    return;
+                }
+
+                final Card card = user.getCards().first();
 
                 for (final Phone phone : card.getPhones()) {
-                    LayoutInflater inflater = (LayoutInflater) getActivity().getApplicationContext()
+                    LayoutInflater inflater = (LayoutInflater) context.getApplicationContext()
                             .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     final View mLinearView = inflater.inflate(R.layout.info_cell, null);
                     final TextViewCustomFont title = (TextViewCustomFont) mLinearView.findViewById(R.id.title);
@@ -142,7 +138,7 @@ public class ProfileFragment extends Fragment {
                         public void run() {
                             dialog.cancel();
 
-                            getView().findViewById(R.id.divider1).setVisibility(View.VISIBLE);
+                            findViewById(R.id.divider1).setVisibility(View.VISIBLE);
 
                             imageView1.setVisibility(View.VISIBLE);
                             imageView2.setVisibility(View.VISIBLE);
@@ -185,7 +181,7 @@ public class ProfileFragment extends Fragment {
                 }
 
                 for (final Email email : card.getEmails()) {
-                    LayoutInflater inflater = (LayoutInflater) getActivity().getApplicationContext()
+                    LayoutInflater inflater = (LayoutInflater) context.getApplicationContext()
                             .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     final View mLinearView = inflater.inflate(R.layout.info_cell, null);
                     final TextViewCustomFont title = (TextViewCustomFont) mLinearView.findViewById(R.id.title);
@@ -220,7 +216,7 @@ public class ProfileFragment extends Fragment {
 
 
                 for (final Address address : card.getAddresses()) {
-                    LayoutInflater inflater = (LayoutInflater) getActivity().getApplicationContext()
+                    LayoutInflater inflater = (LayoutInflater) context.getApplicationContext()
                             .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     final View mLinearView = inflater.inflate(R.layout.info_cell, null);
                     final TextViewCustomFont title = (TextViewCustomFont) mLinearView.findViewById(R.id.title);
@@ -273,7 +269,7 @@ public class ProfileFragment extends Fragment {
                 }
 
                 for (final Social social : card.getSocials()) {
-                    LayoutInflater inflater = (LayoutInflater) getActivity().getApplicationContext()
+                    LayoutInflater inflater = (LayoutInflater) context.getApplicationContext()
                             .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     final View mLinearView = inflater.inflate(R.layout.social_cell, null);
                     final TextViewCustomFont title = (TextViewCustomFont) mLinearView.findViewById(R.id.title);
@@ -285,9 +281,9 @@ public class ProfileFragment extends Fragment {
                         @Override
                         public void run() {
                             if (card.getSocials().size() == 0) {
-                                getView().findViewById(R.id.divider1).setVisibility(View.GONE);
+                                findViewById(R.id.divider1).setVisibility(View.GONE);
                             } else {
-                                getView().findViewById(R.id.divider2).setVisibility(View.VISIBLE);
+                                findViewById(R.id.divider2).setVisibility(View.VISIBLE);
                             }
 
                             if (network.equals("facebook")) {
@@ -297,7 +293,7 @@ public class ProfileFragment extends Fragment {
                                     @Override
                                     public void onClick(View v) {
                                         try {
-                                            getActivity().getPackageManager().getPackageInfo("com.facebook.katana", 0);
+                                            context.getPackageManager().getPackageInfo("com.facebook.katana", 0);
                                             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("fb://profile/" + username)));
                                         } catch (Exception e) {
                                             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://facebook.com/" + username)));
@@ -344,7 +340,7 @@ public class ProfileFragment extends Fragment {
                                 mLinearView.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        Toast.makeText(getActivity(),
+                                        Toast.makeText(context,
                                                 "Unable to open Snapchat. Please manually add the user via the Snapchat application.", Toast.LENGTH_LONG).show();
                                     }
                                 });
@@ -361,11 +357,60 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
-        final Realm realm = Realm.getInstance(getActivity());
-        final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
-        final Card card = account.getCards().first();
-
         fillViews();
     }
+
+    public void changeColor(int newColor) {
+        // change ActionBar color just if an ActionBar is available
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+
+            Drawable colorDrawable = new ColorDrawable(newColor);
+            LayerDrawable ld = new LayerDrawable(new Drawable[]{colorDrawable});
+
+            if (oldBackground == null) {
+
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                    ld.setCallback(drawableCallback);
+                } else {
+                    getSupportActionBar().setBackgroundDrawable(ld);
+                }
+
+            } else {
+
+                TransitionDrawable td = new TransitionDrawable(new Drawable[]{oldBackground, ld});
+
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                    td.setCallback(drawableCallback);
+                } else {
+                    getSupportActionBar().setBackgroundDrawable(td);
+                }
+
+                td.startTransition(200);
+
+            }
+
+            oldBackground = ld;
+
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            getSupportActionBar().setDisplayShowTitleEnabled(true);
+
+        }
+    }
+
+    private Drawable.Callback drawableCallback = new Drawable.Callback() {
+        @Override
+        public void invalidateDrawable(Drawable who) {
+            getSupportActionBar().setBackgroundDrawable(who);
+        }
+
+        @Override
+        public void scheduleDrawable(Drawable who, Runnable what, long when) {
+            handler.postAtTime(what, when);
+        }
+
+        @Override
+        public void unscheduleDrawable(Drawable who, Runnable what) {
+            handler.removeCallbacks(what);
+        }
+    };
 }
