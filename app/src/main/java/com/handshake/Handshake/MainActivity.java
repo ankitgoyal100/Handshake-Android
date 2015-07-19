@@ -136,9 +136,13 @@ public class MainActivity extends AppCompatActivity {
         searchView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Long userId = (Long) parent.getItemAtPosition(position);
+
                 Intent i = new Intent(MainActivity.this, UserProfileActivity.class);
-                i.putExtra("userId", (Long) parent.getItemAtPosition(position));
+                i.putExtra("userId", userId);
                 startActivity(i);
+                searchView.setText("");
+                searchView.clearFocus();
             }
         });
 
