@@ -57,7 +57,7 @@ public class ContactActivity extends AppCompatActivity {
                             @Override
                             public void syncCompletedListener(final ArrayList<User> u) {
                                 final ArrayList<Long> userIds = new ArrayList<Long>();
-                                for(int i = 0; i < u.size(); i++)
+                                for (int i = 0; i < u.size(); i++)
                                     userIds.add(u.get(i).getUserId());
 
                                 handler.post(new Runnable() {
@@ -65,12 +65,10 @@ public class ContactActivity extends AppCompatActivity {
                                     public void run() {
                                         Realm realm = Realm.getInstance(context);
                                         RealmQuery<User> query = realm.where(User.class);
+                                        query.equalTo("userId", -1);
 
-                                        if (userIds.size() > 0) {
-                                            query.equalTo("userId", userIds.get(0));
-                                            for (int i = 1; i < userIds.size(); i++) {
-                                                query.or().equalTo("userId", userIds.get(i));
-                                            }
+                                        for (int i = 0; i < userIds.size(); i++) {
+                                            query.or().equalTo("userId", userIds.get(i));
                                         }
 
                                         users = query.findAll();
