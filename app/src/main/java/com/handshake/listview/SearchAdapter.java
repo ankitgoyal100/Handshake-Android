@@ -94,7 +94,7 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
         else
             viewHolder.description.setText(item.getMutual() + " mutual contacts");
 
-        MainActivity.setContactButtons(mContext, item, viewHolder.buttonOne, viewHolder.buttonTwo);
+        MainActivity.setContactButtons(mContext, item, viewHolder.buttonOne, viewHolder.buttonTwo, null);
 //        if (item.isContact()) {
 //            viewHolder.buttonOne.setVisibility(View.GONE);
 //            viewHolder.buttonTwo.setVisibility(View.VISIBLE);

@@ -48,6 +48,7 @@ import com.handshake.models.Group;
 import com.handshake.models.User;
 import com.handshake.views.CircleTransform;
 import com.handshake.views.DelayAutoCompleteTextView;
+import com.handshake.views.TextViewCustomFont;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 import com.squareup.picasso.Picasso;
@@ -472,7 +473,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static void setContactButtons(final Context context, final User account,
-                                           final ImageView buttonOne, final ImageView buttonTwo) {
+                                         final ImageView buttonOne, final ImageView buttonTwo, final TextViewCustomFont text) {
+        String lastName = "";
+        if (!account.getLastName().equals("null"))
+            lastName = account.getLastName();
+        final String name = account.getFirstName() + " " + lastName;
+
         if (account.isContact()) {
             buttonOne.setVisibility(View.GONE);
             buttonTwo.setVisibility(View.VISIBLE);
@@ -492,6 +498,16 @@ public class MainActivity extends AppCompatActivity {
             buttonTwo.setImageDrawable(context.getResources().getDrawable(R.mipmap.add_button));
         }
 
+        if (text != null) {
+            if (account.isRequestReceived()) {
+                text.setText("Know " + name + "? Accept the request!");
+            } else if (account.isRequestSent()) {
+                text.setText("Your request is pending.");
+            } else {
+                text.setText("Know " + name + "? Send a request!");
+            }
+        }
+
         buttonOne.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -504,7 +520,9 @@ public class MainActivity extends AppCompatActivity {
                     RequestServerSync.declineRequest(account, new UserSyncCompleted() {
                         @Override
                         public void syncCompletedListener(User users) {
-
+//                            if (text != null)
+//                                text.setText("Know " + name + "? Send a request!");
+                            setContactButtons(context, account, buttonOne, buttonTwo, text);
                         }
 
                         @Override
@@ -513,6 +531,8 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
                 }
+
+                setContactButtons(context, account, buttonOne, buttonTwo, text);
             }
         });
 
@@ -526,6 +546,9 @@ public class MainActivity extends AppCompatActivity {
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     ContactServerSync.deleteContact(account);
+//                                    if (text != null)
+//                                        text.setText("Know " + name + "? Send a request!");
+                                    setContactButtons(context, account, buttonOne, buttonTwo, text);
                                     dialog.cancel();
                                 }
                             })
@@ -545,7 +568,7 @@ public class MainActivity extends AppCompatActivity {
                     RequestServerSync.acceptRequest(account, new UserSyncCompleted() {
                         @Override
                         public void syncCompletedListener(User users) {
-
+                            setContactButtons(context, account, buttonOne, buttonTwo, text);
                         }
 
                         @Override
@@ -562,7 +585,9 @@ public class MainActivity extends AppCompatActivity {
                                     RequestServerSync.deleteRequest(account, new UserSyncCompleted() {
                                         @Override
                                         public void syncCompletedListener(User users) {
-
+//                                            if (text != null)
+//                                                text.setText("Know " + name + "? Send a request!");
+                                            setContactButtons(context, account, buttonOne, buttonTwo, text);
                                         }
 
                                         @Override
@@ -586,6 +611,9 @@ public class MainActivity extends AppCompatActivity {
                             buttonOne.setVisibility(View.GONE);
                             buttonTwo.setVisibility(View.VISIBLE);
                             buttonTwo.setImageDrawable(context.getResources().getDrawable(R.mipmap.requested_button));
+                            setContactButtons(context, account, buttonOne, buttonTwo, text);
+//                            if (text != null)
+//                                text.setText("Your request is pending.");
                         }
 
                         @Override

@@ -91,16 +91,16 @@ public class UserProfileActivity extends AppCompatActivity {
 
         TextViewCustomFont text = (TextViewCustomFont) findViewById(R.id.text);
 
-        if (account.isRequestReceived()) {
-            text.setText("Know " + name.getText().toString() + "? Accept the request!");
-        } else if (account.isRequestSent()) {
-            text.setText("Your request is pending.");
-        } else {
-            text.setText("Know " + name.getText().toString() + "? Send a request!");
-        }
+//        if (account.isRequestReceived()) {
+//            text.setText("Know " + name.getText().toString() + "? Accept the request!");
+//        } else if (account.isRequestSent()) {
+//            text.setText("Your request is pending.");
+//        } else {
+//            text.setText("Know " + name.getText().toString() + "? Send a request!");
+//        }
         
         MainActivity.setContactButtons(context, account,
-                (ImageView) findViewById(R.id.button_one), (ImageView) findViewById(R.id.button_two));
+                (ImageView) findViewById(R.id.button_one), (ImageView) findViewById(R.id.button_two), text);
     }
 
     public void changeColor(int newColor) {
