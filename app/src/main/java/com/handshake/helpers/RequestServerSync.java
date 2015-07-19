@@ -67,10 +67,10 @@ public class RequestServerSync {
 
                             Realm realm = Realm.getInstance(context);
                             RealmResults<User> requestReceivedUsers = realm.where(User.class).equalTo("requestReceived", true).findAll();
-                            for (User user : requestReceivedUsers) {
-                                if (!requestUserIds.contains(user.getUserId())) {
+                            for (int i = 0; i < requestReceivedUsers.size(); i++) {
+                                if (!requestUserIds.contains(requestReceivedUsers.get(i).getUserId())) {
                                     realm.beginTransaction();
-                                    user.setRequestReceived(false);
+                                    requestReceivedUsers.get(i).setRequestReceived(false);
                                     realm.commitTransaction();
                                 }
                             }

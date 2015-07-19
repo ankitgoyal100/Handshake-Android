@@ -2,9 +2,9 @@ package com.handshake.helpers;
 
 import android.content.Context;
 import android.os.Handler;
-import android.os.Looper;
 
 import com.handshake.Handshake.RestClientAsync;
+import com.handshake.Handshake.RestClientSync;
 import com.handshake.Handshake.SessionManager;
 import com.handshake.Handshake.Utils;
 import com.handshake.models.User;
@@ -94,15 +94,10 @@ public class ContactServerSync {
         params.put("page", page);
         if (!contactUpdated.equals("")) params.put("since_date", contactUpdated);
 
-        System.out.println(contactUpdated + " Sending request: " + params.toString());
-        if (Looper.myLooper() == null) {
-            Looper.prepare();
-        }
-        RestClientAsync.get(context, "/contacts", params, new JsonHttpResponseHandler() {
+        RestClientSync.get(context, "/contacts", params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
-                    System.out.println("Response: " + response.toString());
                     JSONArray contacts = response.getJSONArray("contacts");
 
                     final HashMap<Long, JSONObject> map = new HashMap<Long, JSONObject>();
@@ -153,8 +148,6 @@ public class ContactServerSync {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                System.out.println("Failure: " + errorResponse.toString());
-
                 if (errorResponse == null) return;
                 if (statusCode == 401) session.logoutUser();
             }
