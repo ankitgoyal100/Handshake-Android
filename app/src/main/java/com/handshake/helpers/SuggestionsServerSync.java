@@ -85,10 +85,10 @@ public class SuggestionsServerSync {
                                     }
 
                                     RealmResults<Suggestion> suggestionRealmResults = realm.where(Suggestion.class).findAll();
-                                    for (Suggestion suggestion : suggestionRealmResults) {
-                                        if (!userIds.contains(suggestion.getUser().getUserId())) {
+                                    for (int i = 0; i < suggestionRealmResults.size(); i++) {
+                                        if (!userIds.contains(suggestionRealmResults.get(i).getUser().getUserId())) {
                                             realm.beginTransaction();
-                                            suggestion.removeFromRealm();
+                                            suggestionRealmResults.get(i).removeFromRealm();
                                             realm.commitTransaction();
                                         }
                                     }

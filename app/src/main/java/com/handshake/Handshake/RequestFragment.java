@@ -8,7 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.handshake.listview.RequestAdapter;
+import com.handshake.listview.ContactAdapter;
 import com.handshake.models.User;
 
 import io.realm.Realm;
@@ -43,7 +43,7 @@ public class RequestFragment extends ListFragment {
         Realm realm = Realm.getInstance(getActivity());
         RealmResults<User> users = realm.where(User.class).equalTo("requestReceived", true).findAll();
         users.sort("createdAt", false);
-        RequestAdapter adapter = new RequestAdapter(getActivity(), users, true);
+        ContactAdapter adapter = new ContactAdapter(getActivity(), users, true);
         setListAdapter(adapter);
     }
 

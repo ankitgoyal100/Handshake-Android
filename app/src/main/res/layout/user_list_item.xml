@@ -25,43 +25,18 @@
             android:src="@drawable/default_profile" />
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/layout_button_two"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+
+    <ImageView
+        android:id="@+id/button_two"
+        android:layout_width="60dip"
+        android:layout_height="60dip"
         android:layout_alignBottom="@id/thumbnail"
         android:layout_alignParentRight="true"
         android:layout_alignTop="@id/thumbnail"
         android:layout_gravity="center"
-        android:gravity="center_vertical">
-
-        <ImageView
-            android:id="@+id/button_two"
-            android:layout_width="60dip"
-            android:layout_height="60dip"
-            android:layout_gravity="center"
-            android:scaleType="fitCenter"
-            android:src="@mipmap/accept_button" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/layout_button_one"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/thumbnail"
-        android:layout_alignTop="@id/thumbnail"
-        android:layout_gravity="center"
-        android:layout_toLeftOf="@id/accept_button"
-        android:gravity="center_vertical">
-
-        <ImageView
-            android:id="@+id/button_one"
-            android:layout_width="60dip"
-            android:layout_height="60dip"
-            android:layout_gravity="center"
-            android:scaleType="fitCenter"
-            android:src="@mipmap/decline_button" />
-    </LinearLayout>
+        android:gravity="center_vertical"
+        android:scaleType="fitCenter"
+        android:src="@mipmap/accept_button" />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -97,5 +72,17 @@
             android:textColor="@color/dark_gray"
             android:textSize="14sp" />
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/button_one"
+        android:layout_width="60dip"
+        android:layout_height="60dip"
+        android:layout_alignBottom="@id/thumbnail"
+        android:layout_alignTop="@id/thumbnail"
+        android:layout_gravity="center"
+        android:layout_toLeftOf="@+id/button_two"
+        android:layout_toStartOf="@+id/button_two"
+        android:scaleType="fitCenter"
+        android:src="@mipmap/decline_button" />
 
 </RelativeLayout>

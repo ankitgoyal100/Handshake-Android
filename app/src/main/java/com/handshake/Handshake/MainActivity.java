@@ -476,8 +476,8 @@ public class MainActivity extends AppCompatActivity {
         } else if (account.isRequestReceived()) {
             buttonOne.setVisibility(View.VISIBLE);
             buttonTwo.setVisibility(View.VISIBLE);
-            buttonOne.setImageDrawable(context.getResources().getDrawable(R.mipmap.accept_button));
-            buttonTwo.setImageDrawable(context.getResources().getDrawable(R.mipmap.decline_button));
+            buttonOne.setImageDrawable(context.getResources().getDrawable(R.mipmap.decline_button));
+            buttonTwo.setImageDrawable(context.getResources().getDrawable(R.mipmap.accept_button));
         } else if (account.isRequestSent()) {
             buttonOne.setVisibility(View.GONE);
             buttonTwo.setVisibility(View.VISIBLE);
