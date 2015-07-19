@@ -5,13 +5,16 @@ package com.handshake.listview;
  */
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 
 import com.handshake.Handshake.MainActivity;
 import com.handshake.Handshake.R;
+import com.handshake.Handshake.UserProfileActivity;
 import com.handshake.models.User;
 import com.handshake.views.CircleTransform;
 import com.handshake.views.TextViewCustomFont;
@@ -20,7 +23,7 @@ import com.squareup.picasso.Picasso;
 import io.realm.RealmBaseAdapter;
 import io.realm.RealmResults;
 
-public class ContactAdapter extends RealmBaseAdapter<User> implements ListAdapter {
+public class ContactAdapter extends RealmBaseAdapter<User> implements ListAdapter, AdapterView.OnItemClickListener {
 //    private static final int TYPE_ITEM = 0;
 //    private static final int TYPE_SEPARATOR = 1;
 //
@@ -76,6 +79,15 @@ public class ContactAdapter extends RealmBaseAdapter<User> implements ListAdapte
 
         MainActivity.setContactButtons(context, item, viewHolder.buttonOne, viewHolder.buttonTwo);
 
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(context, UserProfileActivity.class);
+                i.putExtra("userId", item.getUserId());
+                context.startActivity(i);
+            }
+        });
+
 //        viewHolder.contactsButtonLayout.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
@@ -102,6 +114,11 @@ public class ContactAdapter extends RealmBaseAdapter<User> implements ListAdapte
 
     public RealmResults<User> getRealmResults() {
         return realmResults;
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
     }
 
     class ViewHolder {

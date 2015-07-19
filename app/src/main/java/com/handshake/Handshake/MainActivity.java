@@ -497,12 +497,11 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (account.isRequestReceived()) {
                     buttonOne.setVisibility(View.GONE);
-                    buttonTwo.setVisibility(View.VISIBLE);
-                    buttonTwo.setImageDrawable(context.getResources().getDrawable(R.mipmap.contacts_button));
+                    buttonTwo.setVisibility(View.GONE);
 
-                    Toast.makeText(context, "Request accepted", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Request declined", Toast.LENGTH_SHORT).show();
 
-                    RequestServerSync.acceptRequest(account, new UserSyncCompleted() {
+                    RequestServerSync.declineRequest(account, new UserSyncCompleted() {
                         @Override
                         public void syncCompletedListener(User users) {
 
@@ -510,7 +509,7 @@ public class MainActivity extends AppCompatActivity {
 
                         @Override
                         public void syncFailedListener() {
-                            Toast.makeText(context, "Could not accept request at this time. Please try again later.", Toast.LENGTH_LONG).show();
+                            Toast.makeText(context, "Could not decline request at this time. Please try again later.", Toast.LENGTH_LONG).show();
                         }
                     });
                 }
@@ -538,11 +537,12 @@ public class MainActivity extends AppCompatActivity {
                             .show();
                 } else if (account.isRequestReceived()) {
                     buttonOne.setVisibility(View.GONE);
-                    buttonTwo.setVisibility(View.GONE);
+                    buttonTwo.setVisibility(View.VISIBLE);
+                    buttonTwo.setImageDrawable(context.getResources().getDrawable(R.mipmap.contacts_button));
 
-                    Toast.makeText(context, "Request declined", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Request accepted", Toast.LENGTH_SHORT).show();
 
-                    RequestServerSync.declineRequest(account, new UserSyncCompleted() {
+                    RequestServerSync.acceptRequest(account, new UserSyncCompleted() {
                         @Override
                         public void syncCompletedListener(User users) {
 
@@ -550,7 +550,7 @@ public class MainActivity extends AppCompatActivity {
 
                         @Override
                         public void syncFailedListener() {
-                            Toast.makeText(context, "Could not decline request at this time. Please try again later.", Toast.LENGTH_LONG).show();
+                            Toast.makeText(context, "Could not accept request at this time. Please try again later.", Toast.LENGTH_LONG).show();
                         }
                     });
                 } else if (account.isRequestSent()) {
