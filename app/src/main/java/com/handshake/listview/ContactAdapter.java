@@ -5,19 +5,16 @@ package com.handshake.listview;
  */
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 
-import com.afollestad.materialdialogs.AlertDialogWrapper;
+import com.handshake.Handshake.MainActivity;
 import com.handshake.Handshake.R;
+import com.handshake.models.User;
 import com.handshake.views.CircleTransform;
 import com.handshake.views.TextViewCustomFont;
-import com.handshake.helpers.ContactServerSync;
-import com.handshake.models.User;
 import com.squareup.picasso.Picasso;
 
 import io.realm.RealmBaseAdapter;
@@ -51,12 +48,13 @@ public class ContactAdapter extends RealmBaseAdapter<User> implements ListAdapte
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
         if (convertView == null) {
-            convertView = inflater.inflate(R.layout.contact_list_item, parent, false);
+            convertView = inflater.inflate(R.layout.user_list_item, parent, false);
             viewHolder = new ViewHolder();
             viewHolder.personName = (TextViewCustomFont) convertView.findViewById(R.id.name);
             viewHolder.description = (TextViewCustomFont) convertView.findViewById(R.id.description);
             viewHolder.image = (ImageView) convertView.findViewById(R.id.image);
-            viewHolder.contactsButtonLayout = (LinearLayout) convertView.findViewById(R.id.contacts_button);
+            viewHolder.buttonOne = (ImageView) convertView.findViewById(R.id.button_one);
+            viewHolder.buttonTwo = (ImageView) convertView.findViewById(R.id.button_two);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
@@ -76,26 +74,28 @@ public class ContactAdapter extends RealmBaseAdapter<User> implements ListAdapte
         else
             viewHolder.description.setText(item.getMutual() + " mutual contacts");
 
-        viewHolder.contactsButtonLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new AlertDialogWrapper.Builder(context)
-                        .setTitle("Delete contact")
-                        .setMessage("Are you sure you want to delete this contact?")
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                ContactServerSync.deleteContact(item);
-                                dialog.cancel();
-                            }
-                        })
-                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                            }
-                        })
-                        .show();
-            }
-        });
+        MainActivity.setContactButtons(context, item, viewHolder.buttonOne, viewHolder.buttonTwo);
+
+//        viewHolder.contactsButtonLayout.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                new AlertDialogWrapper.Builder(context)
+//                        .setTitle("Delete contact")
+//                        .setMessage("Are you sure you want to delete this contact?")
+//                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                ContactServerSync.deleteContact(item);
+//                                dialog.cancel();
+//                            }
+//                        })
+//                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                dialog.cancel();
+//                            }
+//                        })
+//                        .show();
+//            }
+//        });
 
         return convertView;
     }
@@ -108,7 +108,8 @@ public class ContactAdapter extends RealmBaseAdapter<User> implements ListAdapte
         ImageView image;
         TextViewCustomFont personName;
         TextViewCustomFont description;
-        LinearLayout contactsButtonLayout;
+        ImageView buttonOne;
+        ImageView buttonTwo;
     }
 }
 

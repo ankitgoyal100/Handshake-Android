@@ -34,8 +34,21 @@ public class ContactActivity extends AppCompatActivity {
         ListView list = (ListView) findViewById(R.id.list);
 
         Realm realm = Realm.getInstance(this);
-        RealmResults<User> users = realm.where(User.class).equalTo("isContact", true).findAll();
-        users.sort("firstName", true);
+        long userId;
+        if (getIntent().hasExtra("userId")) {
+            userId = getIntent().getLongExtra("userId", SessionManager.getID());
+        } else {
+            userId = SessionManager.getID();
+        }
+
+        RealmResults<User> users;
+        if (userId == SessionManager.getID()) {
+            users = realm.where(User.class).equalTo("isContact", true).findAll();
+            users.sort("firstName", true);
+        } else {
+            users = realm.where(User.class).equalTo("isContact", true).findAll();
+            users.sort("firstName", true);
+        }
         ContactAdapter myAdapter = new ContactAdapter(this, users, true);
         list.setAdapter(myAdapter);
     }

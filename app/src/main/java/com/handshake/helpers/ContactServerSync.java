@@ -2,9 +2,9 @@ package com.handshake.helpers;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 
 import com.handshake.Handshake.RestClientAsync;
-import com.handshake.Handshake.RestClientSync;
 import com.handshake.Handshake.SessionManager;
 import com.handshake.Handshake.Utils;
 import com.handshake.models.User;
@@ -62,16 +62,14 @@ public class ContactServerSync {
             @Override
             public void syncCompletedListener() {
                 Realm realm = Realm.getInstance(context);
-                RealmResults<User> toDelete = realm.where(User.class).equalTo("syncStatus", Utils.userDeleted).findAll();
-                for (User u : toDelete)
-                    System.out.println("To delete: " + u.toString());
+                RealmResults<User> toDelete = realm.where(User.class).equalTo("syncStatus", Utils.UserDeleted).findAll();
                 if (toDelete.size() == 0) listener.syncCompletedListener();
                 for (final User user : toDelete) {
                     counter++;
                     RestClientAsync.delete(context, "/users/" + user.getUserId(), new RequestParams(), new JsonHttpResponseHandler() {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                            user.setSyncStatus(Utils.userSynced);
+                            user.setSyncStatus(Utils.UserSynced);
 
                             counter--;
                             if (counter == 0) {
@@ -96,11 +94,15 @@ public class ContactServerSync {
         params.put("page", page);
         if (!contactUpdated.equals("")) params.put("since_date", contactUpdated);
 
-        RestClientSync.get(context, "/contacts", params, new JsonHttpResponseHandler() {
+        System.out.println(contactUpdated + " Sending request: " + params.toString());
+        if (Looper.myLooper() == null) {
+            Looper.prepare();
+        }
+        RestClientAsync.get(context, "/contacts", params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
-
+                    System.out.println("Response: " + response.toString());
                     JSONArray contacts = response.getJSONArray("contacts");
 
                     final HashMap<Long, JSONObject> map = new HashMap<Long, JSONObject>();
@@ -151,6 +153,8 @@ public class ContactServerSync {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                System.out.println("Failure: " + errorResponse.toString());
+
                 if (errorResponse == null) return;
                 if (statusCode == 401) session.logoutUser();
             }
@@ -164,11 +168,13 @@ public class ContactServerSync {
         realm.beginTransaction();
         user.setIsContact(false);
         user.setContactUpdated(new Date(0));
-        user.setSyncStatus(Utils.userDeleted);
+        user.setSyncStatus(Utils.UserDeleted);
 
         for (int i = 0; i < user.getFeedItems().size(); i++) {
             user.getFeedItems().get(i).removeFromRealm();
         }
         realm.commitTransaction();
+
+        performSync(context, listener);
     }
 }

@@ -17,8 +17,8 @@ public class Utils {
     public static String[] threeLabels = {"Home", "Work", "Other"};
     public static String[] fourLabels = {"Home", "Mobile", "Work", "Other"};
 
-    public static short userSynced = 0;
-    public static short userDeleted = 1;
+    public static short UserSynced = 0;
+    public static short UserDeleted = 1;
 
     public static short CardSynced = 0;
     public static short CardCreated = 1;

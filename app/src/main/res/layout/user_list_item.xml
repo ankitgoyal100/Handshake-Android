@@ -21,7 +21,7 @@
             android:layout_width="60dip"
             android:layout_height="60dip"
             android:layout_gravity="center"
-            android:scaleType="centerInside"
+            android:scaleType="fitCenter"
             android:src="@drawable/default_profile" />
     </LinearLayout>
 
@@ -40,7 +40,8 @@
             android:layout_width="60dip"
             android:layout_height="60dip"
             android:layout_gravity="center"
-            android:scaleType="fitCenter" />
+            android:scaleType="fitCenter"
+            android:src="@mipmap/accept_button" />
     </LinearLayout>
 
     <LinearLayout
@@ -58,7 +59,8 @@
             android:layout_width="60dip"
             android:layout_height="60dip"
             android:layout_gravity="center"
-            android:scaleType="fitCenter" />
+            android:scaleType="fitCenter"
+            android:src="@mipmap/decline_button" />
     </LinearLayout>
 
     <LinearLayout

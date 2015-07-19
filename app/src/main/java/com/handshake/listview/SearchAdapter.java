@@ -1,7 +1,6 @@
 package com.handshake.listview;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -11,16 +10,12 @@ import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
-import android.widget.Toast;
 
-import com.afollestad.materialdialogs.AlertDialogWrapper;
+import com.handshake.Handshake.MainActivity;
 import com.handshake.Handshake.R;
 import com.handshake.Handshake.RestClientAsync;
-import com.handshake.helpers.ContactServerSync;
-import com.handshake.helpers.RequestServerSync;
 import com.handshake.helpers.UserArraySyncCompleted;
 import com.handshake.helpers.UserServerSync;
-import com.handshake.helpers.UserSyncCompleted;
 import com.handshake.models.User;
 import com.handshake.views.CircleTransform;
 import com.handshake.views.TextViewCustomFont;
@@ -86,7 +81,6 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
         final Long userId = getItem(position);
         Realm realm = Realm.getInstance(mContext);
         final User item = realm.where(User.class).equalTo("userId", userId).findFirst();
-        System.out.println(item.toString());
         viewHolder.image.setVisibility(View.VISIBLE);
         viewHolder.personName.setText(item.getFirstName() + " " + item.getLastName());
 
@@ -100,129 +94,130 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
         else
             viewHolder.description.setText(item.getMutual() + " mutual contacts");
 
-        if (item.isContact()) {
-            viewHolder.buttonOne.setVisibility(View.GONE);
-            viewHolder.buttonTwo.setVisibility(View.VISIBLE);
-            viewHolder.buttonTwo.setImageDrawable(mContext.getResources().getDrawable(R.mipmap.contacts_button));
-        } else if (item.isRequestReceived()) {
-            viewHolder.buttonOne.setVisibility(View.VISIBLE);
-            viewHolder.buttonTwo.setVisibility(View.VISIBLE);
-            viewHolder.buttonOne.setImageDrawable(mContext.getResources().getDrawable(R.mipmap.accept_button));
-            viewHolder.buttonTwo.setImageDrawable(mContext.getResources().getDrawable(R.mipmap.decline_button));
-        } else if (item.isRequestSent()) {
-            viewHolder.buttonOne.setVisibility(View.GONE);
-            viewHolder.buttonTwo.setVisibility(View.VISIBLE);
-            viewHolder.buttonTwo.setImageDrawable(mContext.getResources().getDrawable(R.mipmap.requested_button));
-        } else {
-            viewHolder.buttonOne.setVisibility(View.GONE);
-            viewHolder.buttonTwo.setVisibility(View.VISIBLE);
-            viewHolder.buttonTwo.setImageDrawable(mContext.getResources().getDrawable(R.mipmap.add_button));
-        }
-
-        viewHolder.buttonOne.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (item.isRequestReceived()) {
-                    viewHolder.buttonOne.setVisibility(View.GONE);
-                    viewHolder.buttonTwo.setVisibility(View.VISIBLE);
-                    viewHolder.buttonTwo.setImageDrawable(mContext.getResources().getDrawable(R.mipmap.contacts_button));
-
-                    Toast.makeText(mContext, "Request accepted", Toast.LENGTH_SHORT).show();
-
-                    RequestServerSync.acceptRequest(item, new UserSyncCompleted() {
-                        @Override
-                        public void syncCompletedListener(User users) {
-
-                        }
-
-                        @Override
-                        public void syncFailedListener() {
-                            Toast.makeText(mContext, "Could not accept request at this time. Please try again later.", Toast.LENGTH_LONG).show();
-                        }
-                    });
-                }
-            }
-        });
-
-        viewHolder.buttonTwo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (item.isContact()) {
-                    new AlertDialogWrapper.Builder(mContext)
-                            .setTitle("Delete contact")
-                            .setMessage("Are you sure you want to delete this contact?")
-                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    ContactServerSync.deleteContact(item);
-                                    dialog.cancel();
-                                }
-                            })
-                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.cancel();
-                                }
-                            })
-                            .show();
-                } else if (item.isRequestReceived()) {
-                    viewHolder.buttonOne.setVisibility(View.GONE);
-                    viewHolder.buttonTwo.setVisibility(View.GONE);
-
-                    Toast.makeText(mContext, "Request declined", Toast.LENGTH_SHORT).show();
-
-                    RequestServerSync.declineRequest(item, new UserSyncCompleted() {
-                        @Override
-                        public void syncCompletedListener(User users) {
-
-                        }
-
-                        @Override
-                        public void syncFailedListener() {
-                            Toast.makeText(mContext, "Could not decline request at this time. Please try again later.", Toast.LENGTH_LONG).show();
-                        }
-                    });
-                } else if (item.isRequestSent()) {
-                    new AlertDialogWrapper.Builder(mContext)
-                            .setTitle("Delete request")
-                            .setMessage("Are you sure you want to delete this request?")
-                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    RequestServerSync.deleteRequest(item, new UserSyncCompleted() {
-                                        @Override
-                                        public void syncCompletedListener(User users) {
-
-                                        }
-
-                                        @Override
-                                        public void syncFailedListener() {
-
-                                        }
-                                    });
-                                    dialog.cancel();
-                                }
-                            })
-                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.cancel();
-                                }
-                            })
-                            .show();
-                } else {
-                    RequestServerSync.sendRequest(item, new UserSyncCompleted() {
-                        @Override
-                        public void syncCompletedListener(User users) {
-                            viewHolder.buttonOne.setVisibility(View.GONE);
-                            viewHolder.buttonTwo.setVisibility(View.VISIBLE);
-                            viewHolder.buttonTwo.setImageDrawable(mContext.getResources().getDrawable(R.mipmap.requested_button));
-                        }
-
-                        @Override
-                        public void syncFailedListener() {
-                            Toast.makeText(mContext, "Could not sent request at this time. Please try again later.", Toast.LENGTH_LONG).show();
-                        }
-                    });
-                }
-            }
-        });
+        MainActivity.setContactButtons(mContext, item, viewHolder.buttonOne, viewHolder.buttonTwo);
+//        if (item.isContact()) {
+//            viewHolder.buttonOne.setVisibility(View.GONE);
+//            viewHolder.buttonTwo.setVisibility(View.VISIBLE);
+//            viewHolder.buttonTwo.setImageDrawable(mContext.getResources().getDrawable(R.mipmap.contacts_button));
+//        } else if (item.isRequestReceived()) {
+//            viewHolder.buttonOne.setVisibility(View.VISIBLE);
+//            viewHolder.buttonTwo.setVisibility(View.VISIBLE);
+//            viewHolder.buttonOne.setImageDrawable(mContext.getResources().getDrawable(R.mipmap.accept_button));
+//            viewHolder.buttonTwo.setImageDrawable(mContext.getResources().getDrawable(R.mipmap.decline_button));
+//        } else if (item.isRequestSent()) {
+//            viewHolder.buttonOne.setVisibility(View.GONE);
+//            viewHolder.buttonTwo.setVisibility(View.VISIBLE);
+//            viewHolder.buttonTwo.setImageDrawable(mContext.getResources().getDrawable(R.mipmap.requested_button));
+//        } else {
+//            viewHolder.buttonOne.setVisibility(View.GONE);
+//            viewHolder.buttonTwo.setVisibility(View.VISIBLE);
+//            viewHolder.buttonTwo.setImageDrawable(mContext.getResources().getDrawable(R.mipmap.add_button));
+//        }
+//
+//        viewHolder.buttonOne.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (item.isRequestReceived()) {
+//                    viewHolder.buttonOne.setVisibility(View.GONE);
+//                    viewHolder.buttonTwo.setVisibility(View.VISIBLE);
+//                    viewHolder.buttonTwo.setImageDrawable(mContext.getResources().getDrawable(R.mipmap.contacts_button));
+//
+//                    Toast.makeText(mContext, "Request accepted", Toast.LENGTH_SHORT).show();
+//
+//                    RequestServerSync.acceptRequest(item, new UserSyncCompleted() {
+//                        @Override
+//                        public void syncCompletedListener(User users) {
+//
+//                        }
+//
+//                        @Override
+//                        public void syncFailedListener() {
+//                            Toast.makeText(mContext, "Could not accept request at this time. Please try again later.", Toast.LENGTH_LONG).show();
+//                        }
+//                    });
+//                }
+//            }
+//        });
+//
+//        viewHolder.buttonTwo.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (item.isContact()) {
+//                    new AlertDialogWrapper.Builder(mContext)
+//                            .setTitle("Delete contact")
+//                            .setMessage("Are you sure you want to delete this contact?")
+//                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+//                                public void onClick(DialogInterface dialog, int which) {
+//                                    ContactServerSync.deleteContact(item);
+//                                    dialog.cancel();
+//                                }
+//                            })
+//                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+//                                public void onClick(DialogInterface dialog, int which) {
+//                                    dialog.cancel();
+//                                }
+//                            })
+//                            .show();
+//                } else if (item.isRequestReceived()) {
+//                    viewHolder.buttonOne.setVisibility(View.GONE);
+//                    viewHolder.buttonTwo.setVisibility(View.GONE);
+//
+//                    Toast.makeText(mContext, "Request declined", Toast.LENGTH_SHORT).show();
+//
+//                    RequestServerSync.declineRequest(item, new UserSyncCompleted() {
+//                        @Override
+//                        public void syncCompletedListener(User users) {
+//
+//                        }
+//
+//                        @Override
+//                        public void syncFailedListener() {
+//                            Toast.makeText(mContext, "Could not decline request at this time. Please try again later.", Toast.LENGTH_LONG).show();
+//                        }
+//                    });
+//                } else if (item.isRequestSent()) {
+//                    new AlertDialogWrapper.Builder(mContext)
+//                            .setTitle("Delete request")
+//                            .setMessage("Are you sure you want to delete this request?")
+//                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+//                                public void onClick(DialogInterface dialog, int which) {
+//                                    RequestServerSync.deleteRequest(item, new UserSyncCompleted() {
+//                                        @Override
+//                                        public void syncCompletedListener(User users) {
+//
+//                                        }
+//
+//                                        @Override
+//                                        public void syncFailedListener() {
+//
+//                                        }
+//                                    });
+//                                    dialog.cancel();
+//                                }
+//                            })
+//                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+//                                public void onClick(DialogInterface dialog, int which) {
+//                                    dialog.cancel();
+//                                }
+//                            })
+//                            .show();
+//                } else {
+//                    RequestServerSync.sendRequest(item, new UserSyncCompleted() {
+//                        @Override
+//                        public void syncCompletedListener(User users) {
+//                            viewHolder.buttonOne.setVisibility(View.GONE);
+//                            viewHolder.buttonTwo.setVisibility(View.VISIBLE);
+//                            viewHolder.buttonTwo.setImageDrawable(mContext.getResources().getDrawable(R.mipmap.requested_button));
+//                        }
+//
+//                        @Override
+//                        public void syncFailedListener() {
+//                            Toast.makeText(mContext, "Could not sent request at this time. Please try again later.", Toast.LENGTH_LONG).show();
+//                        }
+//                    });
+//                }
+//            }
+//        });
 
         return convertView;
     }

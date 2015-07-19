@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -27,6 +28,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.astuetz.PagerSlidingTabStrip;
 import com.facebook.FacebookSdk;
@@ -39,9 +41,11 @@ import com.handshake.helpers.GroupServerSync;
 import com.handshake.helpers.RequestServerSync;
 import com.handshake.helpers.SuggestionsServerSync;
 import com.handshake.helpers.SyncCompleted;
+import com.handshake.helpers.UserSyncCompleted;
 import com.handshake.listview.SearchAdapter;
 import com.handshake.models.Account;
 import com.handshake.models.Group;
+import com.handshake.models.User;
 import com.handshake.views.CircleTransform;
 import com.handshake.views.DelayAutoCompleteTextView;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -124,8 +128,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
-        final Realm realm = Realm.getInstance(this);
 
         final DelayAutoCompleteTextView searchView = (DelayAutoCompleteTextView) v.findViewById(R.id.search);
         searchView.setAdapter(new SearchAdapter(this)); // 'this' is Activity instance
@@ -465,4 +467,130 @@ public class MainActivity extends AppCompatActivity {
         moveTaskToBack(true);
     }
 
+    public static void setContactButtons(final Context context, final User account,
+                                           final ImageView buttonOne, final ImageView buttonTwo) {
+        if (account.isContact()) {
+            buttonOne.setVisibility(View.GONE);
+            buttonTwo.setVisibility(View.VISIBLE);
+            buttonTwo.setImageDrawable(context.getResources().getDrawable(R.mipmap.contacts_button));
+        } else if (account.isRequestReceived()) {
+            buttonOne.setVisibility(View.VISIBLE);
+            buttonTwo.setVisibility(View.VISIBLE);
+            buttonOne.setImageDrawable(context.getResources().getDrawable(R.mipmap.accept_button));
+            buttonTwo.setImageDrawable(context.getResources().getDrawable(R.mipmap.decline_button));
+        } else if (account.isRequestSent()) {
+            buttonOne.setVisibility(View.GONE);
+            buttonTwo.setVisibility(View.VISIBLE);
+            buttonTwo.setImageDrawable(context.getResources().getDrawable(R.mipmap.requested_button));
+        } else {
+            buttonOne.setVisibility(View.GONE);
+            buttonTwo.setVisibility(View.VISIBLE);
+            buttonTwo.setImageDrawable(context.getResources().getDrawable(R.mipmap.add_button));
+        }
+
+        buttonOne.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (account.isRequestReceived()) {
+                    buttonOne.setVisibility(View.GONE);
+                    buttonTwo.setVisibility(View.VISIBLE);
+                    buttonTwo.setImageDrawable(context.getResources().getDrawable(R.mipmap.contacts_button));
+
+                    Toast.makeText(context, "Request accepted", Toast.LENGTH_SHORT).show();
+
+                    RequestServerSync.acceptRequest(account, new UserSyncCompleted() {
+                        @Override
+                        public void syncCompletedListener(User users) {
+
+                        }
+
+                        @Override
+                        public void syncFailedListener() {
+                            Toast.makeText(context, "Could not accept request at this time. Please try again later.", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+            }
+        });
+
+        buttonTwo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (account.isContact()) {
+                    new AlertDialogWrapper.Builder(context)
+                            .setTitle("Delete contact")
+                            .setMessage("Are you sure you want to delete this contact?")
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    ContactServerSync.deleteContact(account);
+                                    dialog.cancel();
+                                }
+                            })
+                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
+                                }
+                            })
+                            .show();
+                } else if (account.isRequestReceived()) {
+                    buttonOne.setVisibility(View.GONE);
+                    buttonTwo.setVisibility(View.GONE);
+
+                    Toast.makeText(context, "Request declined", Toast.LENGTH_SHORT).show();
+
+                    RequestServerSync.declineRequest(account, new UserSyncCompleted() {
+                        @Override
+                        public void syncCompletedListener(User users) {
+
+                        }
+
+                        @Override
+                        public void syncFailedListener() {
+                            Toast.makeText(context, "Could not decline request at this time. Please try again later.", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                } else if (account.isRequestSent()) {
+                    new AlertDialogWrapper.Builder(context)
+                            .setTitle("Delete request")
+                            .setMessage("Are you sure you want to delete this request?")
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    RequestServerSync.deleteRequest(account, new UserSyncCompleted() {
+                                        @Override
+                                        public void syncCompletedListener(User users) {
+
+                                        }
+
+                                        @Override
+                                        public void syncFailedListener() {
+
+                                        }
+                                    });
+                                    dialog.cancel();
+                                }
+                            })
+                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
+                                }
+                            })
+                            .show();
+                } else {
+                    RequestServerSync.sendRequest(account, new UserSyncCompleted() {
+                        @Override
+                        public void syncCompletedListener(User users) {
+                            buttonOne.setVisibility(View.GONE);
+                            buttonTwo.setVisibility(View.VISIBLE);
+                            buttonTwo.setImageDrawable(context.getResources().getDrawable(R.mipmap.requested_button));
+                        }
+
+                        @Override
+                        public void syncFailedListener() {
+                            Toast.makeText(context, "Could not sent request at this time. Please try again later.", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+            }
+        });
+    }
 }

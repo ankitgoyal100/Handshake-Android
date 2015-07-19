@@ -54,6 +54,8 @@ public class RequestServerSync {
                     UserServerSync.cacheUser(context, requestsJSONArray, new UserArraySyncCompleted() {
                         @Override
                         public void syncCompletedListener(ArrayList<User> users) {
+//                            for (User u : users)
+//                                System.out.println(u.toString());
                             ArrayList<Long> requestUserIds = new ArrayList<Long>();
                             for (int i = 0; i < requestsJSONArray.length(); i++) {
                                 try {

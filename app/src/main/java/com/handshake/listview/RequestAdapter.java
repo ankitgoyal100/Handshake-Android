@@ -5,14 +5,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
-import android.widget.Toast;
 
+import com.handshake.Handshake.MainActivity;
 import com.handshake.Handshake.R;
+import com.handshake.models.User;
 import com.handshake.views.CircleTransform;
 import com.handshake.views.TextViewCustomFont;
-import com.handshake.helpers.RequestServerSync;
-import com.handshake.helpers.UserSyncCompleted;
-import com.handshake.models.User;
 import com.squareup.picasso.Picasso;
 
 import io.realm.RealmBaseAdapter;
@@ -53,65 +51,72 @@ public class RequestAdapter extends RealmBaseAdapter<User> implements ListAdapte
         else
             Picasso.with(context).load(R.drawable.default_profile).transform(new CircleTransform()).into(viewHolder.image);
 
-        viewHolder.acceptButton.setVisibility(View.GONE);
-        viewHolder.declineButton.setVisibility(View.GONE);
-        if (item.isContact())
-            viewHolder.description.setText("Request accepted");
-        else if (!item.isRequestReceived())
-            viewHolder.description.setText("Request declined");
-        else {
-            if (item.getMutual() == 1)
-                viewHolder.description.setText(item.getMutual() + " mutual contact");
-            else
-                viewHolder.description.setText(item.getMutual() + " mutual contacts");
+        if (item.getMutual() == 1)
+            viewHolder.description.setText(item.getMutual() + " mutual contact");
+        else
+            viewHolder.description.setText(item.getMutual() + " mutual contacts");
 
-            viewHolder.acceptButton.setVisibility(View.VISIBLE);
-            viewHolder.declineButton.setVisibility(View.VISIBLE);
-        }
+        MainActivity.setContactButtons(context, item, viewHolder.acceptButton, viewHolder.declineButton);
 
-        viewHolder.acceptButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                viewHolder.acceptButton.setVisibility(View.GONE);
-                viewHolder.declineButton.setVisibility(View.GONE);
-
-                Toast.makeText(context, "Request accepted", Toast.LENGTH_SHORT).show();
-
-                RequestServerSync.acceptRequest(item, new UserSyncCompleted() {
-                    @Override
-                    public void syncCompletedListener(User users) {
-
-                    }
-
-                    @Override
-                    public void syncFailedListener() {
-                        Toast.makeText(context, "Could not accept request at this time. Please try again later.", Toast.LENGTH_LONG).show();
-                    }
-                });
-            }
-        });
-
-        viewHolder.declineButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                viewHolder.acceptButton.setVisibility(View.GONE);
-                viewHolder.declineButton.setVisibility(View.GONE);
-
-                Toast.makeText(context, "Request declined", Toast.LENGTH_SHORT).show();
-
-                RequestServerSync.declineRequest(item, new UserSyncCompleted() {
-                    @Override
-                    public void syncCompletedListener(User users) {
-
-                    }
-
-                    @Override
-                    public void syncFailedListener() {
-                        Toast.makeText(context, "Could not decline request at this time. Please try again later.", Toast.LENGTH_LONG).show();
-                    }
-                });
-            }
-        });
+//        viewHolder.acceptButton.setVisibility(View.GONE);
+//        viewHolder.declineButton.setVisibility(View.GONE);
+//        if (item.isContact())
+//            viewHolder.description.setText("Request accepted");
+//        else if (!item.isRequestReceived())
+//            viewHolder.description.setText("Request declined");
+//        else {
+//            if (item.getMutual() == 1)
+//                viewHolder.description.setText(item.getMutual() + " mutual contact");
+//            else
+//                viewHolder.description.setText(item.getMutual() + " mutual contacts");
+//
+//            viewHolder.acceptButton.setVisibility(View.VISIBLE);
+//            viewHolder.declineButton.setVisibility(View.VISIBLE);
+//        }
+//
+//        viewHolder.acceptButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                viewHolder.acceptButton.setVisibility(View.GONE);
+//                viewHolder.declineButton.setVisibility(View.GONE);
+//
+//                Toast.makeText(context, "Request accepted", Toast.LENGTH_SHORT).show();
+//
+//                RequestServerSync.acceptRequest(item, new UserSyncCompleted() {
+//                    @Override
+//                    public void syncCompletedListener(User users) {
+//
+//                    }
+//
+//                    @Override
+//                    public void syncFailedListener() {
+//                        Toast.makeText(context, "Could not accept request at this time. Please try again later.", Toast.LENGTH_LONG).show();
+//                    }
+//                });
+//            }
+//        });
+//
+//        viewHolder.declineButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                viewHolder.acceptButton.setVisibility(View.GONE);
+//                viewHolder.declineButton.setVisibility(View.GONE);
+//
+//                Toast.makeText(context, "Request declined", Toast.LENGTH_SHORT).show();
+//
+//                RequestServerSync.declineRequest(item, new UserSyncCompleted() {
+//                    @Override
+//                    public void syncCompletedListener(User users) {
+//
+//                    }
+//
+//                    @Override
+//                    public void syncFailedListener() {
+//                        Toast.makeText(context, "Could not decline request at this time. Please try again later.", Toast.LENGTH_LONG).show();
+//                    }
+//                });
+//            }
+//        });
 
         return convertView;
     }

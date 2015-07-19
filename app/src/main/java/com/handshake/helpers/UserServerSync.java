@@ -54,13 +54,13 @@ public class UserServerSync {
                         if (!map.containsKey(contacts.getJSONObject(i).getLong("id"))) {
                             realm.beginTransaction();
                             user = realm.createObject(User.class);
-                            user.setSyncStatus(Utils.userSynced);
+                            user.setSyncStatus(Utils.UserSynced);
                             realm.commitTransaction();
                         } else {
                             user = map.get(contacts.getJSONObject(i).getLong("id"));
                         }
 
-                        if (user.getSyncStatus() == Utils.userSynced) {
+                        if (user.getSyncStatus() == Utils.UserSynced) {
                             realm.beginTransaction();
                             user = User.updateContact(user, realm, contacts.getJSONObject(i));
                             realm.commitTransaction();
