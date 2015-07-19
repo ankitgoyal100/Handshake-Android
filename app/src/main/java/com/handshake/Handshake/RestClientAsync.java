@@ -35,7 +35,6 @@ public class RestClientAsync {
         params.put("auth_token", SessionManager.getToken());
         params.put("user_id", SessionManager.getID());
 
-        System.out.println(params.toString());
         client.get(context, getAbsoluteUrl(url), params, responseHandler);
     }
 
