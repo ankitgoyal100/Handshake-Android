@@ -1,4 +1,4 @@
-package com.handshake.Handshake;
+package com.handshake.settings;
 
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -9,7 +9,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 
-public class SettingsActivity extends AppCompatActivity {
+import com.handshake.Handshake.R;
+
+public class MainSettingsActivity extends AppCompatActivity {
 
     private final Handler handler = new Handler();
     private Drawable oldBackground = null;

@@ -27,6 +27,7 @@ import com.handshake.models.Card;
 import com.handshake.models.Email;
 import com.handshake.models.Phone;
 import com.handshake.models.Social;
+import com.handshake.settings.MainSettingsActivity;
 import com.handshake.views.CircleTransform;
 import com.handshake.views.TextViewCustomFont;
 import com.squareup.picasso.Picasso;
@@ -109,7 +110,7 @@ public class ProfileFragment extends Fragment {
         settingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(getActivity(), SettingsActivity.class);
+                Intent i = new Intent(getActivity(), MainSettingsActivity.class);
                 startActivity(i);
             }
         });
