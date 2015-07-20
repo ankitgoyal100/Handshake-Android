@@ -39,6 +39,7 @@ dependencies {
     compile 'com.android.support:cardview-v7:22.2.0'
     compile 'com.android.support:recyclerview-v7:22.2.0'
     compile 'com.facebook.android:facebook-android-sdk:4.0.0'
+    compile 'com.android.support:support-v4:21.0.3'
     compile project(':countryPickerLib')
     compile files('libs/libphonenumber-7.0.7.jar')
     compile files('libs/httpclient-4.3.6.jar')

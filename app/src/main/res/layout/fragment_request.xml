@@ -4,10 +4,16 @@
     android:layout_height="match_parent"
     tools:context="com.handshake.Handshake.FeedFragment">
 
-    <ListView
-        android:id="@android:id/list"
-        android:listSelector="@android:color/transparent"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipeContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+
+        <ListView
+            android:id="@android:id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:listSelector="@android:color/transparent" />
+    </android.support.v4.widget.SwipeRefreshLayout>
 
 </FrameLayout>

@@ -2,10 +2,13 @@ package com.handshake.Handshake;
 
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.handshake.helpers.FeedItemServerSync;
+import com.handshake.helpers.SyncCompleted;
 import com.handshake.listview.FeedAdapter;
 import com.handshake.models.FeedItem;
 
@@ -14,6 +17,8 @@ import io.realm.RealmResults;
 
 
 public class FeedFragment extends ListFragment {
+    private SwipeRefreshLayout swipeContainer;
+
     public static FeedFragment newInstance() {
         FeedFragment fragment = new FeedFragment();
         return fragment;
@@ -36,6 +41,25 @@ public class FeedFragment extends ListFragment {
     }
 
     @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer);
+        swipeContainer.setColorSchemeResources(R.color.orange);
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                FeedItemServerSync.performSync(getActivity(), new SyncCompleted() {
+                    @Override
+                    public void syncCompletedListener() {
+                        swipeContainer.setRefreshing(false);
+                    }
+                });
+            }
+        });
+    }
+
+    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
@@ -46,4 +70,9 @@ public class FeedFragment extends ListFragment {
         setListAdapter(adapter);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        swipeContainer.setRefreshing(false);
+    }
 }

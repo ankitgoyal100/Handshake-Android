@@ -2,11 +2,14 @@ package com.handshake.Handshake;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
 
+import com.handshake.helpers.GroupServerSync;
+import com.handshake.helpers.SyncCompleted;
 import com.handshake.listview.GroupAdapter;
 import com.handshake.models.Group;
 
@@ -17,6 +20,8 @@ import io.realm.RealmResults;
  * Created by ankitgoyal on 6/23/15.
  */
 public class GroupFragment extends Fragment {
+    private SwipeRefreshLayout swipeContainer;
+
     public static GroupFragment newInstance() {
         GroupFragment fragment = new GroupFragment();
         return fragment;
@@ -35,6 +40,25 @@ public class GroupFragment extends Fragment {
     }
 
     @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer);
+        swipeContainer.setColorSchemeResources(R.color.orange);
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                GroupServerSync.performSync(getActivity(), new SyncCompleted() {
+                    @Override
+                    public void syncCompletedListener() {
+                        swipeContainer.setRefreshing(false);
+                    }
+                });
+            }
+        });
+    }
+
+    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
@@ -50,6 +74,12 @@ public class GroupFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        swipeContainer.setRefreshing(false);
     }
 }
 
