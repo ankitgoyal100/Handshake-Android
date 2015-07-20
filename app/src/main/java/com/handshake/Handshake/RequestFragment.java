@@ -13,7 +13,6 @@ import com.handshake.helpers.RequestServerSync;
 import com.handshake.helpers.SyncCompleted;
 import com.handshake.listview.ContactAdapter;
 import com.handshake.models.User;
-import com.handshake.views.TextViewCustomFont;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -59,12 +58,6 @@ public class RequestFragment extends ListFragment {
                 });
             }
         });
-
-        View empty = getActivity().getLayoutInflater().inflate(R.layout.empty_list_view, null, false);
-        TextViewCustomFont text = (TextViewCustomFont) empty.findViewById(R.id.empty_list_item);
-        text.setText("No requests");
-        ((ViewGroup) getListView().getParent().getParent()).addView(empty);
-        getListView().setEmptyView(empty);
     }
 
     @Override

@@ -12,7 +12,6 @@ import com.handshake.helpers.GroupServerSync;
 import com.handshake.helpers.SyncCompleted;
 import com.handshake.listview.GroupAdapter;
 import com.handshake.models.Group;
-import com.handshake.views.TextViewCustomFont;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -57,14 +56,6 @@ public class GroupFragment extends Fragment {
                 });
             }
         });
-
-        GridView gridView = (GridView) getView().findViewById(R.id.grid);
-
-        View empty = getActivity().getLayoutInflater().inflate(R.layout.empty_list_view, null, false);
-        TextViewCustomFont text = (TextViewCustomFont) empty.findViewById(R.id.empty_list_item);
-        text.setText("No groups");
-        ((ViewGroup) gridView.getParent().getParent()).addView(empty);
-        gridView.setEmptyView(empty);
     }
 
     @Override
