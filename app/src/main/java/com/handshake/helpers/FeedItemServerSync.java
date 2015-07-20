@@ -174,14 +174,18 @@ public class FeedItemServerSync {
                                                     if (feedObjects.getJSONObject(i).has("user") && !feedObjects.getJSONObject(i).isNull("user")) {
                                                         feedItem.setUser(usersMap.get(
                                                                 feedObjects.getJSONObject(i).getJSONObject("user").getLong("id")));
-                                                        usersMap.get(
-                                                                feedObjects.getJSONObject(i).getJSONObject("user").getLong("id")).getFeedItems().add(realm.copyToRealm(feedItem));
+
+                                                        if (usersMap.containsKey(feedObjects.getJSONObject(i).getJSONObject("user").getLong("id")))
+                                                            usersMap.get(
+                                                                    feedObjects.getJSONObject(i).getJSONObject("user").getLong("id")).getFeedItems().add(realm.copyToRealm(feedItem));
                                                     }
                                                     if (feedObjects.getJSONObject(i).has("group") && !feedObjects.getJSONObject(i).isNull("group")) {
                                                         feedItem.setGroup(groupsMap.get(
                                                                 feedObjects.getJSONObject(i).getJSONObject("group").getLong("id")));
-                                                        groupsMap.get(
-                                                                feedObjects.getJSONObject(i).getJSONObject("group").getLong("id")).getFeedItems().add(realm.copyToRealm(feedItem));
+
+                                                        if (groupsMap.containsKey(feedObjects.getJSONObject(i).getJSONObject("group").getLong("id")))
+                                                            groupsMap.get(
+                                                                    feedObjects.getJSONObject(i).getJSONObject("group").getLong("id")).getFeedItems().add(realm.copyToRealm(feedItem));
                                                     }
                                                     realm.commitTransaction();
                                                 } catch (JSONException e) {

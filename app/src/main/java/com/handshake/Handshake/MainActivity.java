@@ -138,10 +138,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Long userId = (Long) parent.getItemAtPosition(position);
+                Realm realm = Realm.getInstance(context);
+                User user = realm.where(User.class).equalTo("userId", userId).findFirst();
+                Intent i;
+                if(user.isContact()) {
+                    i = new Intent(context, ContactUserProfileActivity.class);
+                } else {
+                    i = new Intent(MainActivity.this, GenericUserProfileActivity.class);
+                }
 
-                Intent i = new Intent(MainActivity.this, UserProfileActivity.class);
                 i.putExtra("userId", userId);
                 startActivity(i);
+
                 searchView.setText("");
                 searchView.clearFocus();
             }

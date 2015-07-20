@@ -1,15 +1,20 @@
 package com.handshake.Handshake;
 
-import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,16 +25,20 @@ import android.widget.Toast;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
-import com.handshake.editor.EditProfileActivity;
-import com.handshake.models.Account;
 import com.handshake.models.Address;
 import com.handshake.models.Card;
 import com.handshake.models.Email;
 import com.handshake.models.Phone;
 import com.handshake.models.Social;
+import com.handshake.models.User;
 import com.handshake.views.CircleTransform;
 import com.handshake.views.TextViewCustomFont;
+import com.loopj.android.http.JsonHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 import com.squareup.picasso.Picasso;
+
+import org.apache.http.Header;
+import org.json.JSONObject;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -37,75 +46,86 @@ import java.util.concurrent.Executors;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
 
-/**
- * Created by ankitgoyal on 6/27/15.
- */
-public class ProfileFragment extends Fragment {
+public class ContactUserProfileActivity extends AppCompatActivity {
+
+    private Context context = this;
     private Handler handler = new Handler();
+
+    private Drawable oldBackground = null;
+
     private LinearLayout infoLayout;
     private LinearLayout socialLayout;
     private static Executor executor = Executors.newSingleThreadExecutor();
 
-    public static ProfileFragment newInstance() {
-        ProfileFragment fragment = new ProfileFragment();
-        return fragment;
-    }
-
-    public ProfileFragment() {
-        // Required empty public constructor
-    }
-
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_profile, container, false);
-    }
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_contact_user_profile);
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+//        changeColor(getResources().getColor(R.color.orange));
 
-        infoLayout = (LinearLayout) getView().findViewById(R.id.linear_layout);
-        socialLayout = (LinearLayout) getView().findViewById(R.id.linear_layout_2);
+        infoLayout = (LinearLayout) findViewById(R.id.linear_layout);
+        socialLayout = (LinearLayout) findViewById(R.id.linear_layout_2);
         fillViews();
     }
 
     private void fillViews() {
-        final Realm realm = Realm.getInstance(getActivity());
-        final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+        final Realm realm = Realm.getInstance(context);
+        final User account = realm.where(User.class).equalTo("userId", getIntent().getLongExtra("userId", SessionManager.getID())).findFirst();
 
-        TextViewCustomFont name = (TextViewCustomFont) getView().findViewById(R.id.name);
+        TextViewCustomFont name = (TextViewCustomFont) findViewById(R.id.name);
         String lastName = "";
         if (!account.getLastName().equals("null"))
             lastName = account.getLastName();
         name.setText(account.getFirstName() + " " + lastName);
 
-        CircleImageView profileImage = (CircleImageView) getView().findViewById(R.id.profile_image);
-        ImageView backdrop = (ImageView) getView().findViewById(R.id.backdrop);
-        CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) getView().findViewById(R.id.collapsing_toolbar);
+        CircleImageView profileImage = (CircleImageView) findViewById(R.id.profile_image);
+        ImageView backdrop = (ImageView) findViewById(R.id.backdrop);
+        CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
 
         if (!account.getThumb().isEmpty() && !account.getThumb().equals("null")) {
-            Picasso.with(getActivity()).load(account.getThumb()).transform(new CircleTransform()).into(profileImage);
+            Picasso.with(context).load(account.getThumb()).transform(new CircleTransform()).into(profileImage);
             if (!account.getPicture().isEmpty() && !account.getPicture().equals("null"))
-                Picasso.with(getActivity()).load(account.getPicture()).into(backdrop);
+                Picasso.with(context).load(account.getPicture()).into(backdrop);
             else
-                Picasso.with(getActivity()).load(account.getThumb()).into(backdrop);
+                Picasso.with(context).load(account.getThumb()).into(backdrop);
         } else {
-            Picasso.with(getActivity()).load(R.drawable.default_profile).transform(new CircleTransform()).into(profileImage);
+            Picasso.with(context).load(R.drawable.default_profile).transform(new CircleTransform()).into(profileImage);
             collapsingToolbar.setContentScrimColor(getResources().getColor(R.color.background_window));
         }
 
-        FloatingActionButton editButton = (FloatingActionButton) getView().findViewById(R.id.edit_button);
-        editButton.setOnClickListener(new View.OnClickListener() {
+        TextViewCustomFont contacts = (TextViewCustomFont) findViewById(R.id.contacts);
+        TextViewCustomFont mutual = (TextViewCustomFont) findViewById(R.id.mutual);
+
+        contacts.setText(account.getContacts() + " contacts");
+        mutual.setText(account.getMutual() + " mutual");
+        contacts.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(getActivity(), EditProfileActivity.class);
+                Intent i = new Intent(ContactUserProfileActivity.this, ContactActivity.class);
+                i.putExtra("userId", account.getUserId());
+                i.putExtra("type", "contacts");
                 startActivity(i);
             }
         });
 
-        final ProgressDialog dialog = ProgressDialog.show(getActivity(), "", "Loading profile...", true);
+        mutual.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(ContactUserProfileActivity.this, ContactActivity.class);
+                i.putExtra("userId", account.getUserId());
+                i.putExtra("type", "mutual");
+                startActivity(i);
+            }
+        });
+
+        TextViewCustomFont text = (TextViewCustomFont) findViewById(R.id.text);
+
+        MainActivity.setContactButtons(context, account,
+                (ImageView) findViewById(R.id.button_one), (ImageView) findViewById(R.id.button_two), text);
+
+        ImageView notifications = (ImageView) findViewById(R.id.notifications);
+        setNotificationsButton(account, notifications);
 
         executor.execute(new Runnable() {
             @Override
@@ -122,13 +142,13 @@ public class ProfileFragment extends Fragment {
 
                 }
 
-                Realm realm = Realm.getInstance(getActivity());
+                Realm realm = Realm.getInstance(context);
 
-                final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+                final User account = realm.where(User.class).equalTo("userId", getIntent().getLongExtra("userId", SessionManager.getID())).findFirst();
                 final Card card = account.getCards().first();
 
                 for (final Phone phone : card.getPhones()) {
-                    LayoutInflater inflater = (LayoutInflater) getActivity().getApplicationContext()
+                    LayoutInflater inflater = (LayoutInflater) context.getApplicationContext()
                             .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     final View mLinearView = inflater.inflate(R.layout.info_cell, null);
                     final TextViewCustomFont title = (TextViewCustomFont) mLinearView.findViewById(R.id.title);
@@ -143,9 +163,7 @@ public class ProfileFragment extends Fragment {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            dialog.cancel();
-
-                            getView().findViewById(R.id.divider1).setVisibility(View.VISIBLE);
+                            findViewById(R.id.divider1).setVisibility(View.VISIBLE);
 
                             imageView1.setVisibility(View.VISIBLE);
                             imageView2.setVisibility(View.VISIBLE);
@@ -188,7 +206,7 @@ public class ProfileFragment extends Fragment {
                 }
 
                 for (final Email email : card.getEmails()) {
-                    LayoutInflater inflater = (LayoutInflater) getActivity().getApplicationContext()
+                    LayoutInflater inflater = (LayoutInflater) context.getApplicationContext()
                             .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     final View mLinearView = inflater.inflate(R.layout.info_cell, null);
                     final TextViewCustomFont title = (TextViewCustomFont) mLinearView.findViewById(R.id.title);
@@ -223,7 +241,7 @@ public class ProfileFragment extends Fragment {
 
 
                 for (final Address address : card.getAddresses()) {
-                    LayoutInflater inflater = (LayoutInflater) getActivity().getApplicationContext()
+                    LayoutInflater inflater = (LayoutInflater) context.getApplicationContext()
                             .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     final View mLinearView = inflater.inflate(R.layout.info_cell, null);
                     final TextViewCustomFont title = (TextViewCustomFont) mLinearView.findViewById(R.id.title);
@@ -276,7 +294,7 @@ public class ProfileFragment extends Fragment {
                 }
 
                 for (final Social social : card.getSocials()) {
-                    LayoutInflater inflater = (LayoutInflater) getActivity().getApplicationContext()
+                    LayoutInflater inflater = (LayoutInflater) context.getApplicationContext()
                             .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     final View mLinearView = inflater.inflate(R.layout.social_cell, null);
                     final TextViewCustomFont title = (TextViewCustomFont) mLinearView.findViewById(R.id.title);
@@ -288,9 +306,9 @@ public class ProfileFragment extends Fragment {
                         @Override
                         public void run() {
                             if (card.getSocials().size() == 0) {
-                                getView().findViewById(R.id.divider1).setVisibility(View.GONE);
+                                findViewById(R.id.divider1).setVisibility(View.GONE);
                             } else {
-                                getView().findViewById(R.id.divider2).setVisibility(View.VISIBLE);
+                                findViewById(R.id.divider2).setVisibility(View.VISIBLE);
                             }
 
                             if (network.equals("facebook")) {
@@ -300,7 +318,7 @@ public class ProfileFragment extends Fragment {
                                     @Override
                                     public void onClick(View v) {
                                         try {
-                                            getActivity().getPackageManager().getPackageInfo("com.facebook.katana", 0);
+                                            context.getPackageManager().getPackageInfo("com.facebook.katana", 0);
                                             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("fb://profile/" + username)));
                                         } catch (Exception e) {
                                             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://facebook.com/" + username)));
@@ -347,7 +365,7 @@ public class ProfileFragment extends Fragment {
                                 mLinearView.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        Toast.makeText(getActivity(),
+                                        Toast.makeText(context,
                                                 "Unable to open Snapchat. Please manually add the user via the Snapchat application.", Toast.LENGTH_LONG).show();
                                     }
                                 });
@@ -361,14 +379,126 @@ public class ProfileFragment extends Fragment {
         });
     }
 
+    private void setNotificationsButton(final User account, final ImageView notifications) {
+        if (account.isNotifications()) {
+            ViewGroup.LayoutParams params = notifications.getLayoutParams();
+            params.height = dipToPixels(context, 37.5f);
+            params.width = dipToPixels(context, 141.25f);
+            notifications.setLayoutParams(params);
+            notifications.setImageDrawable(getResources().getDrawable(R.mipmap.notifications_button));
+            notifications.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    RestClientAsync.post(context, "/users/" + account.getUserId() + "/black_list", new RequestParams(), new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                            Realm realm = Realm.getInstance(context);
+                            realm.beginTransaction();
+                            account.setNotifications(false);
+                            realm.commitTransaction();
+
+                            setNotificationsButton(account, notifications);
+                        }
+
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                            Toast.makeText(context, "There was an error. Please try again.", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+            });
+        } else {
+            ViewGroup.LayoutParams params = notifications.getLayoutParams();
+            params.height = dipToPixels(context, 37.5f);
+            params.width = dipToPixels(context, 155f);
+            notifications.setLayoutParams(params);
+            notifications.setImageDrawable(getResources().getDrawable(R.mipmap.notifications_off_button));
+            notifications.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    RestClientAsync.delete(context, "/users/" + account.getUserId() + "/black_list", new RequestParams(), new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                            Realm realm = Realm.getInstance(context);
+                            realm.beginTransaction();
+                            account.setNotifications(true);
+                            realm.commitTransaction();
+
+                            setNotificationsButton(account, notifications);
+                        }
+
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                            Toast.makeText(context, "There was an error. Please try again.", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    public static int dipToPixels(Context context, float dipValue) {
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics);
+    }
+
+    public void changeColor(int newColor) {
+        // change ActionBar color just if an ActionBar is available
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+
+            Drawable colorDrawable = new ColorDrawable(newColor);
+            LayerDrawable ld = new LayerDrawable(new Drawable[]{colorDrawable});
+
+            if (oldBackground == null) {
+
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                    ld.setCallback(drawableCallback);
+                } else {
+                    getSupportActionBar().setBackgroundDrawable(ld);
+                }
+
+            } else {
+
+                TransitionDrawable td = new TransitionDrawable(new Drawable[]{oldBackground, ld});
+
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                    td.setCallback(drawableCallback);
+                } else {
+                    getSupportActionBar().setBackgroundDrawable(td);
+                }
+
+                td.startTransition(200);
+
+            }
+
+            oldBackground = ld;
+
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            getSupportActionBar().setDisplayShowTitleEnabled(true);
+
+        }
+    }
+
+    private Drawable.Callback drawableCallback = new Drawable.Callback() {
+        @Override
+        public void invalidateDrawable(Drawable who) {
+            getSupportActionBar().setBackgroundDrawable(who);
+        }
+
+        @Override
+        public void scheduleDrawable(Drawable who, Runnable what, long when) {
+            handler.postAtTime(what, when);
+        }
+
+        @Override
+        public void unscheduleDrawable(Drawable who, Runnable what) {
+            handler.removeCallbacks(what);
+        }
+    };
+
     @Override
     public void onResume() {
         super.onResume();
-
-        final Realm realm = Realm.getInstance(getActivity());
-        final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
-        final Card card = account.getCards().first();
-
         fillViews();
     }
 }

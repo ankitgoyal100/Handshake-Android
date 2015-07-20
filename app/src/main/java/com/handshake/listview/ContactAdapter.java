@@ -12,14 +12,16 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 
+import com.handshake.Handshake.ContactUserProfileActivity;
 import com.handshake.Handshake.MainActivity;
 import com.handshake.Handshake.R;
-import com.handshake.Handshake.UserProfileActivity;
+import com.handshake.Handshake.GenericUserProfileActivity;
 import com.handshake.models.User;
 import com.handshake.views.CircleTransform;
 import com.handshake.views.TextViewCustomFont;
 import com.squareup.picasso.Picasso;
 
+import io.realm.Realm;
 import io.realm.RealmBaseAdapter;
 import io.realm.RealmResults;
 
@@ -82,8 +84,17 @@ public class ContactAdapter extends RealmBaseAdapter<User> implements ListAdapte
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(context, UserProfileActivity.class);
-                i.putExtra("userId", item.getUserId());
+                Long userId = item.getUserId();
+                Realm realm = Realm.getInstance(context);
+                User user = realm.where(User.class).equalTo("userId", userId).findFirst();
+
+                Intent i;
+                if(user.isContact()) {
+                    i = new Intent(context, ContactUserProfileActivity.class);
+                } else {
+                    i = new Intent(context, GenericUserProfileActivity.class);
+                }
+                i.putExtra("userId", userId);
                 context.startActivity(i);
             }
         });

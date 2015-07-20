@@ -25,7 +25,7 @@ import io.realm.Realm;
 /**
  * Created by ankitgoyal on 6/27/15.
  */
-public class UserProfileActivity extends AppCompatActivity {
+public class GenericUserProfileActivity extends AppCompatActivity {
     private Drawable oldBackground = null;
 
     private Context context = this;
@@ -35,9 +35,9 @@ public class UserProfileActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_profile);
+        setContentView(R.layout.activity_generic_user_profile);
 
-        changeColor(getResources().getColor(R.color.orange));
+//        changeColor(getResources().getColor(R.color.orange));
 
         fillViews();
     }
@@ -58,7 +58,10 @@ public class UserProfileActivity extends AppCompatActivity {
 
         if (!account.getThumb().isEmpty() && !account.getThumb().equals("null")) {
             Picasso.with(context).load(account.getThumb()).transform(new CircleTransform()).into(profileImage);
-            Picasso.with(context).load(account.getThumb()).into(backdrop);
+            if (!account.getPicture().isEmpty() && !account.getPicture().equals("null"))
+                Picasso.with(context).load(account.getPicture()).into(backdrop);
+            else
+                Picasso.with(context).load(account.getThumb()).into(backdrop);
         } else {
             Picasso.with(context).load(R.drawable.default_profile).transform(new CircleTransform()).into(profileImage);
             collapsingToolbar.setContentScrimColor(getResources().getColor(R.color.background_window));
@@ -72,7 +75,7 @@ public class UserProfileActivity extends AppCompatActivity {
         contacts.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(UserProfileActivity.this, ContactActivity.class);
+                Intent i = new Intent(GenericUserProfileActivity.this, ContactActivity.class);
                 i.putExtra("userId", account.getUserId());
                 i.putExtra("type", "contacts");
                 startActivity(i);
@@ -82,7 +85,7 @@ public class UserProfileActivity extends AppCompatActivity {
         mutual.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(UserProfileActivity.this, ContactActivity.class);
+                Intent i = new Intent(GenericUserProfileActivity.this, ContactActivity.class);
                 i.putExtra("userId", account.getUserId());
                 i.putExtra("type", "mutual");
                 startActivity(i);
@@ -90,7 +93,7 @@ public class UserProfileActivity extends AppCompatActivity {
         });
 
         TextViewCustomFont text = (TextViewCustomFont) findViewById(R.id.text);
-        
+
         MainActivity.setContactButtons(context, account,
                 (ImageView) findViewById(R.id.button_one), (ImageView) findViewById(R.id.button_two), text);
     }
