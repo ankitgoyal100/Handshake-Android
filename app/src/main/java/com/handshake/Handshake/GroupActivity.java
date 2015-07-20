@@ -64,7 +64,10 @@ public class GroupActivity extends AppCompatActivity {
 
         for (int i = 0; i < group.getMembers().size(); i++) {
             User user = group.getMembers().get(i).getUser();
-            if (!user.getThumb().isEmpty() && !user.getThumb().equals("null") && position < imageViews.length) {
+            if (!user.getPicture().isEmpty() && !user.getPicture().equals("null") && position < imageViews.length) {
+                Picasso.with(context).load(user.getPicture()).into(imageViews[position]);
+                position++;
+            } else if (!user.getThumb().isEmpty() && !user.getThumb().equals("null") && position < imageViews.length) {
                 Picasso.with(context).load(user.getThumb()).into(imageViews[position]);
                 position++;
             }
