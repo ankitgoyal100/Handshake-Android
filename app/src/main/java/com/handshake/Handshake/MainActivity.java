@@ -81,7 +81,6 @@ public class MainActivity extends AppCompatActivity {
     private int TAG_ADD = 1;
 
     public static boolean cardSyncCompleted = false;
-    public static SearchAdapter searchAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
