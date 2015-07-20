@@ -25,8 +25,6 @@ public class GroupMemberActivity extends AppCompatActivity {
     private Drawable oldBackground = null;
     public Context context = this;
 
-    private long groupId;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,7 +36,7 @@ public class GroupMemberActivity extends AppCompatActivity {
 
         Realm realm = Realm.getInstance(this);
 
-        groupId = getIntent().getLongExtra("groupId", -1);
+        long groupId = getIntent().getLongExtra("groupId", -1);
 
         RealmResults<GroupMember> groupMembers = realm.where(GroupMember.class).equalTo("group.groupId", groupId).findAll();
 
