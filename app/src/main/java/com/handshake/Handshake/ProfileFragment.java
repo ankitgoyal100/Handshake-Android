@@ -105,6 +105,15 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+        FloatingActionButton settingsButton = (FloatingActionButton) getView().findViewById(R.id.settings_button);
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getActivity(), SettingsActivity.class);
+                startActivity(i);
+            }
+        });
+
         final ProgressDialog dialog = ProgressDialog.show(getActivity(), "", "Loading profile...", true);
 
         executor.execute(new Runnable() {

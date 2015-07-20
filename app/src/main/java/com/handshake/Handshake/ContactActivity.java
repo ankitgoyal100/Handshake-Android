@@ -9,12 +9,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.handshake.helpers.UserArraySyncCompleted;
 import com.handshake.helpers.UserServerSync;
 import com.handshake.listview.ContactAdapter;
 import com.handshake.models.User;
+import com.handshake.views.TextViewCustomFont;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
@@ -97,6 +100,12 @@ public class ContactActivity extends AppCompatActivity {
             ContactAdapter myAdapter = new ContactAdapter(this, users, true);
             list.setAdapter(myAdapter);
         }
+
+        View empty = getLayoutInflater().inflate(R.layout.empty_list_view, null, false);
+        TextViewCustomFont text = (TextViewCustomFont) empty.findViewById(R.id.empty_list_item);
+        text.setText("No contacts");
+        addContentView(empty, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        list.setEmptyView(empty);
     }
 
     public void changeColor(int newColor) {

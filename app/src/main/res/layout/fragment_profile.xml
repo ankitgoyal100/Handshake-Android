@@ -136,13 +136,25 @@
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/edit_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         android:layout_margin="16dp"
         android:clickable="true"
         android:fitsSystemWindows="true"
         android:src="@android:drawable/ic_menu_edit"
         app:backgroundTint="@color/orange"
+        app:layout_anchor="@id/appbar"
+        app:layout_anchorGravity="bottom|right|end" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/settings_button"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginRight="88dp"
+        android:clickable="true"
+        android:fitsSystemWindows="true"
+        android:src="@android:drawable/ic_menu_preferences"
+        app:backgroundTint="@color/dark_gray"
         app:layout_anchor="@id/appbar"
         app:layout_anchorGravity="bottom|right|end" />
 
