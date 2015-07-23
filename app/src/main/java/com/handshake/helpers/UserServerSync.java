@@ -75,7 +75,7 @@ public class UserServerSync {
 
                 map.clear();
 
-                users = realm.allObjects(User.class);
+                users = realm.where(User.class).findAll();
                 for (User user : users) {
                     if (allIDs.contains(user.getUserId()))
                         map.put(user.getUserId(), user);

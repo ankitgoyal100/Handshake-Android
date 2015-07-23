@@ -24,7 +24,6 @@ import com.loopj.android.http.RequestParams;
 import com.squareup.picasso.Picasso;
 
 import org.apache.http.Header;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -233,17 +232,10 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                             try {
-                                final JSONArray filteredResults = new JSONArray();
-
-                                for (int i = 0; i < response.getJSONArray("results").length(); i++) {
-                                    if (!response.getJSONArray("results").getJSONObject(i).getBoolean("is_contact")) {
-                                        filteredResults.put(response.getJSONArray("results").getJSONObject(i));
-                                    }
-                                }
-
-                                UserServerSync.cacheUser(mContext, filteredResults, new UserArraySyncCompleted() {
+                                UserServerSync.cacheUser(mContext, response.getJSONArray("results"), new UserArraySyncCompleted() {
                                     @Override
                                     public void syncCompletedListener(final ArrayList<User> users) {
+                                        System.out.println(users);
                                         ArrayList<Long> array = new ArrayList<Long>();
                                         for (User u : users)
                                             array.add(u.getUserId());
