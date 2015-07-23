@@ -8,11 +8,14 @@ import android.graphics.drawable.TransitionDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import com.handshake.helpers.GroupServerSync;
+import com.handshake.helpers.SyncCompleted;
 import com.handshake.helpers.UserArraySyncCompleted;
 import com.handshake.helpers.UserServerSync;
 import com.handshake.listview.ContactAdapter;
@@ -38,6 +41,8 @@ public class ContactActivity extends AppCompatActivity {
     private Drawable oldBackground = null;
     public Context context = this;
 
+    private SwipeRefreshLayout swipeContainer;
+
     RealmResults<User> users;
 
     @Override
@@ -48,6 +53,20 @@ public class ContactActivity extends AppCompatActivity {
         changeColor(getResources().getColor(R.color.orange));
 
         final ListView list = (ListView) findViewById(R.id.list);
+
+        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
+        swipeContainer.setColorSchemeResources(R.color.orange);
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                GroupServerSync.performSync(context, new SyncCompleted() {
+                    @Override
+                    public void syncCompletedListener() {
+                        swipeContainer.setRefreshing(false);
+                    }
+                });
+            }
+        });
 
         if (getIntent().hasExtra("userId") && getIntent().getLongExtra("userId", -1) != SessionManager.getID()) {
             final long userId = getIntent().getLongExtra("userId", SessionManager.getID());
@@ -161,4 +180,10 @@ public class ContactActivity extends AppCompatActivity {
             handler.removeCallbacks(what);
         }
     };
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        swipeContainer.setRefreshing(false);
+    }
 }

@@ -2,19 +2,42 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <PreferenceCategory android:title="Preferences">
-        <SwitchPreference android:title="Preference" />
+    <PreferenceCategory android:title="Account">
+        <com.afollestad.materialdialogs.prefs.MaterialEditTextPreference
+            android:key="email_preference"
+            android:dialogTitle="Update Email"
+            android:title="Email" />
         <Preference
-            android:title="title_intent_preference">
-            <intent android:targetPackage="com.handshake.Handshake"
-                android:targetClass="com.handshake.settings.NotificationsSettingsActivity" />
+            android:key="reset_password_preference"
+            android:title="Reset Password" />
+        <Preference
+            android:key="logout_preference"
+            android:title="Log Out" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="General">
+        <Preference
+            android:defaultValue="On"
+            android:key="autosync_preference"
+            android:title="AutoSync">
+            <intent
+                android:targetClass="com.handshake.settings.AutoSyncSettingsActivity"
+                android:targetPackage="com.handshake.Handshake" />
         </Preference>
 
         <Preference
-            android:title="title_intent_preference">
-            <intent android:targetPackage="com.handshake.Handshake"
-                android:targetClass="com.handshake.settings.AutoSyncSettingsActivity" />
+            android:key="notifications_preference"
+            android:title="Notifications">
+            <intent
+                android:targetClass="com.handshake.settings.NotificationsSettingsActivity"
+                android:targetPackage="com.handshake.Handshake" />
         </Preference>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Linked Accounts">
+        <Preference
+            android:key="facebook_preference"
+            android:title="Facebook" />
     </PreferenceCategory>
 
 </PreferenceScreen>
