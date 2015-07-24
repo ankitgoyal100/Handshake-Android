@@ -7,7 +7,6 @@ import android.graphics.drawable.TransitionDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 
 import com.handshake.Handshake.R;
@@ -23,8 +22,6 @@ public class MainSettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
 
         changeColor(getResources().getColor(R.color.orange));
-
-        PreferenceManager.setDefaultValues(this, R.xml.settings_autosync, false);
     }
 
     public void changeColor(int newColor) {

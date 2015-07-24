@@ -39,6 +39,8 @@ public class SessionManager {
 
     public static final String KEY_LAST_COPIED_GROUP = "copiedGroup";
 
+    private static final String KEY_FB = "facebook";
+
     // Constructor
     public SessionManager(Context context) {
         this.sContext = context;
@@ -115,6 +117,15 @@ public class SessionManager {
 
     public static String getEmail() {
         return pref.getString(KEY_EMAIL, "");
+    }
+
+    public void setFBName(String fb) {
+        editor.putString(KEY_FB, fb);
+        editor.apply();
+    }
+
+    public static String getFBName() {
+        return pref.getString(KEY_FB, "Not Connected");
     }
 
 

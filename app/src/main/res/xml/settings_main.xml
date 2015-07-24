@@ -4,8 +4,8 @@
 
     <PreferenceCategory android:title="Account">
         <com.afollestad.materialdialogs.prefs.MaterialEditTextPreference
-            android:key="email_preference"
             android:dialogTitle="Update Email"
+            android:key="email_preference"
             android:title="Email" />
         <Preference
             android:key="reset_password_preference"
@@ -36,6 +36,7 @@
 
     <PreferenceCategory android:title="Linked Accounts">
         <Preference
+            android:defaultValue="Not Connected"
             android:key="facebook_preference"
             android:title="Facebook" />
     </PreferenceCategory>

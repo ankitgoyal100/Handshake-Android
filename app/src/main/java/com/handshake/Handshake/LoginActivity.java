@@ -2,6 +2,7 @@ package com.handshake.Handshake;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -16,7 +17,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.handshake.models.Account;
+import com.handshake.views.TextViewCustomFont;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
@@ -100,6 +103,51 @@ public class LoginActivity extends AppCompatActivity {
                 });
             }
         });
+
+        TextViewCustomFont forgotPassword = (TextViewCustomFont) findViewById(R.id.forgot_password);
+        forgotPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                forgotPassword(LoginActivity.this);
+            }
+        });
+    }
+
+    public static void forgotPassword(final Context context) {
+        new AlertDialogWrapper.Builder(context)
+                .setTitle("Reset password?")
+                .setMessage("You will be sent an email with reset instructions.")
+                .setPositiveButton("Reset", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        JSONObject email = new JSONObject();
+                        JSONObject user = new JSONObject();
+
+                        try {
+                            email.put("email", SessionManager.getEmail());
+                            user.put("user", email);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        RestClientAsync.post(context, "/password", user, "application/json", new JsonHttpResponseHandler() {
+                            @Override
+                            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                                Toast.makeText(context, "Instructions sent to your email.", Toast.LENGTH_LONG).show();
+                            }
+
+                            @Override
+                            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                                Toast.makeText(context, "Could not send reset instructions at this time.", Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                })
+                .show();
     }
 
     public void changeColor(int newColor) {
