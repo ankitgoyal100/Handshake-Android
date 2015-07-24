@@ -62,6 +62,11 @@ public class SessionManager {
         editor.apply();
     }
 
+    public void updateEmail(String email) {
+        editor.putString(KEY_EMAIL, email);
+        editor.apply();
+    }
+
     /**
      * Check login method wil check user login status If false it will redirect user to login page Else won't do anything
      */
