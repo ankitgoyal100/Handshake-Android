@@ -97,6 +97,12 @@ public class ContactActivity extends AppCompatActivity {
 
                                         ContactAdapter myAdapter = new ContactAdapter(context, users, true);
                                         list.setAdapter(myAdapter);
+
+                                        View empty = getLayoutInflater().inflate(R.layout.empty_list_view, null, false);
+                                        TextViewCustomFont text = (TextViewCustomFont) empty.findViewById(R.id.empty_list_item);
+                                        text.setText("No contacts");
+                                        addContentView(empty, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                                        list.setEmptyView(empty);
                                     }
                                 });
                             }
@@ -118,13 +124,13 @@ public class ContactActivity extends AppCompatActivity {
 
             ContactAdapter myAdapter = new ContactAdapter(this, users, true);
             list.setAdapter(myAdapter);
-        }
 
-        View empty = getLayoutInflater().inflate(R.layout.empty_list_view, null, false);
-        TextViewCustomFont text = (TextViewCustomFont) empty.findViewById(R.id.empty_list_item);
-        text.setText("No contacts");
-        addContentView(empty, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        list.setEmptyView(empty);
+            View empty = getLayoutInflater().inflate(R.layout.empty_list_view, null, false);
+            TextViewCustomFont text = (TextViewCustomFont) empty.findViewById(R.id.empty_list_item);
+            text.setText("No contacts");
+            addContentView(empty, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            list.setEmptyView(empty);
+        }
     }
 
     public void changeColor(int newColor) {
