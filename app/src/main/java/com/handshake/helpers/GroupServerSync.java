@@ -231,13 +231,14 @@ public class GroupServerSync {
                             group = map.get(jsonArray.getJSONObject(i).getLong("id"));
                         }
 
-                        if (group.getSyncStatus() == Utils.GroupSynced) {
+                        if (group.isValid() && group.getSyncStatus() == Utils.GroupSynced) {
                             realm.beginTransaction();
                             group = Group.updateGroup(group, realm, jsonArray.getJSONObject(i));
                             realm.commitTransaction();
                         }
 
-                        map.put(jsonArray.getJSONObject(i).getLong("id"), group);
+                        if (group != null)
+                            map.put(jsonArray.getJSONObject(i).getLong("id"), group);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

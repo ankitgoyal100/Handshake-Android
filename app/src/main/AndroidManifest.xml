@@ -109,6 +109,11 @@
             android:label="@string/title_activity_autosync_settings"
             android:parentActivityName="com.handshake.settings.MainSettingsActivity"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+        <activity
+            android:name=".ForgotPasswordActivity"
+            android:label="@string/title_activity_forgot_password"
+            android:parentActivityName=".LoginActivity"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
     </application>
 
 </manifest>

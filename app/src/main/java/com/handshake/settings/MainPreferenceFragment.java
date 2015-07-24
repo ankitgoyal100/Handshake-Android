@@ -31,7 +31,20 @@ public class MainPreferenceFragment extends android.preference.PreferenceFragmen
         resetPasswordPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                LoginActivity.forgotPassword(getActivity());
+                new AlertDialogWrapper.Builder(getActivity())
+                        .setTitle("Reset password?")
+                        .setMessage("You will be sent an email with reset instructions.")
+                        .setPositiveButton("Reset", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                LoginActivity.forgotPassword(getActivity(), SessionManager.getEmail());
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        })
+                        .show();
                 return true;
             }
         });

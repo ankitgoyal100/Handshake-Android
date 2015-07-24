@@ -6,11 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
-import com.handshake.models.Account;
-import com.handshake.models.Card;
-import com.handshake.models.FeedItem;
-import com.handshake.models.Suggestion;
-
 import io.realm.Realm;
 
 public class SessionManager {
@@ -52,14 +47,6 @@ public class SessionManager {
      * Create login session
      */
     public void createLoginSession(long id, String token, String email) {
-        Realm realm = Realm.getInstance(sContext);
-        realm.beginTransaction();
-        realm.clear(Account.class);
-        realm.clear(Card.class);
-        realm.clear(FeedItem.class);
-        realm.clear(Suggestion.class);
-        realm.commitTransaction();
-        realm.close();
         // Storing login value as TRUE
         editor.putBoolean(sIsLogin, true);
 
@@ -90,6 +77,21 @@ public class SessionManager {
      * Clear session details
      */
     public void logoutUser() {
+        Realm realm = Realm.getInstance(sContext);
+        realm.beginTransaction();
+//        realm.where(Account.class).findAll().clear();
+//        realm.where(Address.class).findAll().clear();
+//        realm.where(Card.class).findAll().clear();
+//        realm.where(Email.class).findAll().clear();
+//        realm.where(FeedItem.class).findAll().clear();
+//        realm.where(Group.class).findAll().clear();
+//        realm.where(GroupMember.class).findAll().clear();
+//        realm.where(Phone.class).findAll().clear();
+//        realm.where(Social.class).findAll().clear();
+//        realm.where(Suggestion.class).findAll().clear();
+//        realm.where(User.class).findAll().clear();
+        realm.commitTransaction();
+
         // Clearing all data from Shared Preferences
         editor.clear();
         editor.apply();

@@ -27,5 +27,6 @@
     <string name="title_activity_contact_user_profile">ContactUserProfileActivity</string>
     <string name="title_activity_notifications_settings">Notifications</string>
     <string name="title_activity_autosync_settings">AutoSync</string>
+    <string name="title_activity_forgot_password">Forgot Password</string>
 
 </resources>

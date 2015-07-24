@@ -66,8 +66,10 @@ public class UserServerSync {
                             realm.commitTransaction();
                         }
 
-                        map.put(user.getUserId(), user);
-                        allIDs.add(user.getUserId());
+                        if (user != null) {
+                            map.put(user.getUserId(), user);
+                            allIDs.add(user.getUserId());
+                        }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
