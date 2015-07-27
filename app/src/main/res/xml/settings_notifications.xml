@@ -2,8 +2,40 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <PreferenceCategory android:title="Preferences">
-        <SwitchPreference android:title="Preference" />
-    </PreferenceCategory>
+    <SwitchPreference
+        android:key="notifications_enabled_preference"
+        android:title="Notifications Enabled" />
+
+    <SwitchPreference
+        android:key="requests_preference"
+        android:title="Requests" />
+
+    <SwitchPreference
+        android:key="new_contacts_preference"
+        android:title="New contacts" />
+
+    <SwitchPreference
+        android:key="updated_contact_information_preference"
+        android:title="Updated contact information" />
+
+    <SwitchPreference
+        android:key="new_group_members_preference"
+        android:title="New group members" />
+
+    <SwitchPreference
+        android:key="contact_joined_handshake_preference"
+        android:title="Contact joined handshake" />
+
+    <SwitchPreference
+        android:key="suggestions_preference"
+        android:title="Suggestions" />
+
+    <SwitchPreference
+        android:key="new_features_preference"
+        android:title="New features" />
+
+    <SwitchPreference
+        android:key="offers_preference"
+        android:title="Offers" />
 
 </PreferenceScreen>

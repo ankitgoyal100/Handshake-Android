@@ -2,8 +2,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <PreferenceCategory android:title="Preferences">
-        <SwitchPreference android:title="Preference" />
-    </PreferenceCategory>
+    <SwitchPreference
+        android:key="autosync_preference"
+        android:summary="If enabled, AutoSync will automatically update your phone contacts with your Handshake contacts."
+        android:title="AutoSync" />
+
+    <SwitchPreference
+        android:key="overwrite_names_preference"
+        android:summary="If selected, AutoSync will replace the names on your contacts with their Handshake names."
+        android:title="Overwrite Names" />
+
+    <SwitchPreference
+        android:key="overwrite_pictures_preference"
+        android:summary="If selected, AutoSync will replace the pictures on your contacts with their Handshake pictures."
+        android:title="Overwrite Pictures" />
 
 </PreferenceScreen>

@@ -1,6 +1,5 @@
 package com.handshake.Handshake;
 
-import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -115,7 +114,7 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        final ProgressDialog dialog = ProgressDialog.show(getActivity(), "", "Loading profile...", true);
+//        final ProgressDialog dialog = ProgressDialog.show(getActivity(), "", "Loading profile...", true);
 
         executor.execute(new Runnable() {
             @Override
@@ -153,7 +152,7 @@ public class ProfileFragment extends Fragment {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            dialog.cancel();
+//                            dialog.cancel();
 
                             getView().findViewById(R.id.divider1).setVisibility(View.VISIBLE);
 
