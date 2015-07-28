@@ -373,11 +373,6 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
-        final Realm realm = Realm.getInstance(getActivity());
-        final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
-        final Card card = account.getCards().first();
-
         fillViews();
     }
 }

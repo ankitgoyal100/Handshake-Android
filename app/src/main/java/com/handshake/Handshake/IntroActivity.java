@@ -1,13 +1,16 @@
 package com.handshake.Handshake;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
+
+import com.handshake.views.TextViewCustomFont;
+import com.handshake.views.TextureVideoView;
 
 
 public class IntroActivity extends AppCompatActivity {
@@ -17,10 +20,16 @@ public class IntroActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intro);
 
-        ImageView background = (ImageView) findViewById(R.id.background);
-        background.setColorFilter(getResources().getColor(R.color.tint));
+//        ImageView background = (ImageView) findViewById(R.id.background);
+//        background.setColorFilter(getResources().getColor(R.color.tint));
+        TextureVideoView cropTextureView = (TextureVideoView) findViewById(R.id.background);
+        cropTextureView.setScaleType(TextureVideoView.ScaleType.CENTER_CROP);
+        Uri uri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.intro_video);
+        cropTextureView.setDataSource(this, uri);
+        cropTextureView.play();
+        cropTextureView.setLooping(true);
 
-        Button login = (Button) findViewById(R.id.login);
+        TextViewCustomFont login = (TextViewCustomFont) findViewById(R.id.login);
         Button signUp = (Button) findViewById(R.id.sign_up);
 
         login.setOnClickListener(new View.OnClickListener() {

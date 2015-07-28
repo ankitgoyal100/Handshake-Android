@@ -5,20 +5,18 @@
     android:background="@null"
     tools:context=".IntroActivity">
 
-    <ImageView
+    <com.handshake.views.TextureVideoView
         android:id="@+id/background"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="centerCrop"
-        android:src="@drawable/start" />
+        android:layout_height="match_parent" />
 
     <ImageView
         android:id="@+id/logo"
-        android:layout_width="130dp"
-        android:layout_height="130dp"
+        android:layout_width="124dp"
+        android:layout_height="124dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="30dp"
-        android:layout_marginTop="60dp"
+        android:layout_marginBottom="12dp"
+        android:layout_marginTop="108dp"
         android:scaleType="centerInside"
         android:src="@drawable/logo" />
 
@@ -28,55 +26,49 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/logo"
         android:gravity="center_horizontal"
-        android:text="Welcome to Handshake."
+        android:text="Handshake"
         android:textColor="@color/off_white"
-        android:textSize="26sp" />
-
-    <View
-        android:id="@+id/divider"
-        android:layout_width="100dp"
-        android:layout_height="1dip"
-        android:layout_below="@id/welcome"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="30dp"
-        android:layout_marginTop="30dp"
-        android:background="@color/off_white" />
+        android:textSize="32sp"
+        android:textStyle="bold" />
 
     <com.handshake.views.TextViewCustomFont
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/divider"
+        android:layout_below="@id/welcome"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
+        android:layout_marginTop="12dp"
         android:gravity="center_horizontal"
-        android:text="Handshake makes sharing and receiving contact information the easiest thing you've ever done."
+        android:text="Contact sharing made easy."
         android:textColor="@color/off_white"
-        android:textSize="14sp" />
+        android:textSize="20sp" />
+
+    <com.handshake.views.TextViewCustomFont
+        android:id="@+id/login"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="center_horizontal"
+        android:layout_marginBottom="24dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="24dp"
+        android:text="@string/styled_welcome_message"
+        android:textColor="@color/off_white"
+        android:textSize="18sp" />
 
     <com.handshake.views.ButtonCustomFont
         android:id="@+id/sign_up"
         style="@style/button"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="16dp"
-        android:background="@drawable/button_transparent"
-        android:text="Sign Up"
-        android:textColor="@color/off_white"
-        android:textSize="18sp" />
-
-    <com.handshake.views.ButtonCustomFont
-        android:id="@+id/login"
-        style="@style/button"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/sign_up"
+        android:layout_above="@id/login"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginTop="16dp"
-        android:background="@drawable/button_white"
-        android:text="Log In"
-        android:textColor="@color/brown"
+        android:background="@drawable/button_orange"
+        android:text="Sign Up"
+        android:textColor="@android:color/white"
         android:textSize="18sp" />
 
 </RelativeLayout>
