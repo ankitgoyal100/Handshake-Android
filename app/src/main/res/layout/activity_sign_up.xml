@@ -5,15 +5,38 @@
     android:orientation="vertical"
     tools:context="com.handshake.Handshake.LoginActivity">
 
-    <com.handshake.views.EditTextCustomFont
-        android:id="@+id/first_name"
+    <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/white"
-        android:ems="10"
-        android:hint="First Name"
-        android:inputType="textPersonName|textCapWords"
-        android:padding="10dp" />
+        android:orientation="horizontal">
+
+        <com.handshake.views.EditTextCustomFont
+            android:id="@+id/first_name"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@android:color/white"
+            android:ems="10"
+            android:hint="First Name"
+            android:inputType="textPersonName|textCapWords"
+            android:padding="10dp" />
+
+        <View
+            android:layout_width="1dip"
+            android:layout_height="fill_parent"
+            android:background="@color/divider" />
+
+        <com.handshake.views.EditTextCustomFont
+            android:id="@+id/last_name"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@android:color/white"
+            android:ems="10"
+            android:hint="Last Name"
+            android:inputType="textPersonName|textCapWords"
+            android:padding="10dp" />
+    </LinearLayout>
 
     <View
         android:layout_width="fill_parent"
@@ -41,7 +64,7 @@
         android:layout_height="wrap_content"
         android:background="@android:color/white"
         android:ems="10"
-        android:hint="Password"
+        android:hint="Password (at least 8 characters)"
         android:inputType="textPassword"
         android:padding="10dp" />
 

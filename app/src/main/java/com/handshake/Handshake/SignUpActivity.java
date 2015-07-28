@@ -45,6 +45,7 @@ public class SignUpActivity extends AppCompatActivity {
         changeColor(getResources().getColor(R.color.orange));
 
         final EditText firstName = (EditText) findViewById(R.id.first_name);
+        final EditText lastName = (EditText) findViewById(R.id.last_name);
         final EditText email = (EditText) findViewById(R.id.email);
         final EditText password = (EditText) findViewById(R.id.password);
         final Button login = (Button) findViewById(R.id.login);
@@ -54,14 +55,19 @@ public class SignUpActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (firstName.getText().toString().equals("")) {
                     Toast.makeText(context, "First name can't be blank.", Toast.LENGTH_LONG).show();
+                } else if (lastName.getText().toString().equals("")) {
+                    Toast.makeText(context, "Last name can't be blank.", Toast.LENGTH_LONG).show();
                 } else if (email.getText().toString().equals("")) {
                     Toast.makeText(context, "Email can't be blank.", Toast.LENGTH_LONG).show();
                 } else if (password.getText().toString().equals("")) {
                     Toast.makeText(context, "Password can't be blank.", Toast.LENGTH_LONG).show();
+                } else if (password.getText().toString().length() < 8) {
+                    Toast.makeText(context, "Password is too short.", Toast.LENGTH_LONG).show();
                 }
 
                 RequestParams params = new RequestParams();
                 params.add("first_name", firstName.getText().toString());
+                params.add("last_name", lastName.getText().toString());
                 params.add("email", email.getText().toString());
                 params.add("password", password.getText().toString());
 
@@ -84,7 +90,7 @@ public class SignUpActivity extends AppCompatActivity {
                                 try {
                                     session.createLoginSession(response.getJSONObject("user").getLong("id"), response.getString("auth_token"),
                                             email.getText().toString());
-                                    
+
                                     Realm realm = Realm.getInstance(context);
                                     realm.beginTransaction();
                                     Account account = realm.createObject(Account.class);
