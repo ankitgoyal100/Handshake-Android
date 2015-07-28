@@ -3,6 +3,7 @@ package com.handshake.helpers;
 import android.content.Context;
 import android.os.Handler;
 
+import com.handshake.Handshake.RestClientAsync;
 import com.handshake.Handshake.RestClientSync;
 import com.handshake.Handshake.SessionManager;
 import com.handshake.Handshake.Utils;
@@ -123,5 +124,27 @@ public class AccountServerSync {
         }
         account.setSyncStatus(Utils.AccountSynced);
         realm.commitTransaction();
+    }
+
+    public static void sendUserLocation(final Context context) {
+        GPSTracker gpsTracker = new GPSTracker(context);
+
+        if(!gpsTracker.canGetLocation()) return;
+
+        RequestParams params = new RequestParams();
+        params.put("lat", gpsTracker.getLatitude());
+        params.put("lng", gpsTracker.getLongitude());
+
+        RestClientAsync.put(context, "/account/location", params, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+
+            }
+        });
     }
 }

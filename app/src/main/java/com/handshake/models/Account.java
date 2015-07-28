@@ -164,5 +164,4 @@ public class Account extends RealmObject {
 
         return params;
     }
-
 }
