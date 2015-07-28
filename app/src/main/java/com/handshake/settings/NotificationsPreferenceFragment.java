@@ -32,16 +32,20 @@ public class NotificationsPreferenceFragment extends android.preference.Preferen
         preferences.add((SwitchPreference) getPreferenceScreen().findPreference("offers_preference"));
 
         SwitchPreference notificationsPreference = (SwitchPreference) getPreferenceScreen().findPreference("notifications_enabled_preference");
+        allPreferencesEnabled(preferences, notificationsPreference.isChecked());
         notificationsPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                for (int i = 0; i < preferences.size(); i++) {
-                    preferences.get(i).setEnabled((boolean) newValue);
-                }
-
+                allPreferencesEnabled(preferences, (boolean) newValue);
                 return true;
             }
         });
+    }
+
+    private void allPreferencesEnabled(ArrayList<SwitchPreference> preferences, boolean newValue) {
+        for (int i = 0; i < preferences.size(); i++) {
+            preferences.get(i).setEnabled(newValue);
+        }
     }
 
 }
