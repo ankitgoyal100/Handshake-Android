@@ -1,10 +1,4 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.handshake.Handshake.FeedFragment">
-
-    <android.support.v4.widget.SwipeRefreshLayout
+ <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/swipeContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -26,6 +20,7 @@
                     android:listSelector="@android:color/transparent" />
 
                 <com.handshake.views.TextViewCustomFont
+                    android:id="@+id/suggestion_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dip"
@@ -35,7 +30,8 @@
                     android:text="People you may know"
                     android:textColor="@color/dark_gray"
                     android:textSize="15sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:visibility="gone" />
 
                 <ListView
                     android:id="@+id/listView2"
@@ -45,5 +41,3 @@
 
         </ScrollView>
     </android.support.v4.widget.SwipeRefreshLayout>
-
-</FrameLayout>

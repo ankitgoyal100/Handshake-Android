@@ -1,6 +1,7 @@
 package com.handshake.Handshake;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
@@ -14,6 +15,7 @@ import com.handshake.listview.FeedAdapter;
 import com.handshake.listview.SuggestionAdapter;
 import com.handshake.models.FeedItem;
 import com.handshake.models.Suggestion;
+import com.handshake.views.TextViewCustomFont;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -21,6 +23,7 @@ import io.realm.RealmResults;
 
 public class FeedFragment extends ListFragment {
     private SwipeRefreshLayout swipeContainer;
+    Handler handler = new Handler();
 
     public static FeedFragment newInstance() {
         FeedFragment fragment = new FeedFragment();
@@ -72,7 +75,28 @@ public class FeedFragment extends ListFragment {
         FeedAdapter feedAdapter = new FeedAdapter(getActivity(), feedItems, true);
         setListAdapter(feedAdapter);
 
-        RealmResults<Suggestion> suggestionItems = realm.where(Suggestion.class).findAll();
+        final RealmResults<Suggestion> suggestionItems = realm.where(Suggestion.class).findAll();
+        final TextViewCustomFont suggestionText = (TextViewCustomFont) getView().findViewById(R.id.suggestion_text);
+        if(suggestionItems.size() > 0) {
+            suggestionText.setVisibility(View.VISIBLE);
+        } else {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while(!MainActivity.suggestionSyncCompleted) {
+                    }
+
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(suggestionItems.size() > 0) {
+                                suggestionText.setVisibility(View.VISIBLE);
+                            }
+                        }
+                    });
+                }
+            }).start();
+        }
         SuggestionAdapter suggestionAdapter = new SuggestionAdapter(getActivity(), suggestionItems, true);
         ListView suggestionListView = (ListView) getView().findViewById(R.id.listView2);
         suggestionListView.setAdapter(suggestionAdapter);

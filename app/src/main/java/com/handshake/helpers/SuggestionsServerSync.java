@@ -80,6 +80,7 @@ public class SuggestionsServerSync {
                                             realm.beginTransaction();
                                             Suggestion suggestion = realm.createObject(Suggestion.class);
                                             suggestion.setUser(userRealmResults.get(i));
+                                            userRealmResults.get(i).setSuggestion(suggestion);
                                             realm.commitTransaction();
                                         }
                                     }

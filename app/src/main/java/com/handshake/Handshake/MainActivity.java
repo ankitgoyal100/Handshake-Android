@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
     private int TAG_ADD = 1;
 
     public static boolean cardSyncCompleted = false;
+    public static boolean suggestionSyncCompleted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,12 +118,12 @@ public class MainActivity extends AppCompatActivity {
                                     if (which == 0) {
                                         Intent intent = new Intent(context, JoinGroupActivity.class);
                                         startActivity(intent);
-                                        dialog.cancel();
+//                                        dialog.cancel();
                                     } else {
                                         Intent intent = new Intent(context, CreateEditGroupActivity.class);
                                         intent.putExtra("isEdit", false);
                                         startActivity(intent);
-                                        dialog.cancel();
+//                                        dialog.cancel();
                                     }
                                 }
                             })
@@ -376,6 +377,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
+                suggestionSyncCompleted = true;
 //                System.out.println("Suggestion sync completed " + syncsCompleted);
             }
         });
