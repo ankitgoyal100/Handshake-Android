@@ -8,9 +8,9 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 
 import com.handshake.Handshake.R;
+import com.handshake.models.GroupMember;
 import com.handshake.views.CircleTransform;
 import com.handshake.views.TextViewCustomFont;
-import com.handshake.models.GroupMember;
 import com.squareup.picasso.Picasso;
 
 import io.realm.RealmBaseAdapter;
@@ -19,11 +19,11 @@ import io.realm.RealmResults;
 /**
  * Created by ankitgoyal on 6/27/15.
  */
-public class GroupMemberAdapter  extends RealmBaseAdapter<GroupMember> implements ListAdapter {
+public class GroupMemberAdapter extends RealmBaseAdapter<GroupMember> implements ListAdapter {
 
     public GroupMemberAdapter(Context context,
-                          RealmResults<GroupMember> realmResults,
-                          boolean automaticUpdate) {
+                              RealmResults<GroupMember> realmResults,
+                              boolean automaticUpdate) {
         super(context, realmResults, automaticUpdate);
     }
 
@@ -47,8 +47,6 @@ public class GroupMemberAdapter  extends RealmBaseAdapter<GroupMember> implement
             Picasso.with(context).load(item.getUser().getThumb()).transform(new CircleTransform()).into(viewHolder.image);
         else
             Picasso.with(context).load(R.drawable.default_profile).transform(new CircleTransform()).into(viewHolder.image);
-
-        //TODO: Implement onClick to go to user profile page
 
         return convertView;
     }

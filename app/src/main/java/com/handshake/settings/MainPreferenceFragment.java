@@ -121,7 +121,7 @@ public class MainPreferenceFragment extends android.preference.PreferenceFragmen
         });
 
         Preference facebookPreference = (Preference) getPreferenceManager().findPreference("facebook_preference");
-        facebookPreference.setSummary(SessionManager.getFBName());
+        facebookPreference.setSummary(SessionManager.getFBID());
         facebookPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {

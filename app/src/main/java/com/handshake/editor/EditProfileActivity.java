@@ -16,15 +16,25 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
@@ -47,7 +57,11 @@ import com.handshake.views.TextViewCustomFont;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 
 import io.realm.Realm;
 
@@ -68,6 +82,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private View snapchatView;
 
     public static boolean isIntialSetup;
+    private CallbackManager callbackManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +90,8 @@ public class EditProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit_profile);
 
         changeColor(getResources().getColor(R.color.orange));
+
+        FacebookSdk.sdkInitialize(getApplicationContext());
 
         fillViews();
     }
@@ -90,7 +107,7 @@ public class EditProfileActivity extends AppCompatActivity {
         setName(account);
         setImage(account);
 
-        if(card != null) {
+        if (card != null) {
             setContactInformation(card);
             setSocials(card);
         }
@@ -121,13 +138,13 @@ public class EditProfileActivity extends AppCompatActivity {
             introDivider.setVisibility(View.VISIBLE);
             pictureDivider.setVisibility(View.VISIBLE);
 
-            if(!SignUpActivity.cardSyncCompleted) {
+            if (!SignUpActivity.cardSyncCompleted) {
                 final ProgressDialog dialog = ProgressDialog.show(context, "", "Loading profile...", true);
 
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        while(!SignUpActivity.cardSyncCompleted) {
+                        while (!SignUpActivity.cardSyncCompleted) {
 
                         }
 
@@ -487,7 +504,52 @@ public class EditProfileActivity extends AppCompatActivity {
                             })
                             .show();
                 } else if (facebookView.getTag() == VIEW_ADD) {
-                    //TODO: add fb view
+                    if(!SessionManager.getFBID().equals("")) {
+                        addFacebookToCard(SessionManager.getFBID());
+                        facebookView.setTag(VIEW_REMOVE);
+                        fillViews();
+                        return;
+                    }
+
+                    callbackManager = CallbackManager.Factory.create();
+                    LoginManager.getInstance().logInWithReadPermissions(EditProfileActivity.this,
+                            Arrays.asList("email"));
+                    LoginManager.getInstance().registerCallback(callbackManager,
+                            new FacebookCallback<LoginResult>() {
+                                @Override
+                                public void onSuccess(LoginResult loginResult) {
+                                    GraphRequest.newMeRequest(
+                                            loginResult.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
+                                                @Override
+                                                public void onCompleted(JSONObject json, GraphResponse response) {
+                                                    if (response.getError() != null) {
+                                                        Toast.makeText(context, "There was an error.", Toast.LENGTH_LONG).show();
+                                                    } else {
+                                                        try {
+                                                            SessionManager.setFBID(json.getString("id"));
+                                                            addFacebookToCard(json.getString("id"));
+                                                            facebookView.setTag(VIEW_REMOVE);
+                                                            fillViews();
+                                                        } catch (JSONException e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    }
+                                                }
+
+                                            }).executeAsync();
+
+                                }
+
+                                @Override
+                                public void onCancel() {
+                                    Log.d("Cancel", "On cancel");
+                                }
+
+                                @Override
+                                public void onError(FacebookException error) {
+                                    Log.d("Error", error.toString());
+                                }
+                            });
                 }
             }
         });
@@ -592,6 +654,19 @@ public class EditProfileActivity extends AppCompatActivity {
         });
     }
 
+    private void addFacebookToCard(String id) {
+        Realm realm = Realm.getInstance(context);
+        final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+        final Card card = account.getCards().first();
+
+        realm.beginTransaction();
+        Social social = realm.createObject(Social.class);
+        social.setNetwork("facebook");
+        social.setUsername(id);
+        card.getSocials().add(realm.copyToRealm(social));
+        realm.commitTransaction();
+    }
+
     private void setImage(Account account) {
         profileImage = (ImageView) findViewById(R.id.picture);
         TextViewCustomFont profileImageText = (TextViewCustomFont) findViewById(R.id.picture_text);
@@ -648,6 +723,9 @@ public class EditProfileActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        callbackManager.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == 0 && resultCode == RESULT_OK) {
             fillViews();
         } else if (requestCode == 1 && resultCode == RESULT_OK) {

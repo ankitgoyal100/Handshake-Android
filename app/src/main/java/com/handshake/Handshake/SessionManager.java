@@ -126,13 +126,13 @@ public class SessionManager {
         return pref.getString(KEY_EMAIL, "");
     }
 
-    public void setFBName(String fb) {
-        editor.putString(KEY_FB, fb);
-        editor.apply();
+    public static String getFBID() {
+        return pref.getString(KEY_FB, "Not Connected");
     }
 
-    public static String getFBName() {
-        return pref.getString(KEY_FB, "Not Connected");
+    public static void setFBID(String id) {
+        editor.putString(KEY_FB, id);
+        editor.apply();
     }
 
 
