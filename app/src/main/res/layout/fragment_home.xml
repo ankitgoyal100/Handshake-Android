@@ -27,7 +27,7 @@
                 android:layout_marginLeft="14dip"
                 android:layout_marginTop="12dip"
                 android:gravity="center_vertical"
-                android:text="People you may know"
+                android:text="People you may know:"
                 android:textColor="@color/dark_gray"
                 android:textSize="15sp"
                 android:textStyle="bold"

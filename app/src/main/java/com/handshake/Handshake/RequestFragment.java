@@ -78,26 +78,27 @@ public class RequestFragment extends ListFragment {
 
         final RealmResults<Suggestion> suggestionItems = realm.where(Suggestion.class).findAll();
         final TextViewCustomFont suggestionText = (TextViewCustomFont) getView().findViewById(R.id.suggestion_text);
-        if(suggestionItems.size() > 0) {
+        if (suggestionItems.size() > 0) {
             suggestionText.setVisibility(View.VISIBLE);
-        } else {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while(!MainActivity.suggestionSyncCompleted) {
-                    }
-
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            if(suggestionItems.size() > 0) {
-                                suggestionText.setVisibility(View.VISIBLE);
-                            }
-                        }
-                    });
-                }
-            }).start();
         }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (!MainActivity.suggestionSyncCompleted) {
+                }
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (suggestionItems.size() > 0) {
+                            suggestionText.setVisibility(View.VISIBLE);
+                        } else {
+                            suggestionText.setVisibility(View.GONE);
+                        }
+                    }
+                });
+            }
+        }).start();
         SuggestionAdapter suggestionAdapter = new SuggestionAdapter(getActivity(), suggestionItems, true);
         ListView suggestionListView = (ListView) getView().findViewById(R.id.listView2);
         suggestionListView.setAdapter(suggestionAdapter);
