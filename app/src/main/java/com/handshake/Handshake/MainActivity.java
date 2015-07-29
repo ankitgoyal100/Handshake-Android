@@ -10,6 +10,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -185,17 +187,28 @@ public class MainActivity extends AppCompatActivity {
 
         changeColor(getResources().getColor(R.color.orange));
 
-        //TODO: check internet conntection
-        performSyncs(new SyncCompleted() {
-            @Override
-            public void syncCompletedListener() {
-                ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                String code = Utils.getCodes(context, clipboard.getPrimaryClip());
-                if (code != "" && code != SessionManager.getLastCopiedGroup()) {
-                    checkCode(code);
+        if (isConnected(context)) {
+            performSyncs(new SyncCompleted() {
+                @Override
+                public void syncCompletedListener() {
+                    ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                    String code = Utils.getCodes(context, clipboard.getPrimaryClip());
+                    if (code != "" && code != SessionManager.getLastCopiedGroup()) {
+                        checkCode(code);
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            new AlertDialogWrapper.Builder(context)
+                    .setTitle("No internet connection")
+                    .setMessage("Please refresh the page after you have connected to the internet.")
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    })
+                    .show();
+        }
     }
 
     private void pageChanged(int position, ImageButton contactButton) {
@@ -634,5 +647,19 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    public static boolean isConnected(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netinfo = cm.getActiveNetworkInfo();
+
+        if (netinfo != null && netinfo.isConnectedOrConnecting()) {
+            android.net.NetworkInfo wifi = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            android.net.NetworkInfo mobile = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+
+            if ((mobile != null && mobile.isConnectedOrConnecting()) || (wifi != null && wifi.isConnectedOrConnecting()))
+                return true;
+            else return false;
+        } else return false;
     }
 }

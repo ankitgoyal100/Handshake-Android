@@ -115,6 +115,10 @@
             android:label="@string/title_activity_forgot_password"
             android:parentActivityName=".LoginActivity"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+        <activity
+            android:name=".GetStartedActivity"
+            android:label="@string/title_activity_get_started"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
     </application>
 
 </manifest>

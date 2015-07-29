@@ -17,6 +17,7 @@
             android:layout_weight="1"
             android:background="@android:color/white"
             android:ems="10"
+            android:nextFocusDown="@+id/last_name"
             android:hint="First Name"
             android:inputType="textPersonName|textCapWords"
             android:padding="10dp" />
@@ -27,13 +28,14 @@
             android:background="@color/divider" />
 
         <com.handshake.views.EditTextCustomFont
-            android:id="@+id/last_name"
+            android:id="@id/last_name"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@android:color/white"
             android:ems="10"
             android:hint="Last Name"
+            android:nextFocusDown="@+id/email"
             android:inputType="textPersonName|textCapWords"
             android:padding="10dp" />
     </LinearLayout>
@@ -44,12 +46,13 @@
         android:background="@color/divider" />
 
     <com.handshake.views.EditTextCustomFont
-        android:id="@+id/email"
+        android:id="@id/email"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/white"
         android:ems="10"
         android:hint="Email"
+        android:nextFocusDown="@+id/password"
         android:inputType="textEmailAddress"
         android:padding="10dp" />
 
@@ -59,7 +62,7 @@
         android:background="@color/divider" />
 
     <com.handshake.views.EditTextCustomFont
-        android:id="@+id/password"
+        android:id="@id/password"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/white"

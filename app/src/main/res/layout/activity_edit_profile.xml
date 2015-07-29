@@ -9,6 +9,28 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <com.handshake.views.TextViewCustomFont
+            android:id="@+id/intro"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:gravity="center"
+            android:padding="22dp"
+            android:text="Add as much or as little contact information as you want!"
+            android:textSize="18sp" />
+
+        <View
+            android:id="@+id/intro_divider"
+            android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:layout_marginBottom="16dip"
+            android:background="@color/divider" />
+
+        <View
+            android:id="@+id/edit_picture_divider"
+            android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:background="@color/divider" />
 
         <LinearLayout
             android:id="@+id/edit_picture"
@@ -19,7 +41,6 @@
             android:paddingBottom="12dp"
             android:paddingTop="12dp">
 
-
             <ImageView
                 android:id="@+id/picture"
                 android:layout_width="40dp"
@@ -29,6 +50,7 @@
                 android:layout_marginRight="8dp" />
 
             <com.handshake.views.TextViewCustomFont
+                android:id="@+id/picture_text"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
@@ -85,29 +107,17 @@
         </LinearLayout>
 
         <View
+            android:id="@+id/name_divider"
             android:layout_width="fill_parent"
             android:layout_height="1dip"
             android:background="@color/divider" />
 
         <LinearLayout
+            android:id="@+id/linear_layout"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dip"
-            android:orientation="vertical">
-
-            <View
-                android:id="@+id/divider"
-                android:layout_width="fill_parent"
-                android:layout_height="1dip"
-                android:background="@color/divider"
-                android:visibility="gone" />
-
-            <LinearLayout
-                android:id="@+id/linear_layout"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" />
-        </LinearLayout>
+            android:orientation="vertical" />
 
         <View
             android:layout_width="fill_parent"

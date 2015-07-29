@@ -97,6 +97,7 @@ public class EditEmailActivity extends AppCompatActivity {
                     }
 
                     Intent returnIntent = new Intent();
+                    returnIntent.putExtra("is_initial_setup", EditProfileActivity.isIntialSetup);
                     setResult(RESULT_OK, returnIntent);
                     finish();
                 } else {
@@ -108,7 +109,9 @@ public class EditEmailActivity extends AppCompatActivity {
                     realm.commitTransaction();
 
                     Intent intent = new Intent(EditEmailActivity.this, EditProfileActivity.class);
+                    intent.putExtra("is_initial_setup", EditProfileActivity.isIntialSetup);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    setResult(RESULT_OK, intent);
                     startActivity(intent);
                     finish();
                 }

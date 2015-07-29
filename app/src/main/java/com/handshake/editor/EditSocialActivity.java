@@ -64,6 +64,7 @@ public class EditSocialActivity extends AppCompatActivity {
                 realm.commitTransaction();
 
                 Intent returnIntent = new Intent();
+                returnIntent.putExtra("is_initial_setup", EditProfileActivity.isIntialSetup);
                 setResult(RESULT_OK, returnIntent);
                 finish();
             }

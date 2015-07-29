@@ -30,5 +30,6 @@
     <string name="title_activity_notifications_settings">Notifications</string>
     <string name="title_activity_autosync_settings">AutoSync</string>
     <string name="title_activity_forgot_password">Forgot Password</string>
+    <string name="title_activity_get_started">GetStartedActivity</string>
 
 </resources>

@@ -1,5 +1,6 @@
 package com.handshake.editor;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -27,8 +28,10 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
+import com.handshake.Handshake.MainActivity;
 import com.handshake.Handshake.R;
 import com.handshake.Handshake.SessionManager;
+import com.handshake.Handshake.SignUpActivity;
 import com.handshake.Handshake.Utils;
 import com.handshake.helpers.AccountServerSync;
 import com.handshake.helpers.CardServerSync;
@@ -64,6 +67,8 @@ public class EditProfileActivity extends AppCompatActivity {
     private View instagramView;
     private View snapchatView;
 
+    public static boolean isIntialSetup;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,8 +77,84 @@ public class EditProfileActivity extends AppCompatActivity {
         changeColor(getResources().getColor(R.color.orange));
 
         fillViews();
+    }
 
+    private void fillViews() {
+        isIntialSetup = getIntent().hasExtra("is_initial_setup") && getIntent().getBooleanExtra("is_initial_setup", false);
+        initialSetup();
+
+        final Realm realm = Realm.getInstance(this);
+        final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+        final Card card = account.getCards().first();
+
+        setName(account);
+        setImage(account);
+
+        if(card != null) {
+            setContactInformation(card);
+            setSocials(card);
+        }
+
+        TextViewCustomFont addInformation = (TextViewCustomFont) findViewById(R.id.add_information);
+        addInformation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(context, AddContactActivity.class);
+                startActivityForResult(i, 0);
+            }
+        });
+    }
+
+    private void initialSetup() {
         Button saveButton = (Button) findViewById(R.id.save);
+        if (isIntialSetup) {
+            LinearLayout nameLayout = (LinearLayout) findViewById(R.id.name_layout);
+            View nameDivider = (View) findViewById(R.id.name_divider);
+            nameLayout.setVisibility(View.GONE);
+            nameDivider.setVisibility(View.GONE);
+            saveButton.setText("Next");
+
+            TextViewCustomFont intro = (TextViewCustomFont) findViewById(R.id.intro);
+            View introDivider = (View) findViewById(R.id.intro_divider);
+            View pictureDivider = (View) findViewById(R.id.edit_picture_divider);
+            intro.setVisibility(View.VISIBLE);
+            introDivider.setVisibility(View.VISIBLE);
+            pictureDivider.setVisibility(View.VISIBLE);
+
+            if(!SignUpActivity.cardSyncCompleted) {
+                final ProgressDialog dialog = ProgressDialog.show(context, "", "Loading profile...", true);
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        while(!SignUpActivity.cardSyncCompleted) {
+
+                        }
+
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                dialog.cancel();
+                            }
+                        });
+                    }
+                }).start();
+            }
+        } else {
+            TextViewCustomFont intro = (TextViewCustomFont) findViewById(R.id.intro);
+            View introDivider = (View) findViewById(R.id.intro_divider);
+            View pictureDivider = (View) findViewById(R.id.edit_picture_divider);
+            intro.setVisibility(View.GONE);
+            introDivider.setVisibility(View.GONE);
+            pictureDivider.setVisibility(View.GONE);
+
+            LinearLayout nameLayout = (LinearLayout) findViewById(R.id.name_layout);
+            View nameDivider = (View) findViewById(R.id.name_divider);
+            nameLayout.setVisibility(View.VISIBLE);
+            nameDivider.setVisibility(View.VISIBLE);
+            saveButton.setText("Save");
+        }
+
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -100,37 +181,17 @@ public class EditProfileActivity extends AppCompatActivity {
                     }
                 });
 
+                if (isIntialSetup) {
+                    Intent intent = new Intent(context, MainActivity.class);
+                    startActivity(intent);
+                }
+
                 finish();
             }
         });
     }
 
-    private void fillViews() {
-        final Realm realm = Realm.getInstance(this);
-        final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
-        final Card card = account.getCards().first();
-
-        setName(account);
-        setImage(account);
-        setContactInformation(card);
-        setSocials(card);
-
-        TextViewCustomFont addInformation = (TextViewCustomFont) findViewById(R.id.add_information);
-        addInformation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(context, AddContactActivity.class);
-                startActivityForResult(i, 0);
-            }
-        });
-    }
-
     private void setContactInformation(Card card) {
-        if (card.getPhones().size() == 0 && card.getEmails().size() == 0 && card.getAddresses().size() == 0)
-            findViewById(R.id.divider).setVisibility(View.VISIBLE);
-        else
-            findViewById(R.id.divider).setVisibility(View.GONE);
-
         final LinearLayout infoLayout = (LinearLayout) findViewById(R.id.linear_layout);
         infoLayout.removeAllViews();
 
@@ -533,11 +594,14 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private void setImage(Account account) {
         profileImage = (ImageView) findViewById(R.id.picture);
+        TextViewCustomFont profileImageText = (TextViewCustomFont) findViewById(R.id.picture_text);
 
         if (!account.getThumb().isEmpty() && !account.getThumb().equals("null")) {
             Picasso.with(this).load(account.getThumb()).transform(new CircleTransform()).into(profileImage);
+            profileImageText.setText("Change picture");
         } else {
             Picasso.with(this).load(R.drawable.default_profile).transform(new CircleTransform()).into(profileImage);
+            profileImageText.setText("Add picture");
         }
 
         LinearLayout profileLayout = (LinearLayout) findViewById(R.id.edit_picture);
@@ -596,11 +660,15 @@ public class EditProfileActivity extends AppCompatActivity {
             snapchatView.setTag(VIEW_REMOVE);
             fillViews();
         } else if (requestCode == 4 && resultCode == RESULT_OK) {
+            fillViews();
+
             Bitmap photo = (Bitmap) data.getExtras().get("data");
             CircleTransform transform = new CircleTransform();
             Bitmap circle = transform.transform(photo);
             profileImage.setImageBitmap(circle);
         } else if (requestCode == 5 && resultCode == RESULT_OK) {
+            fillViews();
+
             Uri selectedImage = data.getData();
             Picasso.with(this).load(selectedImage).transform(new CircleTransform()).into(profileImage, new Callback() {
                 @Override

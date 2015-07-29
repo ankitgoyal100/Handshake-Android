@@ -16,6 +16,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.handshake.helpers.CardServerSync;
+import com.handshake.helpers.SyncCompleted;
 import com.handshake.models.Account;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -35,6 +37,8 @@ public class SignUpActivity extends AppCompatActivity {
 
     SessionManager session;
 
+    public static boolean cardSyncCompleted = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +57,11 @@ public class SignUpActivity extends AppCompatActivity {
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(!MainActivity.isConnected(context)) {
+                    Toast.makeText(context, "No internet connection.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
                 if (firstName.getText().toString().equals("")) {
                     Toast.makeText(context, "First name can't be blank.", Toast.LENGTH_LONG).show();
                 } else if (lastName.getText().toString().equals("")) {
@@ -97,8 +106,16 @@ public class SignUpActivity extends AppCompatActivity {
                                     account = Account.updateAccount(account, realm, response.getJSONObject("user"));
                                     realm.commitTransaction();
 
-                                    Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
+                                    Intent intent = new Intent(SignUpActivity.this, GetStartedActivity.class);
+                                    intent.putExtra("first_name", firstName.getText().toString());
                                     startActivity(intent);
+
+                                    CardServerSync.performSync(context, new SyncCompleted() {
+                                        @Override
+                                        public void syncCompletedListener() {
+                                            cardSyncCompleted = true;
+                                        }
+                                    });
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
@@ -120,6 +137,9 @@ public class SignUpActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                        login.setEnabled(true);
+                        dialog.cancel();
+
                         try {
                             Toast.makeText(context, errorResponse.getJSONArray("errors").getString(0), Toast.LENGTH_LONG).show();
                         } catch (JSONException e) {

@@ -53,6 +53,11 @@ public class LoginActivity extends AppCompatActivity {
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(!MainActivity.isConnected(context)) {
+                    Toast.makeText(context, "No internet connection.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
                 if (email.getText().toString().equals("")) {
                     Toast.makeText(context, "Email can't be blank.", Toast.LENGTH_LONG).show();
                 } else if (password.getText().toString().equals("")) {

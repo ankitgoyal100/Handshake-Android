@@ -49,7 +49,7 @@ public class AccountServerSync {
 
         if (account[0] == null) return;
 
-        if (account[0].getSyncStatus() == Utils.AccountSynced) {
+        if (account[0].getSyncStatus() == Utils.AccountUpdated) {
             RequestParams params = Account.accountToParams(account[0]);
             if (account[0].getPicture().isEmpty() && account[0].getPictureData() != null) {
                 params.put("picture", new ByteArrayInputStream(account[0].getPictureData()), "picture.jpg", "image/jpg");

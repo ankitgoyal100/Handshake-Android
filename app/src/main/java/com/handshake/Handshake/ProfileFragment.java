@@ -101,6 +101,7 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getActivity(), EditProfileActivity.class);
+                i.putExtra("is_initial_setup", false);
                 startActivity(i);
             }
         });
