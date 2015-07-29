@@ -8,10 +8,13 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 import com.handshake.helpers.RequestServerSync;
 import com.handshake.helpers.SyncCompleted;
 import com.handshake.listview.ContactAdapter;
+import com.handshake.listview.SuggestionAdapter;
+import com.handshake.models.Suggestion;
 import com.handshake.models.User;
 
 import io.realm.Realm;
@@ -67,8 +70,16 @@ public class RequestFragment extends ListFragment {
         Realm realm = Realm.getInstance(getActivity());
         RealmResults<User> users = realm.where(User.class).equalTo("requestReceived", true).findAll();
         users.sort("createdAt", false);
-        ContactAdapter adapter = new ContactAdapter(getActivity(), users, true);
-        setListAdapter(adapter);
+        ContactAdapter contactAdapter = new ContactAdapter(getActivity(), users, true);
+        setListAdapter(contactAdapter);
+
+        RealmResults<Suggestion> suggestionItems = realm.where(Suggestion.class).findAll();
+        SuggestionAdapter suggestionAdapter = new SuggestionAdapter(getActivity(), suggestionItems, true);
+        ListView suggestionListView = (ListView) getView().findViewById(R.id.listView2);
+        suggestionListView.setAdapter(suggestionAdapter);
+
+        Utils.setDynamicHeight(getListView());
+        Utils.setDynamicHeight(suggestionListView);
     }
 
     @Override

@@ -6,11 +6,14 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 import com.handshake.helpers.FeedItemServerSync;
 import com.handshake.helpers.SyncCompleted;
 import com.handshake.listview.FeedAdapter;
+import com.handshake.listview.SuggestionAdapter;
 import com.handshake.models.FeedItem;
+import com.handshake.models.Suggestion;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -66,8 +69,16 @@ public class FeedFragment extends ListFragment {
         Realm realm = Realm.getInstance(getActivity());
         RealmResults<FeedItem> feedItems = realm.where(FeedItem.class).findAll();
         feedItems.sort("updatedAt", false);
-        FeedAdapter adapter = new FeedAdapter(getActivity(), feedItems, true);
-        setListAdapter(adapter);
+        FeedAdapter feedAdapter = new FeedAdapter(getActivity(), feedItems, true);
+        setListAdapter(feedAdapter);
+
+        RealmResults<Suggestion> suggestionItems = realm.where(Suggestion.class).findAll();
+        SuggestionAdapter suggestionAdapter = new SuggestionAdapter(getActivity(), suggestionItems, true);
+        ListView suggestionListView = (ListView) getView().findViewById(R.id.listView2);
+        suggestionListView.setAdapter(suggestionAdapter);
+
+        Utils.setDynamicHeight(getListView());
+        Utils.setDynamicHeight(suggestionListView);
     }
 
     @Override

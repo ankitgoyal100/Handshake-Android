@@ -14,7 +14,7 @@
         android:layout_gravity="center"
         android:layout_margin="4dip"
         android:layout_marginRight="5dip"
-        android:padding="3dip">
+        android:padding="4dip">
 
         <ImageView
             android:id="@+id/image"
