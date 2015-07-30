@@ -34,11 +34,4 @@
         </Preference>
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="Linked Accounts">
-        <Preference
-            android:defaultValue="Not Connected"
-            android:key="facebook_preference"
-            android:title="Facebook" />
-    </PreferenceCategory>
-
 </PreferenceScreen>

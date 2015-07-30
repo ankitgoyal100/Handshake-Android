@@ -119,16 +119,6 @@ public class MainPreferenceFragment extends android.preference.PreferenceFragmen
                 return true;
             }
         });
-
-        Preference facebookPreference = (Preference) getPreferenceManager().findPreference("facebook_preference");
-        facebookPreference.setSummary(SessionManager.getFBID());
-        facebookPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                //TODO: fb login
-                return true;
-            }
-        });
     }
 
 }

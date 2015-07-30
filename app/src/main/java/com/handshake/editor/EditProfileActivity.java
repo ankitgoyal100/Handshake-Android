@@ -504,12 +504,12 @@ public class EditProfileActivity extends AppCompatActivity {
                             })
                             .show();
                 } else if (facebookView.getTag() == VIEW_ADD) {
-                    if(!SessionManager.getFBID().equals("")) {
-                        addFacebookToCard(SessionManager.getFBID());
-                        facebookView.setTag(VIEW_REMOVE);
-                        fillViews();
-                        return;
-                    }
+//                    if(!SessionManager.getFBID().equals("Not Connected") && !SessionManager.getFBID().isEmpty()) {
+//                        addFacebookToCard(SessionManager.getFBID());
+//                        facebookView.setTag(VIEW_REMOVE);
+//                        fillViews();
+//                        return;
+//                    }
 
                     callbackManager = CallbackManager.Factory.create();
                     LoginManager.getInstance().logInWithReadPermissions(EditProfileActivity.this,
@@ -526,7 +526,7 @@ public class EditProfileActivity extends AppCompatActivity {
                                                         Toast.makeText(context, "There was an error.", Toast.LENGTH_LONG).show();
                                                     } else {
                                                         try {
-                                                            SessionManager.setFBID(json.getString("id"));
+//                                                            SessionManager.setFBID(json.getString("id"));
                                                             addFacebookToCard(json.getString("id"));
                                                             facebookView.setTag(VIEW_REMOVE);
                                                             fillViews();
@@ -724,7 +724,9 @@ public class EditProfileActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        callbackManager.onActivityResult(requestCode, resultCode, data);
+
+        if (callbackManager != null)
+            callbackManager.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == 0 && resultCode == RESULT_OK) {
             fillViews();

@@ -68,7 +68,7 @@ public class ProfileFragment extends Fragment {
 
         infoLayout = (LinearLayout) getView().findViewById(R.id.linear_layout);
         socialLayout = (LinearLayout) getView().findViewById(R.id.linear_layout_2);
-        fillViews();
+//        fillViews();
     }
 
     private void fillViews() {
@@ -117,7 +117,8 @@ public class ProfileFragment extends Fragment {
 
 //        final ProgressDialog dialog = ProgressDialog.show(getActivity(), "", "Loading profile...", true);
 
-        executor.execute(new Runnable() {
+        new Thread(new Runnable() {
+//        executor.execute(new Runnable() {
             @Override
             public void run() {
                 handler.post(new Runnable() {
@@ -136,6 +137,7 @@ public class ProfileFragment extends Fragment {
 
                 final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
                 final Card card = account.getCards().first();
+                if (card == null) return;
 
                 for (final Phone phone : card.getPhones()) {
                     LayoutInflater inflater = (LayoutInflater) getActivity().getApplicationContext()
@@ -368,7 +370,7 @@ public class ProfileFragment extends Fragment {
                     });
                 }
             }
-        });
+        }).start();
     }
 
     @Override

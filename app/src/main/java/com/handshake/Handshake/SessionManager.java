@@ -34,7 +34,7 @@ public class SessionManager {
 
     public static final String KEY_LAST_COPIED_GROUP = "copiedGroup";
 
-    private static final String KEY_FB = "facebook";
+    private static final String KEY_CONTACT_SYNCED = "contactSync";
 
     // Constructor
     public SessionManager(Context context) {
@@ -126,12 +126,12 @@ public class SessionManager {
         return pref.getString(KEY_EMAIL, "");
     }
 
-    public static String getFBID() {
-        return pref.getString(KEY_FB, "Not Connected");
+    public static String getLastContactSynced() {
+        return pref.getString(KEY_CONTACT_SYNCED, "");
     }
 
-    public static void setFBID(String id) {
-        editor.putString(KEY_FB, id);
+    public static void setLastContactSynced(String time) {
+        editor.putString(KEY_CONTACT_SYNCED, time);
         editor.apply();
     }
 

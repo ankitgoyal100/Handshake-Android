@@ -36,6 +36,7 @@ import com.astuetz.PagerSlidingTabStrip;
 import com.handshake.helpers.AccountServerSync;
 import com.handshake.helpers.CardServerSync;
 import com.handshake.helpers.ContactServerSync;
+import com.handshake.helpers.ContactUploader;
 import com.handshake.helpers.FeedItemServerSync;
 import com.handshake.helpers.GroupArraySyncCompleted;
 import com.handshake.helpers.GroupServerSync;
@@ -381,12 +382,19 @@ public class MainActivity extends AppCompatActivity {
 
         AccountServerSync.sendUserLocation(context);
 
+        ContactUploader.performSync(context, new SyncCompleted() {
+            @Override
+            public void syncCompletedListener() {
+//                System.out.println("Contact sync completed");
+            }
+        });
+
         new Thread(new Runnable() {
             @Override
             public void run() {
                 while (syncsCompleted != 7) {
                 }
-                System.out.println("All syncs completed!");
+//                System.out.println("All syncs completed!");
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
