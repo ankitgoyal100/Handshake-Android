@@ -17,6 +17,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -27,11 +28,14 @@ public class ContactUploader {
 
     public static void performSync(final Context c, final SyncCompleted l) {
         Date currentDate = new Date(System.currentTimeMillis());
-        String lastUpdatedAtString = SessionManager.getLastContactSynced();
-        if (!lastUpdatedAtString.equals("") &&
-                (currentDate.getTime() - new Date(lastUpdatedAtString).getTime()) < MILLISECONDS_BETWEEN_SYNC) {
-            l.syncCompletedListener();
-            return;
+        Long lastUpdatedAtString = SessionManager.getLastContactSynced();
+        Calendar calendar = Calendar.getInstance();
+        if (lastUpdatedAtString != 0) {
+            calendar.setTimeInMillis(lastUpdatedAtString);
+            if ((currentDate.getTime() - calendar.getTime().getTime()) < MILLISECONDS_BETWEEN_SYNC) {
+                l.syncCompletedListener();
+                return;
+            }
         }
 
         new Thread(new Runnable() {
@@ -84,9 +88,6 @@ public class ContactUploader {
                 }
                 systemEmails.close();
 
-                System.out.println("Phones: " + phones);
-                System.out.println("Emails: " + emails);
-
                 if (Looper.myLooper() == null) {
                     Looper.prepare();
                 }
@@ -100,8 +101,6 @@ public class ContactUploader {
                 RestClientSync.post(c, "/upload/phones", phoneParams, "application/json", new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                        System.out.println("Success 1");
-
                         JSONObject emailParams = new JSONObject();
                         try {
                             emailParams.put("emails", emails);
@@ -111,7 +110,7 @@ public class ContactUploader {
                         RestClientSync.post(c, "/upload/emails", emailParams, "application/json", new JsonHttpResponseHandler() {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                                SessionManager.setLastContactSynced(System.currentTimeMillis() + "");
+                                SessionManager.setLastContactSynced(System.currentTimeMillis());
                                 l.syncCompletedListener();
                             }
 

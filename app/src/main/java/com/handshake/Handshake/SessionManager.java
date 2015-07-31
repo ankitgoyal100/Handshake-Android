@@ -126,12 +126,12 @@ public class SessionManager {
         return pref.getString(KEY_EMAIL, "");
     }
 
-    public static String getLastContactSynced() {
-        return pref.getString(KEY_CONTACT_SYNCED, "");
+    public static Long getLastContactSynced() {
+        return pref.getLong(KEY_CONTACT_SYNCED, 0);
     }
 
-    public static void setLastContactSynced(String time) {
-        editor.putString(KEY_CONTACT_SYNCED, time);
+    public static void setLastContactSynced(Long time) {
+        editor.putLong(KEY_CONTACT_SYNCED, time);
         editor.apply();
     }
 
