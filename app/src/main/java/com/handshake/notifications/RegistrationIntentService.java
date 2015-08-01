@@ -57,7 +57,6 @@ public class RegistrationIntentService extends IntentService {
                 // [END get_token]
                 // Log.i(TAG, "GCM Registration Token: " + token);
 
-                // TODO: Implement this method to send any registration to your app's servers.
                 sendRegistrationToServer(token);
 
                 // Subscribe to topic channels
@@ -89,7 +88,9 @@ public class RegistrationIntentService extends IntentService {
      * @param token The new token.
      */
     private void sendRegistrationToServer(String token) {
-        // Add custom implementation, as needed.
+        //TODO
+        // POST to /devices
+        // token and platform="android"
         System.out.println("Token: " + token);
     }
 

@@ -101,7 +101,7 @@ public class SessionManager {
         editor.clear();
         editor.apply();
 
-        // After logout redirect user to Loing Activity
+        // After logout redirect user to Login Activity
         Intent i = new Intent(sContext, IntroActivity.class);
         // Closing all the Activities
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
