@@ -190,11 +190,7 @@ public class MainActivity extends AppCompatActivity {
             performSyncs(new SyncCompleted() {
                 @Override
                 public void syncCompletedListener() {
-                    ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                    String code = Utils.getCodes(context, clipboard.getPrimaryClip());
-                    if (code != "" && code != SessionManager.getLastCopiedGroup()) {
-                        checkCode(code);
-                    }
+                    System.out.println("Completed syncs");
                 }
             });
         } else {
@@ -359,6 +355,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
+
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                String code = Utils.getCodes(context, clipboard.getPrimaryClip());
+                if (code != "" && code != SessionManager.getLastCopiedGroup()) {
+                    checkCode(code);
+                }
 //                System.out.println("Group sync completed " + syncsCompleted);
             }
         });
