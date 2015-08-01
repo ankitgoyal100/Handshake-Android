@@ -139,16 +139,16 @@ public class Utils {
         if (clipboard == null) return "";
         ArrayList<String> strings = new ArrayList<>();
         for (int i = 0; i < clipboard.getItemCount(); i++) {
-            String[] s = clipboard.getItemAt(i).coerceToText(context).toString().split("\\s+");
+            String[] s = clipboard.getItemAt(i).coerceToText(context).toString().replaceAll("[^-a-zA-Z0-9\\s]", "").split("\\s+");
             for (int j = 0; j < s.length; j++)
                 strings.add(s[j]);
         }
 
         for (int i = 0; i < strings.size(); i++) {
-            if (strings.get(i).length() == 8 && strings.get(i).charAt(2) == '-' && strings.get(i).charAt(5) == '-') {
-                return (strings.get(i).substring(0, 2) + strings.get(i).substring(3, 5) +
-                        strings.get(i).substring(6)).toLowerCase();
-            }
+            String[] stringSplitByDashes = strings.get(i).split("-");
+            if(stringSplitByDashes.length == 3 && stringSplitByDashes[0].length() == 2
+                    && stringSplitByDashes[1].length() == 2 && stringSplitByDashes[2].length() == 2)
+                return strings.get(i).replaceAll("-", "").toLowerCase();
         }
 
         return "";

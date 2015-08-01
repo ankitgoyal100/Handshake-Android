@@ -2,6 +2,7 @@ package com.handshake.Handshake;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -260,6 +261,8 @@ public class MainActivity extends AppCompatActivity {
                 join.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        final ProgressDialog dialog = ProgressDialog.show(context, "", "Joining group...", true);
+
                         Realm realm = Realm.getInstance(context);
                         Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
 
@@ -278,8 +281,8 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                                 try {
+                                    dialog.cancel();
                                     alertDialog.dismiss();
-                                    System.out.println(response.toString());
                                     JSONObject groupJSONObject = response.getJSONObject("group");
                                     JSONArray jsonArray = new JSONArray();
                                     jsonArray.put(groupJSONObject);
@@ -304,6 +307,7 @@ public class MainActivity extends AppCompatActivity {
 
                             @Override
                             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                                dialog.cancel();
                                 Toast.makeText(context, "There was an error. Please try again.", Toast.LENGTH_LONG).show();
                             }
                         });
