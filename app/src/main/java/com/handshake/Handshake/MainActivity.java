@@ -22,6 +22,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -34,6 +35,8 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.astuetz.PagerSlidingTabStrip;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.handshake.helpers.AccountServerSync;
 import com.handshake.helpers.CardServerSync;
 import com.handshake.helpers.ContactServerSync;
@@ -49,6 +52,7 @@ import com.handshake.listview.SearchAdapter;
 import com.handshake.models.Account;
 import com.handshake.models.Group;
 import com.handshake.models.User;
+import com.handshake.notifications.RegistrationIntentService;
 import com.handshake.views.CircleTransform;
 import com.handshake.views.DelayAutoCompleteTextView;
 import com.handshake.views.TextViewCustomFont;
@@ -85,6 +89,9 @@ public class MainActivity extends AppCompatActivity {
 
     public static boolean cardSyncCompleted = false;
     public static boolean suggestionSyncCompleted = false;
+
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    private static final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -233,7 +240,6 @@ public class MainActivity extends AppCompatActivity {
                 LayoutInflater inflater = getLayoutInflater();
                 View dialoglayout = inflater.inflate(R.layout.join_group_dialog, null);
 
-                //TODO: fix group icon
                 ImageView groupIcon = (ImageView) dialoglayout.findViewById(R.id.group_icon);
                 Picasso.with(context).load(R.drawable.default_profile).transform(new CircleTransform()).into(groupIcon);
 
@@ -394,6 +400,12 @@ public class MainActivity extends AppCompatActivity {
 //                System.out.println("Contact sync completed");
             }
         });
+
+        if (checkPlayServices()) {
+            // Start IntentService to register this application with GCM.
+            Intent intent = new Intent(this, RegistrationIntentService.class);
+            startService(intent);
+        }
 
         new Thread(new Runnable() {
             @Override
@@ -674,5 +686,25 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             else return false;
         } else return false;
+    }
+
+    /**
+     * Check the device to make sure it has the Google Play Services APK. If
+     * it doesn't, display a dialog that allows users to download the APK from
+     * the Google Play Store or enable it in the device's system settings.
+     */
+    private boolean checkPlayServices() {
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+                GooglePlayServicesUtil.getErrorDialog(resultCode, this,
+                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
+            } else {
+                Log.i(TAG, "This device is not supported.");
+                finish();
+            }
+            return false;
+        }
+        return true;
     }
 }
