@@ -31,10 +31,13 @@ import com.handshake.Handshake.GenericUserProfileActivity;
 import com.handshake.Handshake.MainActivity;
 import com.handshake.Handshake.R;
 import com.handshake.Handshake.SessionManager;
+import com.handshake.helpers.ContactServerSync;
+import com.handshake.helpers.FeedItemServerSync;
+import com.handshake.helpers.GroupServerSync;
+import com.handshake.helpers.SyncCompleted;
 import com.handshake.helpers.UserArraySyncCompleted;
 import com.handshake.helpers.UserServerSync;
 import com.handshake.models.Group;
-import com.handshake.models.GroupMember;
 import com.handshake.models.User;
 
 import org.json.JSONArray;
@@ -84,28 +87,29 @@ public class MyGcmListenerService extends GcmListenerService {
             users.put(user);
             UserServerSync.cacheUser(getApplicationContext(), users, new UserArraySyncCompleted() {
                 @Override
-                public void syncCompletedListener(ArrayList<User> users) {
+                public void syncCompletedListener(final ArrayList<User> users) {
                     if (users.size() == 0) {
                         sendNotification(data, 0, false);
                         return;
                     }
 
-                    if (data.containsKey("group_id")) {
-                        Realm realm = Realm.getInstance(getApplicationContext());
-                        Group group = realm.where(Group.class).equalTo("groupId", data.getLong("group_id")).findFirst();
+                    FeedItemServerSync.performSync(getApplicationContext(), new SyncCompleted() {
+                        @Override
+                        public void syncCompletedListener() {
+                            ContactServerSync.performSync(getApplicationContext(), new SyncCompleted() {
+                                @Override
+                                public void syncCompletedListener() {
+                                    if (data.containsKey("group_id")) {
+                                        Realm realm = Realm.getInstance(getApplicationContext());
+                                        Group group = realm.where(Group.class).equalTo("groupId", data.getLong("group_id")).findFirst();
+                                        GroupServerSync.loadGroupMembers(group);
+                                    }
 
-                        realm.beginTransaction();
-                        GroupMember member = realm.createObject(GroupMember.class);
-                        member.setUser(users.get(0));
-                        member.setName(users.get(0).getFirstName() + " " + users.get(0).getLastName());
-                        if (group != null) {
-                            member.setGroup(group);
-                            group.getMembers().add(realm.copyToRealm(member));
+                                    sendNotification(data, users.get(0).getUserId(), users.get(0).isContact());
+                                }
+                            });
                         }
-                        realm.commitTransaction();
-                    }
-
-                    sendNotification(data, users.get(0).getUserId(), users.get(0).isContact());
+                    });
                 }
             });
         } catch (JSONException e) {

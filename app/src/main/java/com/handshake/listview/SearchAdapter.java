@@ -235,7 +235,6 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
                                 UserServerSync.cacheUser(mContext, response.getJSONArray("results"), new UserArraySyncCompleted() {
                                     @Override
                                     public void syncCompletedListener(final ArrayList<User> users) {
-                                        System.out.println(users);
                                         ArrayList<Long> array = new ArrayList<Long>();
                                         for (User u : users)
                                             array.add(u.getUserId());

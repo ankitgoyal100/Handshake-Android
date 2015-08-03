@@ -74,11 +74,6 @@ public class ProfileFragmentExecutor extends Fragment {
     private void fillViews() {
         final Realm realm = Realm.getInstance(getActivity());
         final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
-        final Card card = account.getCards().first();
-
-        System.out.println("HERE");
-        for (Address a : card.getAddresses())
-            System.out.println("Address3: " + a.toString());
 
         TextViewCustomFont name = (TextViewCustomFont) getView().findViewById(R.id.name);
         String lastName = "";
@@ -372,10 +367,6 @@ public class ProfileFragmentExecutor extends Fragment {
         final Realm realm = Realm.getInstance(getActivity());
         final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
         final Card card = account.getCards().first();
-
-        System.out.println("HERE");
-        for (Address a : card.getAddresses())
-            System.out.println("Address1: " + a.toString());
 
         fillViews();
     }

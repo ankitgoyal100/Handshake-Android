@@ -68,6 +68,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -198,7 +199,11 @@ public class MainActivity extends AppCompatActivity {
             performSyncs(new SyncCompleted() {
                 @Override
                 public void syncCompletedListener() {
-                    System.out.println("Completed syncs");
+                    ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                    String code = Utils.getCodes(context, clipboard.getPrimaryClip());
+                    if (code != "" && code != SessionManager.getLastCopiedGroup()) {
+                        checkCode(code);
+                    }
                 }
             });
         } else {
@@ -295,7 +300,6 @@ public class MainActivity extends AppCompatActivity {
                                     GroupServerSync.cacheGroup(jsonArray, new GroupArraySyncCompleted() {
                                         @Override
                                         public void syncCompletedListener(ArrayList<Group> groups) {
-                                            System.out.println(groups.toString());
                                             Group group = groups.get(0);
                                             GroupServerSync.loadGroupMembers(group);
                                             FeedItemServerSync.performSync(context, new SyncCompleted() {
@@ -365,12 +369,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
-
-                ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                String code = Utils.getCodes(context, clipboard.getPrimaryClip());
-                if (code != "" && code != SessionManager.getLastCopiedGroup()) {
-                    checkCode(code);
-                }
 //                System.out.println("Group sync completed " + syncsCompleted);
             }
         });
@@ -594,8 +592,6 @@ public class MainActivity extends AppCompatActivity {
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     ContactServerSync.deleteContact(account);
-//                                    if (text != null)
-//                                        text.setText("Know " + name + "? Send a request!");
                                     setContactButtons(context, account, buttonOne, buttonTwo, text);
                                     dialog.cancel();
                                 }
@@ -660,8 +656,6 @@ public class MainActivity extends AppCompatActivity {
                             buttonTwo.setVisibility(View.VISIBLE);
                             buttonTwo.setImageDrawable(context.getResources().getDrawable(R.mipmap.requested_button));
                             setContactButtons(context, account, buttonOne, buttonTwo, text);
-//                            if (text != null)
-//                                text.setText("Your request is pending.");
                         }
 
                         @Override

@@ -59,7 +59,7 @@ public class MainPreferenceFragment extends android.preference.PreferenceFragmen
                     public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                         emailPreference.setText(SessionManager.getEmail());
 
-                        if(statusCode == 422) {
+                        if (statusCode == 422) {
                             try {
                                 Toast.makeText(getActivity(), errorResponse.getJSONArray("errors").getString(0), Toast.LENGTH_LONG).show();
                             } catch (JSONException e) {
