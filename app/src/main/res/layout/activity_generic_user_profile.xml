@@ -168,7 +168,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
-                    android:text="Contact information will remain hidden until the request is accepted"
                     android:textColor="#040404"
                     android:textSize="14sp" />
             </LinearLayout>

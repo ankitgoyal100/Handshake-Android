@@ -3,6 +3,7 @@ package com.handshake.Handshake;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
@@ -11,6 +12,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
@@ -18,9 +20,12 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
@@ -65,6 +70,35 @@ public class ContactUserProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_contact_user_profile);
 
 //        changeColor(getResources().getColor(R.color.orange));
+
+        RelativeLayout autoSyncLayout = (RelativeLayout) findViewById(R.id.save_to_phone_layout);
+        View autoSyncDivider = findViewById(R.id.save_to_phone_divider);
+        ToggleButton autoSyncToggle = (ToggleButton) findViewById(R.id.save_to_phone);
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        boolean isAutosync = sharedPreferences.getBoolean("autosync_preference", false);
+
+        if(!isAutosync) {
+            autoSyncLayout.setVisibility(View.VISIBLE);
+            autoSyncDivider.setVisibility(View.VISIBLE);
+
+            final Realm realm = Realm.getInstance(context);
+            final User account = realm.where(User.class).equalTo("userId", getIntent().getLongExtra("userId", SessionManager.getID())).findFirst();
+            autoSyncToggle.setChecked(account.isSavesToPhone());
+
+            autoSyncToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    realm.beginTransaction();
+                    account.setSavesToPhone(isChecked);
+                    realm.commitTransaction();
+                }
+            });
+        } else {
+            autoSyncLayout.setVisibility(View.GONE);
+            autoSyncDivider.setVisibility(View.GONE);
+        }
+
 
         infoLayout = (LinearLayout) findViewById(R.id.linear_layout);
         socialLayout = (LinearLayout) findViewById(R.id.linear_layout_2);
