@@ -36,6 +36,8 @@ public class SessionManager {
 
     private static final String KEY_CONTACT_SYNCED = "contactSync";
 
+    private static final String KEY_INTRO_SCREEN_DISPLAYED = "introScreenDisplayed";
+
     // Constructor
     public SessionManager(Context context) {
         this.sContext = context;
@@ -97,19 +99,23 @@ public class SessionManager {
 //        realm.where(User.class).findAll().clear();
         realm.commitTransaction();
 
+        System.out.println("getIntroScreenDisplayed: " + getIntroScreenDisplayed());
+
+        boolean introScreenDisplayed = getIntroScreenDisplayed();
+
+        Intent i;
+        if (introScreenDisplayed)
+            i = new Intent(sContext, IntroActivity.class);
+        else
+            i = new Intent(sContext, AppIntroActivity.class);
+
         // Clearing all data from Shared Preferences
         editor.clear();
+        editor.putBoolean(KEY_INTRO_SCREEN_DISPLAYED, introScreenDisplayed);
         editor.apply();
 
-        // After logout redirect user to Login Activity
-        Intent i = new Intent(sContext, IntroActivity.class);
-        // Closing all the Activities
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-        // Add new Flag to start new Activity
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-        // Staring Login Activity
         ((Activity) sContext).finish();
         sContext.startActivity(i);
     }
@@ -135,6 +141,14 @@ public class SessionManager {
         editor.apply();
     }
 
+    public static void setIntroScreenDisplayed(boolean displayed) {
+        editor.putBoolean(KEY_INTRO_SCREEN_DISPLAYED, displayed);
+        editor.apply();
+    }
+
+    public static boolean getIntroScreenDisplayed() {
+        return pref.getBoolean(KEY_INTRO_SCREEN_DISPLAYED, false);
+    }
 
     /**
      * Quick check for login

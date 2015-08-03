@@ -151,6 +151,9 @@
             android:label="@string/title_activity_get_started"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".AppIntroActivity"
+            android:label="@string/app_name" />
 
         <!-- [START gcm_receiver] -->
         <receiver

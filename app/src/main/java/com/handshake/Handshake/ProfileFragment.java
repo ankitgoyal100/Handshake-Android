@@ -380,7 +380,9 @@ public class ProfileFragment extends Fragment {
     public void onResume() {
         super.onResume();
         synchronized (TAG) {
-            fillViews();
+            SessionManager session = new SessionManager(getActivity());
+            if (session.isLoggedIn())
+                fillViews();
         }
     }
 }
