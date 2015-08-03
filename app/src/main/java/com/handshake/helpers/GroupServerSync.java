@@ -26,6 +26,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import io.realm.Realm;
+import io.realm.RealmList;
 import io.realm.RealmResults;
 
 /**
@@ -281,6 +282,8 @@ public class GroupServerSync {
                             if (group == null) return;
 
                             realm.beginTransaction();
+                            RealmResults<GroupMember> members = realm.where(GroupMember.class).equalTo("group.groupId", groupId).findAll();
+                            members.clear();
                             for (int i = 0; i < group.getMembers().size(); i++)
                                 group.getMembers().get(i).removeFromRealm();
                             realm.commitTransaction();
@@ -303,25 +306,26 @@ public class GroupServerSync {
                                     map.put(user.getUserId(), user);
                             }
 
+                            realm.beginTransaction();
+                            RealmList<GroupMember> groupMembers = new RealmList<>();
                             for (int i = 0; i < membersJSON.length(); i++) {
                                 try {
                                     User user = map.get(membersJSON.getJSONObject(i).getLong("id"));
 
                                     if (user == null) return;
 
-                                    realm.beginTransaction();
                                     GroupMember member = realm.createObject(GroupMember.class);
                                     member.setUser(user);
                                     member.setName(user.getFirstName() + " " + user.getLastName());
                                     member.setGroup(group);
 
-                                    group.getMembers().add(realm.copyToRealm(member));
-
-                                    realm.commitTransaction();
+                                    groupMembers.add(member);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
                             }
+                            group.setMembers(groupMembers);
+                            realm.commitTransaction();
                         }
                     });
                 } catch (JSONException e) {

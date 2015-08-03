@@ -42,6 +42,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:22.2.0'
     compile 'com.android.support:support-v4:21.0.3'
     compile 'com.google.android.gms:play-services-gcm:7.5.+'
+    compile 'com.github.paolorotolo:appintro:3.1.0'
     compile project(':countryPickerLib')
     compile files('libs/libphonenumber-7.0.7.jar')
     compile files('libs/httpclient-4.3.6.jar')

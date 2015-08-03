@@ -9,12 +9,15 @@ import android.graphics.drawable.TransitionDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.handshake.helpers.GroupServerSync;
+import com.handshake.helpers.SyncCompleted;
 import com.handshake.listview.GroupMemberAdapter;
 import com.handshake.models.GroupMember;
 import com.handshake.models.User;
@@ -29,6 +32,8 @@ public class GroupMemberActivity extends AppCompatActivity {
     private Drawable oldBackground = null;
     public Context context = this;
 
+    private SwipeRefreshLayout swipeContainer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +42,20 @@ public class GroupMemberActivity extends AppCompatActivity {
         changeColor(getResources().getColor(R.color.orange));
 
         final ListView list = (ListView) findViewById(R.id.list);
+
+        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
+        swipeContainer.setColorSchemeResources(R.color.orange);
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                GroupServerSync.performSync(context, new SyncCompleted() {
+                    @Override
+                    public void syncCompletedListener() {
+                        swipeContainer.setRefreshing(false);
+                    }
+                });
+            }
+        });
 
         Realm realm = Realm.getInstance(this);
 
@@ -127,4 +146,11 @@ public class GroupMemberActivity extends AppCompatActivity {
             handler.removeCallbacks(what);
         }
     };
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        swipeContainer.setRefreshing(false);
+    }
 }
