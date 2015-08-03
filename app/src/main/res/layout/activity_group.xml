@@ -133,4 +133,26 @@
         android:textColor="@android:color/black"
         android:textSize="34sp" />
 
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:layout_marginTop="24dp"
+        android:background="@color/divider" />
+
+    <com.handshake.views.TextViewCustomFont
+        android:id="@+id/invite_members"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:padding="16dp"
+        android:text="Invite"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:background="@color/divider" />
+
 </LinearLayout>

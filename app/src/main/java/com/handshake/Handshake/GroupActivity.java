@@ -7,6 +7,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,6 +18,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.AlertDialogWrapper;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.handshake.helpers.GroupServerSync;
 import com.handshake.models.Group;
 import com.handshake.models.User;
@@ -74,8 +76,9 @@ public class GroupActivity extends AppCompatActivity {
         }
 
         TextViewCustomFont groupCode = (TextViewCustomFont) findViewById(R.id.group_code);
-        String code = group.getCode().substring(0, 2) + "-" + group.getCode().substring(2, 4) + "-" + group.getCode().substring(4);
-        groupCode.setText(code.toUpperCase());
+        final String code = (group.getCode().substring(0, 2) + "-" + group.getCode().substring(2, 4)
+                + "-" + group.getCode().substring(4)).toUpperCase();
+        groupCode.setText(code);
 
         groupName = (TextViewCustomFont) findViewById(R.id.group_name);
         groupName.setText(group.getName());
@@ -99,6 +102,42 @@ public class GroupActivity extends AppCompatActivity {
                 intent.putExtra("isEdit", true);
                 intent.putExtra("groupId", group.getGroupId());
                 startActivityForResult(intent, 1);
+            }
+        });
+
+        TextViewCustomFont invite = (TextViewCustomFont) findViewById(R.id.invite_members);
+        invite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CharSequence[] items = {"SMS", "Copy Code"};
+                new MaterialDialog.Builder(context)
+                        .title("Invite members")
+                        .items(items)
+                        .itemsCallback(new MaterialDialog.ListCallback() {
+                            @Override
+                            public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+                                if (which == 0) {
+                                    Intent sendIntent = new Intent(Intent.ACTION_VIEW);
+                                    sendIntent.setData(Uri.parse("sms:"));
+                                    sendIntent.putExtra("sms_body", "Join my Handshake group! Just copy this message and open the app. ("
+                                            + code + ")");
+                                    context.startActivity(sendIntent);
+                                } else {
+                                    int sdk = android.os.Build.VERSION.SDK_INT;
+                                    if (sdk < android.os.Build.VERSION_CODES.HONEYCOMB) {
+                                        android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                        clipboard.setText("text to clip");
+                                    } else {
+                                        android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                        android.content.ClipData clip = android.content.ClipData.newPlainText("handshake", code);
+                                        clipboard.setPrimaryClip(clip);
+
+                                        Toast.makeText(context, "Code copied.", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            }
+                        })
+                        .show();
             }
         });
     }
