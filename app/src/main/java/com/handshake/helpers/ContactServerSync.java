@@ -73,18 +73,21 @@ public class ContactServerSync {
 
                             counter--;
                             if (counter == 0) {
-                                handler.post(new Runnable() {
+                                ContactSync.performSync(context, new SyncCompleted() {
                                     @Override
-                                    public void run() {
-                                        listener.syncCompletedListener();
+                                    public void syncCompletedListener() {
+                                        handler.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                listener.syncCompletedListener();
+                                            }
+                                        });
                                     }
                                 });
                             }
                         }
                     });
                 }
-
-                //TODO: Contact Sync to local address book
             }
         });
     }

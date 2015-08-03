@@ -31,7 +31,7 @@ import com.handshake.Handshake.GenericUserProfileActivity;
 import com.handshake.Handshake.MainActivity;
 import com.handshake.Handshake.R;
 import com.handshake.Handshake.SessionManager;
-import com.handshake.helpers.ContactServerSync;
+import com.handshake.helpers.ContactSync;
 import com.handshake.helpers.FeedItemServerSync;
 import com.handshake.helpers.GroupServerSync;
 import com.handshake.helpers.SyncCompleted;
@@ -96,7 +96,7 @@ public class MyGcmListenerService extends GcmListenerService {
                     FeedItemServerSync.performSync(getApplicationContext(), new SyncCompleted() {
                         @Override
                         public void syncCompletedListener() {
-                            ContactServerSync.performSync(getApplicationContext(), new SyncCompleted() {
+                            ContactSync.performSync(getApplicationContext(), new SyncCompleted() {
                                 @Override
                                 public void syncCompletedListener() {
                                     if (data.containsKey("group_id")) {

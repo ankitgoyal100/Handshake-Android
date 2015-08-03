@@ -49,6 +49,22 @@ public class SessionManager {
      * Create login session
      */
     public void createLoginSession(long id, String token, String email) {
+        //wTODO clear db
+        Realm realm = Realm.getInstance(sContext);
+        realm.beginTransaction();
+//        realm.where(Account.class).findAll().clear();
+//        realm.where(Address.class).findAll().clear();
+//        realm.where(Card.class).findAll().clear();
+//        realm.where(Email.class).findAll().clear();
+//        realm.where(FeedItem.class).findAll().clear();
+//        realm.where(Group.class).findAll().clear();
+//        realm.where(GroupMember.class).findAll().clear();
+//        realm.where(Phone.class).findAll().clear();
+//        realm.where(Social.class).findAll().clear();
+//        realm.where(Suggestion.class).findAll().clear();
+//        realm.where(User.class).findAll().clear();
+        realm.commitTransaction();
+
         // Storing login value as TRUE
         editor.putBoolean(sIsLogin, true);
 
@@ -84,23 +100,6 @@ public class SessionManager {
      * Clear session details
      */
     public void logoutUser() {
-        Realm realm = Realm.getInstance(sContext);
-        realm.beginTransaction();
-//        realm.where(Account.class).findAll().clear();
-//        realm.where(Address.class).findAll().clear();
-//        realm.where(Card.class).findAll().clear();
-//        realm.where(Email.class).findAll().clear();
-//        realm.where(FeedItem.class).findAll().clear();
-//        realm.where(Group.class).findAll().clear();
-//        realm.where(GroupMember.class).findAll().clear();
-//        realm.where(Phone.class).findAll().clear();
-//        realm.where(Social.class).findAll().clear();
-//        realm.where(Suggestion.class).findAll().clear();
-//        realm.where(User.class).findAll().clear();
-        realm.commitTransaction();
-
-        System.out.println("getIntroScreenDisplayed: " + getIntroScreenDisplayed());
-
         boolean introScreenDisplayed = getIntroScreenDisplayed();
 
         Intent i;

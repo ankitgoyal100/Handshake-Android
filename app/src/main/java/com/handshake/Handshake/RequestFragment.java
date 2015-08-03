@@ -70,6 +70,9 @@ public class RequestFragment extends ListFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        SessionManager session = new SessionManager(getActivity());
+        if(!session.isLoggedIn()) return;
+
         Realm realm = Realm.getInstance(getActivity());
         RealmResults<User> users = realm.where(User.class).equalTo("requestReceived", true).findAll();
         users.sort("createdAt", false);

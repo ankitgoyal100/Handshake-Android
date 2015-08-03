@@ -25,6 +25,8 @@ import android.widget.Toast;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
+import com.handshake.helpers.ContactSync;
+import com.handshake.helpers.SyncCompleted;
 import com.handshake.models.Address;
 import com.handshake.models.Card;
 import com.handshake.models.Email;
@@ -500,5 +502,18 @@ public class ContactUserProfileActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
         fillViews();
+    }
+
+    @Override
+    public void onBackPressed() {
+        ContactSync.performSync(context, new SyncCompleted() {
+
+            @Override
+            public void syncCompletedListener() {
+
+            }
+        });
+
+        super.onBackPressed();
     }
 }

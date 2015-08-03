@@ -73,6 +73,9 @@ public class ProfileFragment extends Fragment {
     }
 
     private void fillViews() {
+        SessionManager session = new SessionManager(getActivity());
+        if(!session.isLoggedIn()) return;
+
         synchronized (TAG) {
             final Realm realm = Realm.getInstance(getActivity());
             final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();

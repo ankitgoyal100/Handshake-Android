@@ -62,6 +62,9 @@ public class GroupFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        SessionManager session = new SessionManager(getActivity());
+        if(!session.isLoggedIn()) return;
+        
         Realm realm = Realm.getInstance(getActivity());
         RealmResults<Group> groups = realm.where(Group.class).notEqualTo("syncStatus", Utils.GroupDeleted).findAll();
         groups.sort("createdAt", false);

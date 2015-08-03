@@ -68,7 +68,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import io.realm.Realm;
-import io.realm.RealmResults;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -381,21 +380,20 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        SuggestionsServerSync.performSync(context, new SyncCompleted() {
-            @Override
-            public void syncCompletedListener() {
-                syncsCompleted++;
-                suggestionSyncCompleted = true;
-//                System.out.println("Suggestion sync completed " + syncsCompleted);
-            }
-        });
-
         AccountServerSync.sendUserLocation(context);
 
         ContactUploader.performSync(context, new SyncCompleted() {
             @Override
             public void syncCompletedListener() {
 //                System.out.println("Contact sync completed");
+                SuggestionsServerSync.performSync(context, new SyncCompleted() {
+                    @Override
+                    public void syncCompletedListener() {
+                        syncsCompleted++;
+                        suggestionSyncCompleted = true;
+//                System.out.println("Suggestion sync completed " + syncsCompleted);
+                    }
+                });
             }
         });
 

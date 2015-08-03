@@ -69,6 +69,9 @@ public class FeedFragment extends ListFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        SessionManager session = new SessionManager(getActivity());
+        if(!session.isLoggedIn()) return;
+
         Realm realm = Realm.getInstance(getActivity());
         RealmResults<FeedItem> feedItems = realm.where(FeedItem.class).findAll();
         feedItems.sort("updatedAt", false);

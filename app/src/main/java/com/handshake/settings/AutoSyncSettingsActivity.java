@@ -10,6 +10,8 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 
 import com.handshake.Handshake.R;
+import com.handshake.helpers.ContactSync;
+import com.handshake.helpers.SyncCompleted;
 
 public class AutoSyncSettingsActivity extends AppCompatActivity {
 
@@ -77,4 +79,16 @@ public class AutoSyncSettingsActivity extends AppCompatActivity {
             handler.removeCallbacks(what);
         }
     };
+
+    @Override
+    public void onBackPressed() {
+        ContactSync.syncAll(getApplicationContext(), new SyncCompleted() {
+            @Override
+            public void syncCompletedListener() {
+
+            }
+        });
+
+        super.onBackPressed();
+    }
 }
