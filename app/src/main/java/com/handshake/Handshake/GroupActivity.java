@@ -21,12 +21,14 @@ import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.handshake.helpers.GroupServerSync;
 import com.handshake.models.Group;
+import com.handshake.models.GroupMember;
 import com.handshake.models.User;
 import com.handshake.views.Icon;
 import com.handshake.views.TextViewCustomFont;
 import com.squareup.picasso.Picasso;
 
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class GroupActivity extends AppCompatActivity {
 
@@ -64,8 +66,11 @@ public class GroupActivity extends AppCompatActivity {
         imageViews[1] = iv2;
         imageViews[2] = iv3;
 
-        for (int i = 0; i < group.getMembers().size(); i++) {
-            User user = group.getMembers().get(i).getUser();
+        RealmResults<GroupMember> groupMembers = realm.where(GroupMember.class).equalTo("group.groupId", id).findAll();
+        groupMembers.sort("name", true);
+
+        for (int i = 0; i < groupMembers.size(); i++) {
+            User user = groupMembers.get(i).getUser();
             if (!user.getPicture().isEmpty() && !user.getPicture().equals("null") && position < imageViews.length) {
                 Picasso.with(context).load(user.getPicture()).into(imageViews[position]);
                 position++;

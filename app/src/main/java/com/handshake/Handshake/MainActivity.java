@@ -93,6 +93,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private static final String TAG = "MainActivity";
 
+    private static final int QR_CODE = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
                     Intent intent = new Intent(MainActivity.this, ContactActivity.class);
                     startActivity(intent);
                 } else {
-                    CharSequence[] items = {"Join Group", "Create Group"};
+                    CharSequence[] items = {"Join Group", "Create Group", "Scan a QR Code"};
                     new MaterialDialog.Builder(context)
                             .items(items)
                             .itemsCallback(new MaterialDialog.ListCallback() {
@@ -125,11 +127,13 @@ public class MainActivity extends AppCompatActivity {
                                         Intent intent = new Intent(context, JoinGroupActivity.class);
                                         startActivity(intent);
 //                                        dialog.cancel();
-                                    } else {
+                                    } else if (which == 1) {
                                         Intent intent = new Intent(context, CreateEditGroupActivity.class);
                                         intent.putExtra("isEdit", false);
                                         startActivity(intent);
 //                                        dialog.cancel();
+                                    } else {
+                                        startActivityForResult(new Intent(context, ScanActivity.class), QR_CODE);
                                     }
                                 }
                             })
@@ -198,9 +202,10 @@ public class MainActivity extends AppCompatActivity {
             performSyncs(new SyncCompleted() {
                 @Override
                 public void syncCompletedListener() {
+//                    System.out.println("All syncs completed");
                     ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
                     String code = Utils.getCodes(context, clipboard.getPrimaryClip());
-                    if (code != "" && code != SessionManager.getLastCopiedGroup()) {
+                    if (!code.equals("") && !code.equals(SessionManager.getLastCopiedGroup())) {
                         checkCode(code);
                     }
                 }
@@ -230,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void checkCode(final String code) {
         Realm realm = Realm.getInstance(context);
-        Group group = realm.where(Group.class).equalTo("code", code).findFirst();
+        Group group = realm.where(Group.class).notEqualTo("syncStatus", Utils.GroupDeleted).equalTo("code", code).findFirst();
 
         if (group != null) {
             return;
@@ -408,7 +413,6 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 while (syncsCompleted != 7) {
                 }
-//                System.out.println("All syncs completed!");
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -664,6 +668,17 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        if (requestCode == QR_CODE && resultCode == Activity.RESULT_OK) {
+            String code = data.getStringExtra(ScanActivity.RESULT_EXTRA_STR);
+            if (!code.equals("") && !code.equals(SessionManager.getLastCopiedGroup())) {
+                checkCode(code);
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
     }
 
     public static boolean isConnected(Context context) {

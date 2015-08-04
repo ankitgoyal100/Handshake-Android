@@ -23,6 +23,7 @@ android {
 repositories {
     mavenCentral()
     maven { url 'https://dl.bintray.com/drummer-aidan/maven' }
+    maven { url 'http://maven.livotovlabs.pro/content/groups/public' }
 }
 
 dependencies {
@@ -43,6 +44,7 @@ dependencies {
     compile 'com.android.support:support-v4:21.0.3'
     compile 'com.google.android.gms:play-services-gcm:7.5.+'
     compile 'com.github.paolorotolo:appintro:3.1.0'
+    compile ('eu.livotov.labs:zxscanlib:2.0.1@aar') {transitive=true}
     compile project(':countryPickerLib')
     compile files('libs/libphonenumber-7.0.7.jar')
     compile files('libs/httpclient-4.3.6.jar')

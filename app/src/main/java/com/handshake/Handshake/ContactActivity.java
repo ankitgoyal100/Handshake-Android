@@ -95,6 +95,8 @@ public class ContactActivity extends AppCompatActivity {
 
                                         users = query.findAll();
 
+                                        users.sort("firstName", true);
+
                                         ContactAdapter myAdapter = new ContactAdapter(context, users, true);
                                         list.setAdapter(myAdapter);
 

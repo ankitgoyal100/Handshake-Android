@@ -98,7 +98,7 @@ public class AccountServerSync {
 
                 @Override
                 public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                    System.out.println(errorResponse.toString());
+                    if(errorResponse == null) return;
                     if (statusCode == 401) session.logoutUser();
                     else performSyncHelper();
                 }

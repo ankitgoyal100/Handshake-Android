@@ -539,15 +539,13 @@ public class ContactUserProfileActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onBackPressed() {
+    protected void onStop() {
+        super.onStop();
         ContactSync.performSync(context, new SyncCompleted() {
-
             @Override
             public void syncCompletedListener() {
 
             }
         });
-
-        super.onBackPressed();
     }
 }

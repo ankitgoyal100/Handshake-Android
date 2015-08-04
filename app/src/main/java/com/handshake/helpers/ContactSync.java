@@ -1,7 +1,9 @@
 package com.handshake.helpers;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 
 import com.handshake.Handshake.SessionManager;
 import com.handshake.models.User;
@@ -50,6 +52,30 @@ public class ContactSync {
     }
 
     private static void performSyncHelper() {
+        Realm realm = Realm.getInstance(context);
+        RealmResults<User> users;
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean isAutosync = sharedPreferences.getBoolean("autosync_preference", false);
+        if (isAutosync) {
+            users = realm.where(User.class).equalTo("isContact", true).equalTo("saved", false).findAll();
+        } else {
+            users = realm.where(User.class).equalTo("isContact", true).equalTo("saved", false).equalTo("savesToPhone", true).findAll();
+        }
+
+        for (int i = 0; i < users.size(); i++) {
+            syncContactToAddressBook(users.get(i));
+        }
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                listener.syncCompletedListener();
+            }
+        });
+    }
+
+    private static void syncContactToAddressBook(User user) {
 
     }
 
