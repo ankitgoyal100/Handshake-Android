@@ -129,7 +129,7 @@ public class ContactSync {
         Cursor cursor = contentResolver.query(CONTENT_URI, null, null, null, null);
 
         // find record to update
-        String recordId = "";
+        String contactId = "";
         int matches = 0; // count of how many contacts have matching data
 
         if (cursor.getCount() > 0) {
@@ -137,7 +137,7 @@ public class ContactSync {
                 int certainty = 0; // count of how many data points match
                 boolean nameMatch = false;
 
-                String contact_id = cursor.getString(cursor.getColumnIndex(_ID));
+                String currentContactId = cursor.getString(cursor.getColumnIndex(_ID));
 
                 // check name
                 String name = cursor.getString(cursor.getColumnIndex(DISPLAY_NAME));
@@ -147,7 +147,7 @@ public class ContactSync {
                 }
 
                 // check phones
-                Cursor phoneCursor = contentResolver.query(Phone_CONTENT_URI, null, Phone_CONTACT_ID + " = ?", new String[]{contact_id}, null);
+                Cursor phoneCursor = contentResolver.query(Phone_CONTENT_URI, null, Phone_CONTACT_ID + " = ?", new String[]{currentContactId}, null);
                 while (phoneCursor != null && phoneCursor.moveToNext()) {
                     String phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(NUMBER));
                     phoneNumber = phoneNumber.replaceAll("\\D+", "");
@@ -164,7 +164,7 @@ public class ContactSync {
                     phoneCursor.close();
 
                 // check emails
-                Cursor emailCursor = contentResolver.query(Email_CONTENT_URI, null, Email_CONTACT_ID + " = ?", new String[]{contact_id}, null);
+                Cursor emailCursor = contentResolver.query(Email_CONTENT_URI, null, Email_CONTACT_ID + " = ?", new String[]{currentContactId}, null);
                 while (emailCursor != null && emailCursor.moveToNext()) {
                     String email = emailCursor.getString(emailCursor.getColumnIndex(DATA));
                     for (int i = 0; i < card.getEmails().size(); i++) {
@@ -180,27 +180,37 @@ public class ContactSync {
 
                 // require 2 certainty points for guaranteed match
                 if (certainty >= 2) {
-                    recordId = contact_id;
+                    contactId = currentContactId;
                     matches = 1; // we are certain
                     break;
                 } else if (!nameMatch && certainty == 1) { // cannot say match solely based on first name
-                    recordId = contact_id;
+                    contactId = currentContactId;
                     matches++;
                 }
             }
         }
 
-        if (recordId.isEmpty() || matches != 1) { // if no record found or multiple matches make a new contact
+        if (contactId.isEmpty() || matches != 1) { // if no record found or multiple matches make a new contact
             createAddressBookContact(user, card);
+        } else {
+            updateAddressBookContact(user, card, contactId);
         }
+
+        Realm realm = Realm.getInstance(context);
+        realm.beginTransaction();
+        user.setSaved(true);
+        realm.commitTransaction();
+    }
+
+    private static void updateAddressBookContact(User user, Card card, String contactId) {
         // find by contact id
-//        Cursor cursor = context.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, new String[] { ContactsContract.Contacts.DISPLAY_NAME },
-//                ContactsContract.Contacts._ID + " = ?", new String[] { String.valueOf(contactId) }, null);
+        Cursor cursor = context.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, new String[]{ContactsContract.Contacts.DISPLAY_NAME},
+                ContactsContract.Contacts._ID + " = ?", new String[]{String.valueOf(contactId)}, null);
     }
 
     private static void createAddressBookContact(User user, Card card) {
         ArrayList<ContentProviderOperation> ops =
-                new ArrayList<ContentProviderOperation>();
+                new ArrayList<>();
 
         int rawContactID = ops.size();
 
