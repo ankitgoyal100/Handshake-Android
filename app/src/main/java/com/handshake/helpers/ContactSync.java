@@ -11,7 +11,7 @@ import android.os.Handler;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
-import android.provider.ContactsContract.CommonDataKinds.Note;
+import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
 import android.provider.ContactsContract.RawContacts;
 
 import com.google.i18n.phonenumbers.NumberParseException;
@@ -35,10 +35,10 @@ import io.realm.Realm;
 import io.realm.RealmResults;
 
 import static android.provider.ContactsContract.CommonDataKinds.Email;
+import static android.provider.ContactsContract.CommonDataKinds.Note;
 import static android.provider.ContactsContract.CommonDataKinds.Phone;
 import static android.provider.ContactsContract.CommonDataKinds.Photo;
 import static android.provider.ContactsContract.CommonDataKinds.StructuredName;
-import static android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
 
 /**
  * Created by ankitgoyal on 8/3/15.
@@ -111,9 +111,6 @@ public class ContactSync {
 
         if (card.getPhones().size() + card.getEmails().size() + card.getAddresses().size() + card.getSocials().size() == 0)
             return;
-
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean overwritePictures = sharedPreferences.getBoolean("overwrite_pictures_preference", false);
 
         Uri CONTENT_URI = ContactsContract.Contacts.CONTENT_URI;
         String _ID = ContactsContract.Contacts._ID;
@@ -203,14 +200,182 @@ public class ContactSync {
     }
 
     private static void updateAddressBookContact(User user, Card card, String contactId) {
-        // find by contact id
-        Cursor cursor = context.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, new String[]{ContactsContract.Contacts.DISPLAY_NAME},
-                ContactsContract.Contacts._ID + " = ?", new String[]{String.valueOf(contactId)}, null);
+        Uri Phone_CONTENT_URI = Phone.CONTENT_URI;
+        String Phone_CONTACT_ID = Phone.CONTACT_ID;
+        String NUMBER = Phone.NUMBER;
+        Uri Email_CONTENT_URI = Email.CONTENT_URI;
+        String Email_CONTACT_ID = Email.CONTACT_ID;
+        String DATA = Email.DATA;
+
+        try {
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+            boolean overwritePictures = sharedPreferences.getBoolean("overwrite_pictures_preference", false);
+            boolean overwriteName = sharedPreferences.getBoolean("overwrite_names_preference", false);
+
+            ContentResolver contentResolver = context.getContentResolver();
+            String where = ContactsContract.Data.CONTACT_ID + " = ? AND " + ContactsContract.Data.MIMETYPE + " = ?";
+
+            String[] photoParams = new String[]{contactId, Photo.CONTENT_ITEM_TYPE};
+            String[] nameParams = new String[]{contactId, StructuredName.CONTENT_ITEM_TYPE};
+            String[] numberParams = new String[]{contactId, Phone.CONTENT_ITEM_TYPE};
+            String[] emailParams = new String[]{contactId, Email.CONTENT_ITEM_TYPE};
+            String[] addressParams = new String[]{contactId, StructuredPostal.CONTENT_ITEM_TYPE};
+            String[] socialParams = new String[]{contactId, Note.CONTENT_ITEM_TYPE};
+
+            ArrayList<android.content.ContentProviderOperation> ops = new ArrayList<android.content.ContentProviderOperation>();
+
+            if (!user.getPicture().isEmpty() && (!contactHasPhoto(context, contactId) || overwritePictures)) {
+                if (user.getPictureData() != null) {
+                    ops.add(ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
+                            .withSelection(where, photoParams)
+                            .withValue(Photo.PHOTO, user.getPictureData())
+                            .build());
+                } else {
+                    try {
+                        DefaultHttpClient client = new DefaultHttpClient();
+                        HttpGet request = new HttpGet(user.getPicture());
+                        HttpResponse response = client.execute(request);
+                        HttpEntity entity = response.getEntity();
+                        int imageLength = (int) (entity.getContentLength());
+                        InputStream is = entity.getContent();
+
+                        byte[] imageBlob = new byte[imageLength];
+                        int bytesRead = 0;
+                        while (bytesRead < imageLength) {
+                            int n = is.read(imageBlob, bytesRead, imageLength - bytesRead);
+                            if (n <= 0)
+                                ; // do some error handling
+                            bytesRead += n;
+                        }
+
+                        ops.add(ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
+                                .withSelection(where, photoParams)
+                                .withValue(Photo.PHOTO, user.getPictureData())
+                                .build());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            if (overwriteName) {
+                String name = user.getFirstName();
+                if (!user.getLastName().isEmpty() && !user.getLastName().equals("null"))
+                    name += user.getLastName();
+
+                ops.add(android.content.ContentProviderOperation.newUpdate(android.provider.ContactsContract.Data.CONTENT_URI)
+                        .withSelection(where, nameParams)
+                        .withValue(StructuredName.DISPLAY_NAME, name)
+                        .build());
+            }
+
+            for (int i = 0; i < card.getPhones().size(); i++) {
+                boolean skip = false;
+                Cursor phoneCursor = contentResolver.query(Phone_CONTENT_URI, null, Phone_CONTACT_ID + " = ?", new String[]{contactId}, null);
+                while (phoneCursor != null && phoneCursor.moveToNext()) {
+                    String phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(NUMBER));
+                    phoneNumber = phoneNumber.replaceAll("\\D+", "");
+
+                    if (card.getPhones().get(i).getNumber().contains(phoneNumber)) {
+                        skip = true;
+                        break;
+                    }
+                }
+                if (skip) continue;
+
+                PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+                try {
+                    Phonenumber.PhoneNumber numberObject = phoneUtil.parse(card.getPhones().get(i).getNumber(),
+                            card.getPhones().get(i).getCountryCode());
+                    if (phoneUtil.isValidNumber(numberObject)) {
+                        // Adding insert operation to operations list
+                        // to insert Phone Number in the table ContactsContract.Data
+                        ops.add(android.content.ContentProviderOperation.newUpdate(android.provider.ContactsContract.Data.CONTENT_URI)
+                                .withSelection(where, numberParams)
+                                .withValue(ContactsContract.Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE)
+                                .withValue(Phone.NUMBER, phoneUtil.format(numberObject, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL))
+                                .withValue(Phone.TYPE, Utils.labelToType(card.getPhones().get(i).getLabel(), true))
+                                .build());
+                    }
+                } catch (NumberParseException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            for (int i = 0; i < card.getEmails().size(); i++) {
+                boolean skip = false;
+                Cursor emailCursor = contentResolver.query(Email_CONTENT_URI, null, Email_CONTACT_ID + " = ?", new String[]{contactId}, null);
+                while (emailCursor != null && emailCursor.moveToNext()) {
+                    String email = emailCursor.getString(emailCursor.getColumnIndex(DATA));
+                    if (card.getEmails().get(i).getAddress().contains(email)) {
+                        skip = true;
+                        break;
+                    }
+                }
+
+                if (skip) continue;
+
+                if (card.getEmails().get(i).getAddress().isEmpty()) continue;
+                // Adding insert operation to operations list
+                // to insert Email in the table ContactsContract.Data
+                ops.add(android.content.ContentProviderOperation.newUpdate(android.provider.ContactsContract.Data.CONTENT_URI)
+                        .withSelection(where, emailParams)
+                        .withValue(ContactsContract.Data.MIMETYPE, Email.CONTENT_ITEM_TYPE)
+                        .withValue(Email.ADDRESS, card.getEmails().get(i).getAddress())
+                        .withValue(Email.TYPE, Utils.labelToType(card.getEmails().get(i).getLabel(), false))
+                        .build());
+            }
+
+            for (int i = 0; i < card.getAddresses().size(); i++) {
+                ContentProviderOperation.Builder address = ContentProviderOperation
+                        .newUpdate(ContactsContract.Data.CONTENT_URI)
+                        .withSelection(where, addressParams)
+                        .withValue(ContactsContract.Data.MIMETYPE, StructuredPostal.CONTENT_ITEM_TYPE)
+                        .withValue(StructuredPostal.TYPE, Utils.labelToType(card.getAddresses().get(i).getLabel(), false));
+
+                if (!card.getAddresses().get(i).getStreet1().isEmpty() &&
+                        !card.getAddresses().get(i).getStreet2().isEmpty())
+                    address.withValue(StructuredPostal.STREET, card.getAddresses().get(i).getStreet1() + "\n" + card.getAddresses().get(i).getStreet2());
+                else if (!card.getAddresses().get(i).getStreet1().isEmpty())
+                    address.withValue(StructuredPostal.STREET, card.getAddresses().get(i).getStreet1());
+                else if (!card.getAddresses().get(i).getStreet2().isEmpty())
+                    address.withValue(StructuredPostal.STREET, card.getAddresses().get(i).getStreet2());
+
+                if (!card.getAddresses().get(i).getCity().isEmpty())
+                    address.withValue(StructuredPostal.CITY, card.getAddresses().get(i).getCity());
+                if (!card.getAddresses().get(i).getState().isEmpty())
+                    address.withValue(StructuredPostal.REGION, card.getAddresses().get(i).getState());
+                if (!card.getAddresses().get(i).getZip().isEmpty())
+                    address.withValue(StructuredPostal.POSTCODE, card.getAddresses().get(i).getZip());
+
+                ops.add(address.build());
+            }
+
+            String social = "";
+            for (int i = 0; i < card.getSocials().size(); i++) {
+                if (!card.getSocials().get(i).getNetwork().equals("facebook")) {
+                    String network = card.getSocials().get(i).getNetwork();
+                    network = network.substring(0, 1).toUpperCase() + network.substring(1);
+
+                    social += network + ": " + card.getSocials().get(i).getUsername() + "\n";
+                }
+            }
+
+            if (!social.isEmpty())
+                ops.add(ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
+                        .withSelection(where, socialParams)
+                        .withValue(ContactsContract.Data.MIMETYPE, Note.CONTENT_ITEM_TYPE)
+                        .withValue(Note.NOTE, social)
+                        .build());
+
+            contentResolver.applyBatch(ContactsContract.AUTHORITY, ops);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private static void createAddressBookContact(User user, Card card) {
-        ArrayList<ContentProviderOperation> ops =
-                new ArrayList<>();
+        ArrayList<ContentProviderOperation> ops = new ArrayList<>();
 
         int rawContactID = ops.size();
 
@@ -341,7 +506,7 @@ public class ContactSync {
         if (!social.isEmpty())
             ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
                     .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactID)
-                    .withValue(ContactsContract.Data.MIMETYPE, Email.CONTENT_ITEM_TYPE)
+                    .withValue(ContactsContract.Data.MIMETYPE, Note.CONTENT_ITEM_TYPE)
                     .withValue(Note.NOTE, social)
                     .build());
 
@@ -353,5 +518,22 @@ public class ContactSync {
         } catch (OperationApplicationException e) {
             e.printStackTrace();
         }
+    }
+
+    private static boolean contactHasPhoto(Context context, String contactId) {
+        Cursor cur = context.getContentResolver().query(
+                ContactsContract.Data.CONTENT_URI,
+                null,
+                ContactsContract.Data.CONTACT_ID + "=" + contactId + " AND "
+                        + ContactsContract.Data.MIMETYPE + "='" + ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE
+                        + "'", null, null);
+        if (cur != null) {
+            if (!cur.moveToFirst()) {
+                return false;
+            }
+        } else {
+            return false; // error in cursor process
+        }
+        return true;
     }
 }
