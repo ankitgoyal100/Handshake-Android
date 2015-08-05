@@ -48,6 +48,16 @@ public class Utils {
         return 0;
     }
 
+    public static int labelToType(String label, boolean isPhone) {
+        if(label.equals("Home")) return 1;
+        else if(label.equals("Mobile") && isPhone) return 2;
+        else if(label.equals("Mobile") && !isPhone) return 4;
+        else if(label.equals("Work") && isPhone) return 3;
+        else if(label.equals("Work") && !isPhone) return 2;
+        else if(label.equals("Other") && isPhone) return 7;
+        else return 3;
+    }
+
     public static Date formatDate(String str) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
         format.setTimeZone(TimeZone.getTimeZone("GMT"));
