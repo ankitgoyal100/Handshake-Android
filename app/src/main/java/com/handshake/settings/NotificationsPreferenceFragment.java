@@ -81,16 +81,6 @@ public class NotificationsPreferenceFragment extends android.preference.Preferen
             }
         });
 
-//        notificationsPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-//            @Override
-//            public boolean onPreferenceChange(Preference preference, Object newValue) {
-//                ((SwitchPreference) preference).setChecked((boolean) newValue);
-//                allPreferencesEnabled(preferences, (boolean) newValue);
-//                updatePreference(preferences);
-//                return true;
-//            }
-//        });
-
         for (int i = 0; i < preferences.size(); i++) {
             preferences.get(i).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
