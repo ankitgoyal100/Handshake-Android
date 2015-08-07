@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
 
         tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
         sPager = (ViewPager) findViewById(R.id.pager);
-        tabAdapter = new TabAdapter(this, getSupportFragmentManager());
+        tabAdapter = new TabAdapter(getSupportFragmentManager());
 
         sPager.setOffscreenPageLimit(4);
         sPager.setAdapter(tabAdapter);
@@ -340,7 +340,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
-//                System.out.println("Contact sync completed " + syncsCompleted);
+                System.out.println("Contact sync completed " + syncsCompleted);
             }
         });
 
@@ -348,7 +348,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
-//                System.out.println("Account sync completed " + syncsCompleted);
+                System.out.println("Account sync completed " + syncsCompleted);
             }
         });
 
@@ -357,7 +357,7 @@ public class MainActivity extends AppCompatActivity {
             public void syncCompletedListener() {
                 syncsCompleted++;
                 cardSyncCompleted = true;
-//                System.out.println("Card sync completed " + syncsCompleted);
+                System.out.println("Card sync completed " + syncsCompleted);
             }
         });
 
@@ -365,7 +365,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
-//                System.out.println("FeedItem sync completed " + syncsCompleted);
+                System.out.println("FeedItem sync completed " + syncsCompleted);
             }
         });
 
@@ -373,7 +373,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
-//                System.out.println("Group sync completed " + syncsCompleted);
+                System.out.println("Group sync completed " + syncsCompleted);
             }
         });
 
@@ -381,7 +381,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
-//                System.out.println("Request sync completed " + syncsCompleted);
+                System.out.println("Request sync completed " + syncsCompleted);
             }
         });
 
@@ -390,13 +390,13 @@ public class MainActivity extends AppCompatActivity {
         ContactUploader.performSync(context, new SyncCompleted() {
             @Override
             public void syncCompletedListener() {
-//                System.out.println("Contact sync completed");
+                System.out.println("Contact sync completed");
                 SuggestionsServerSync.performSync(context, new SyncCompleted() {
                     @Override
                     public void syncCompletedListener() {
                         syncsCompleted++;
                         suggestionSyncCompleted = true;
-//                System.out.println("Suggestion sync completed " + syncsCompleted);
+                        System.out.println("Suggestion sync completed " + syncsCompleted);
                     }
                 });
             }
@@ -430,13 +430,9 @@ public class MainActivity extends AppCompatActivity {
                 R.mipmap.inbox_tab,
                 R.mipmap.groups_tab,
                 R.mipmap.profile_tab};
-        private Activity activity;
-        private FragmentManager fragmentManager;
 
-        public TabAdapter(Activity a, FragmentManager fm) {
+        public TabAdapter(FragmentManager fm) {
             super(fm);
-            fragmentManager = fm;
-            activity = a;
         }
 
         @Override

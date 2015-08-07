@@ -63,7 +63,20 @@ public class ContactServerSync {
             public void syncCompletedListener() {
                 Realm realm = Realm.getInstance(context);
                 RealmResults<User> toDelete = realm.where(User.class).equalTo("syncStatus", Utils.UserDeleted).findAll();
-                if (toDelete.size() == 0) listener.syncCompletedListener();
+                if (toDelete.size() == 0) {
+                    System.out.println("Performing contact sync");
+                    ContactSync.performSync(context, new SyncCompleted() {
+                        @Override
+                        public void syncCompletedListener() {
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    listener.syncCompletedListener();
+                                }
+                            });
+                        }
+                    });
+                }
                 for (final User user : toDelete) {
                     counter++;
                     RestClientAsync.delete(context, "/users/" + user.getUserId(), new RequestParams(), new JsonHttpResponseHandler() {
@@ -73,6 +86,7 @@ public class ContactServerSync {
 
                             counter--;
                             if (counter == 0) {
+                                System.out.println("Performing contact sync");
                                 ContactSync.performSync(context, new SyncCompleted() {
                                     @Override
                                     public void syncCompletedListener() {
