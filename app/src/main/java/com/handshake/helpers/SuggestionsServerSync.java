@@ -72,22 +72,24 @@ public class SuggestionsServerSync {
                                     Realm realm = Realm.getInstance(context);
                                     RealmResults<User> userRealmResults = realm.where(User.class).findAll();
 
-                                    for (User user : userRealmResults) {
-                                        if (userIds.contains(user.getUserId())) {
-                                            if (user.getSuggestion() != null) continue;
+                                    for (int i = 0; i < userRealmResults.size(); i++) {
+                                        if (userIds.contains(userRealmResults.get(i).getUserId())) {
+                                            if (userRealmResults.get(i).getSuggestion() != null)
+                                                continue;
 
                                             realm.beginTransaction();
                                             Suggestion suggestion = realm.createObject(Suggestion.class);
-                                            suggestion.setUser(user);
+                                            suggestion.setUser(userRealmResults.get(i));
+                                            userRealmResults.get(i).setSuggestion(suggestion);
                                             realm.commitTransaction();
                                         }
                                     }
 
                                     RealmResults<Suggestion> suggestionRealmResults = realm.where(Suggestion.class).findAll();
-                                    for (Suggestion suggestion : suggestionRealmResults) {
-                                        if (!userIds.contains(suggestion.getUser().getUserId())) {
+                                    for (int i = 0; i < suggestionRealmResults.size(); i++) {
+                                        if (!userIds.contains(suggestionRealmResults.get(i).getUser().getUserId())) {
                                             realm.beginTransaction();
-                                            suggestion.removeFromRealm();
+                                            suggestionRealmResults.get(i).removeFromRealm();
                                             realm.commitTransaction();
                                         }
                                     }
@@ -109,6 +111,7 @@ public class SuggestionsServerSync {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                if (errorResponse == null) return;
                 if (statusCode == 401) session.logoutUser();
             }
         });

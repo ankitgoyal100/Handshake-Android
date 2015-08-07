@@ -1,10 +1,35 @@
 <resources>
+    <string name="facebook_app_id">209231715947381</string>
+
     <string name="app_name">Handshake</string>
+
+    <string name="styled_welcome_message">Already have an account? <b>Log in now.</b></string>
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_login">Log In</string>
     <string name="title_activity_sign_up">Sign Up</string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_contact">Contacts</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_group">Group</string>
+    <string name="title_activity_join_group">Join Group</string>
+    <string name="title_activity_create_group">Create Group</string>
+    <string name="title_activity_group_member">Members</string>
+    <string name="title_activity_edit_profile">Edit Profile</string>
+    <string name="title_activity_edit_name">Edit Name</string>
+    <string name="title_activity_edit_social">EditSocialActivity</string>
+    <string name="title_activity_edit_phone">EditPhoneActivity</string>
+    <string name="title_activity_edit_email">EditEmailActivity</string>
+    <string name="title_activity_edit_address">EditAddressActivity</string>
+    <string name="title_activity_add_contact">Add</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="title_activity_user_profile">UserProfileActivity</string>
+    <string name="title_activity_contact_user_profile">ContactUserProfileActivity</string>
+    <string name="title_activity_notifications_settings">Notifications</string>
+    <string name="title_activity_autosync_settings">AutoSync</string>
+    <string name="title_activity_forgot_password">Forgot Password</string>
+    <string name="title_activity_get_started">GetStartedActivity</string>
 
 </resources>

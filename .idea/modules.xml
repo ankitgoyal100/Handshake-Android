@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/Handshake.iml" filepath="$PROJECT_DIR$/Handshake.iml" />
       <module fileurl="file://$PROJECT_DIR$/StackBlur/StackBlur.iml" filepath="$PROJECT_DIR$/StackBlur/StackBlur.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/countryPickerLib/countryPickerLib.iml" filepath="$PROJECT_DIR$/countryPickerLib/countryPickerLib.iml" />
       <module fileurl="file://$PROJECT_DIR$/picasso-2.2.0/picasso-2.2.0.iml" filepath="$PROJECT_DIR$/picasso-2.2.0/picasso-2.2.0.iml" />
     </modules>
   </component>

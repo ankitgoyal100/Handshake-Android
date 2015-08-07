@@ -1,0 +1,37 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <PreferenceCategory android:title="Account">
+        <com.afollestad.materialdialogs.prefs.MaterialEditTextPreference
+            android:dialogTitle="Update Email"
+            android:key="email_preference"
+            android:title="Email" />
+        <Preference
+            android:key="reset_password_preference"
+            android:title="Reset Password" />
+        <Preference
+            android:key="logout_preference"
+            android:title="Log Out" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="General">
+        <Preference
+            android:defaultValue="On"
+            android:key="autosync_preference"
+            android:title="AutoSync">
+            <intent
+                android:targetClass="com.handshake.settings.AutoSyncSettingsActivity"
+                android:targetPackage="com.handshake.Handshake" />
+        </Preference>
+
+        <Preference
+            android:key="notifications_preference"
+            android:title="Notifications">
+            <intent
+                android:targetClass="com.handshake.settings.NotificationsSettingsActivity"
+                android:targetPackage="com.handshake.Handshake" />
+        </Preference>
+    </PreferenceCategory>
+
+</PreferenceScreen>

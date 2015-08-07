@@ -3,6 +3,7 @@ package com.handshake.helpers;
 import android.content.Context;
 import android.os.Handler;
 
+import com.handshake.Handshake.RestClientAsync;
 import com.handshake.Handshake.RestClientSync;
 import com.handshake.Handshake.SessionManager;
 import com.handshake.Handshake.Utils;
@@ -48,39 +49,32 @@ public class AccountServerSync {
 
         if (account[0] == null) return;
 
-        if (account[0].getSyncStatus() == Utils.AccountSynced) {
+        if (account[0].getSyncStatus() == Utils.AccountUpdated) {
             RequestParams params = Account.accountToParams(account[0]);
-            if (account[0].getPicture().isEmpty() && account[0].getPictureData() != null) {
+            if (account[0].getPicture().isEmpty() && account[0].getPictureData() != null && account[0].getPictureData().length > 0) {
                 params.put("picture", new ByteArrayInputStream(account[0].getPictureData()), "picture.jpg", "image/jpg");
-
-                RestClientSync.put(context, "/account", params, new JsonHttpResponseHandler() {
-                    @Override
-                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                        putOnSuccess(account[0], response);
-                    }
-
-                    @Override
-                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                        System.out.println(errorResponse.toString());
-                        if (statusCode == 401) session.logoutUser();
-                        else performSyncHelper();
-                    }
-                });
-            } else {
-                RestClientSync.put(context, "/account", params, new JsonHttpResponseHandler() {
-                    @Override
-                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                        putOnSuccess(account[0], response);
-                    }
-
-                    @Override
-                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                        System.out.println(errorResponse.toString());
-                        if (statusCode == 401) session.logoutUser();
-                        else performSyncHelper();
-                    }
-                });
             }
+
+            RestClientSync.put(context, "/account", params, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    Realm realm = Realm.getInstance(context);
+                    realm.beginTransaction();
+                    try {
+                        account[0] = Account.updateAccount(account[0], realm, response.getJSONObject("user"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    account[0].setSyncStatus(Utils.AccountSynced);
+                    realm.commitTransaction();
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                    if (statusCode == 401) session.logoutUser();
+                    else performSyncHelper();
+                }
+            });
         } else {
             RestClientSync.get(context, "/account", new RequestParams(), new JsonHttpResponseHandler() {
                 @Override
@@ -98,7 +92,7 @@ public class AccountServerSync {
 
                 @Override
                 public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                    System.out.println(errorResponse.toString());
+                    if (errorResponse == null) return;
                     if (statusCode == 401) session.logoutUser();
                     else performSyncHelper();
                 }
@@ -114,15 +108,25 @@ public class AccountServerSync {
         });
     }
 
-    private static void putOnSuccess(Account account, JSONObject response) {
-        Realm realm = Realm.getInstance(context);
-        realm.beginTransaction();
-        try {
-            account = Account.updateAccount(account, realm, response.getJSONObject("user"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        account.setSyncStatus(Utils.AccountSynced);
-        realm.commitTransaction();
+    public static void sendUserLocation(final Context context) {
+        GPSTracker gpsTracker = new GPSTracker(context);
+
+        if (!gpsTracker.canGetLocation()) return;
+
+        RequestParams params = new RequestParams();
+        params.put("lat", gpsTracker.getLatitude());
+        params.put("lng", gpsTracker.getLongitude());
+
+        RestClientAsync.put(context, "/account/location", params, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+
+            }
+        });
     }
 }

@@ -2,6 +2,7 @@ package com.handshake.helpers;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 
 import com.handshake.Handshake.RestClientAsync;
 import com.handshake.Handshake.RestClientSync;
@@ -20,7 +21,6 @@ import org.json.JSONObject;
 import java.util.HashMap;
 
 import io.realm.Realm;
-import io.realm.RealmList;
 import io.realm.RealmResults;
 
 /**
@@ -70,9 +70,7 @@ public class CardServerSync {
                     if (card.getSyncStatus() == Utils.CardCreated) continue;
 
                     if (!map.containsKey(card.getCardId())) {
-                        RealmList<Card> currCards = account.getCards();
-                        currCards.remove(card);
-                        account.setCards(currCards);
+                        account.getCards().add(realm.copyToRealm(card));
                     } else if (card.getSyncStatus() == Utils.CardSynced) {
                         realm.beginTransaction();
                         card = Card.updateCard(card, realm, map.get(card.getCardId()));
@@ -91,14 +89,17 @@ public class CardServerSync {
                     card.setSyncStatus(Utils.CardSynced);
                     card.setAccount(account);
 
-                    RealmList<Card> currCards = account.getCards();
-                    currCards.add(card);
-                    account.setCards(currCards);
+                    account.getCards().add(realm.copyToRealm(card));
+
                     realm.commitTransaction();
                 }
 
                 RealmResults<Card> cards = realm.where(Card.class).notEqualTo("syncStatus", Utils.CardSynced)
                         .equalTo("account.userId", account.getUserId()).findAll();
+
+                if (Looper.myLooper() == null) {
+                    Looper.prepare();
+                }
 
                 for (final Card c : cards) {
                     if (c.getSyncStatus() == Utils.CardCreated) {
@@ -179,6 +180,7 @@ public class CardServerSync {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                if (errorResponse == null) return;
                 if (statusCode == 401) session.logoutUser();
             }
         });

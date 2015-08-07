@@ -17,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import io.realm.Realm;
@@ -61,29 +62,44 @@ public class ContactServerSync {
             @Override
             public void syncCompletedListener() {
                 Realm realm = Realm.getInstance(context);
-                RealmResults<User> toDelete = realm.where(User.class).equalTo("syncStatus", Utils.userDeleted).findAll();
-                if (toDelete.size() == 0) listener.syncCompletedListener();
+                RealmResults<User> toDelete = realm.where(User.class).equalTo("syncStatus", Utils.UserDeleted).findAll();
+                if (toDelete.size() == 0) {
+                    ContactSync.performSync(context, new SyncCompleted() {
+                        @Override
+                        public void syncCompletedListener() {
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    listener.syncCompletedListener();
+                                }
+                            });
+                        }
+                    });
+                }
                 for (final User user : toDelete) {
                     counter++;
                     RestClientAsync.delete(context, "/users/" + user.getUserId(), new RequestParams(), new JsonHttpResponseHandler() {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                            user.setSyncStatus(Utils.userSynced);
+                            user.setSyncStatus(Utils.UserSynced);
 
                             counter--;
                             if (counter == 0) {
-                                handler.post(new Runnable() {
+                                ContactSync.performSync(context, new SyncCompleted() {
                                     @Override
-                                    public void run() {
-                                        listener.syncCompletedListener();
+                                    public void syncCompletedListener() {
+                                        handler.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                listener.syncCompletedListener();
+                                            }
+                                        });
                                     }
                                 });
                             }
                         }
                     });
                 }
-
-                //TODO: Contact Sync to local address book
             }
         });
     }
@@ -97,7 +113,6 @@ public class ContactServerSync {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
-
                     JSONArray contacts = response.getJSONArray("contacts");
 
                     final HashMap<Long, JSONObject> map = new HashMap<Long, JSONObject>();
@@ -148,8 +163,26 @@ public class ContactServerSync {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                if (errorResponse == null) return;
                 if (statusCode == 401) session.logoutUser();
             }
         });
+    }
+
+    public static void deleteContact(User user) {
+        if (!user.isContact()) return;
+
+        Realm realm = Realm.getInstance(context);
+        realm.beginTransaction();
+        user.setIsContact(false);
+        user.setContactUpdated(new Date(0));
+        user.setSyncStatus(Utils.UserDeleted);
+
+        for (int i = 0; i < user.getFeedItems().size(); i++) {
+            user.getFeedItems().get(i).removeFromRealm();
+        }
+        realm.commitTransaction();
+
+        performSync(context, listener);
     }
 }

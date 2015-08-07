@@ -133,7 +133,8 @@ public class Account extends RealmObject {
             account.setUpdatedAt(Utils.formatDate(json.getString("updated_at")));
             account.setEmail(json.getString("email"));
             account.setFirstName(json.getString("first_name"));
-            account.setLastName(json.getString("last_name"));
+            if (!json.isNull("last_name"))
+                account.setLastName(json.getString("last_name"));
 
             // if no thumb or thumb is different - update
             if (json.isNull("thumb") || (account.getThumb() != null && (!account.getThumb().equals("") ||
@@ -159,9 +160,9 @@ public class Account extends RealmObject {
         RequestParams params = new RequestParams();
         params.put("email", account.getEmail());
         if (account.getFirstName().length() > 0) params.put("first_name", account.getFirstName());
-        if (account.getLastName().length() > 0) params.put("last_name", account.getLastName());
+        if (account.getLastName().length() > 0 && !account.getLastName().equals("null"))
+            params.put("last_name", account.getLastName());
 
         return params;
     }
-
 }

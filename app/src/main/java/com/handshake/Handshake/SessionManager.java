@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
+import io.realm.Realm;
+
 public class SessionManager {
     // Shared Preferences
     static SharedPreferences pref;
@@ -30,6 +32,12 @@ public class SessionManager {
 
     public static final String KEY_EMAIL = "email";
 
+    public static final String KEY_LAST_COPIED_GROUP = "copiedGroup";
+
+    private static final String KEY_CONTACT_SYNCED = "contactSync";
+
+    private static final String KEY_INTRO_SCREEN_DISPLAYED = "introScreenDisplayed";
+
     // Constructor
     public SessionManager(Context context) {
         this.sContext = context;
@@ -41,6 +49,22 @@ public class SessionManager {
      * Create login session
      */
     public void createLoginSession(long id, String token, String email) {
+        //wTODO clear db
+        Realm realm = Realm.getInstance(sContext);
+        realm.beginTransaction();
+//        realm.where(Account.class).findAll().clear();
+//        realm.where(Address.class).findAll().clear();
+//        realm.where(Card.class).findAll().clear();
+//        realm.where(Email.class).findAll().clear();
+//        realm.where(FeedItem.class).findAll().clear();
+//        realm.where(Group.class).findAll().clear();
+//        realm.where(GroupMember.class).findAll().clear();
+//        realm.where(Phone.class).findAll().clear();
+//        realm.where(Social.class).findAll().clear();
+//        realm.where(Suggestion.class).findAll().clear();
+//        realm.where(User.class).findAll().clear();
+        realm.commitTransaction();
+
         // Storing login value as TRUE
         editor.putBoolean(sIsLogin, true);
 
@@ -53,6 +77,11 @@ public class SessionManager {
         editor.putString(KEY_EMAIL, email);
 
         // commit changes
+        editor.apply();
+    }
+
+    public void updateEmail(String email) {
+        editor.putString(KEY_EMAIL, email);
         editor.apply();
     }
 
@@ -71,19 +100,21 @@ public class SessionManager {
      * Clear session details
      */
     public void logoutUser() {
+        boolean introScreenDisplayed = getIntroScreenDisplayed();
+
+        Intent i;
+        if (introScreenDisplayed)
+            i = new Intent(sContext, IntroActivity.class);
+        else
+            i = new Intent(sContext, AppIntroActivity.class);
+
         // Clearing all data from Shared Preferences
         editor.clear();
+        editor.putBoolean(KEY_INTRO_SCREEN_DISPLAYED, introScreenDisplayed);
         editor.apply();
 
-        // After logout redirect user to Loing Activity
-        Intent i = new Intent(sContext, IntroActivity.class);
-        // Closing all the Activities
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-        // Add new Flag to start new Activity
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-        // Staring Login Activity
         ((Activity) sContext).finish();
         sContext.startActivity(i);
     }
@@ -100,6 +131,23 @@ public class SessionManager {
         return pref.getString(KEY_EMAIL, "");
     }
 
+    public static Long getLastContactSynced() {
+        return pref.getLong(KEY_CONTACT_SYNCED, 0);
+    }
+
+    public static void setLastContactSynced(Long time) {
+        editor.putLong(KEY_CONTACT_SYNCED, time);
+        editor.apply();
+    }
+
+    public static void setIntroScreenDisplayed(boolean displayed) {
+        editor.putBoolean(KEY_INTRO_SCREEN_DISPLAYED, displayed);
+        editor.apply();
+    }
+
+    public static boolean getIntroScreenDisplayed() {
+        return pref.getBoolean(KEY_INTRO_SCREEN_DISPLAYED, false);
+    }
 
     /**
      * Quick check for login
@@ -110,4 +158,12 @@ public class SessionManager {
         return pref.getBoolean(sIsLogin, false);
     }
 
+    public static void setLastCopiedGroup(String code) {
+        editor.putString(KEY_LAST_COPIED_GROUP, code);
+        editor.commit();
+    }
+
+    public static String getLastCopiedGroup() {
+        return pref.getString(KEY_LAST_COPIED_GROUP, "");
+    }
 }

@@ -1,11 +1,39 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <!--<style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar"></style>-->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:dropDownListViewStyle">@style/DropDownListViewStyle</item>
     </style>
+
+    <style name="DropDownListViewStyle">
+        <item name="android:divider">@color/divider</item>
+        <item name="android:dividerHeight">1dp</item>
+    </style>
+        <!--<item name="windowActionBar">false</item>-->
+        <!--<item name="android:windowNoTitle">true</item>-->
+    <!--<style name="AppTheme" parent="Theme.AppCompat">-->
+    <!--<item name="toolbarStyle">@style/AppThemeToolbar</item>-->
+    <!--</style>-->
+
+    <!--<style name="AppThemeToolbar" parent="Widget.AppCompat.Toolbar">-->
+    <!--<item name="contentInsetStart">0dp</item>-->
+    <!--</style>-->
 
     <style name="button" parent="@android:style/Widget.Button">
         <item name="com.handshake.Handshake:font">assets/HelveticaNeue.ttf</item>
+    </style>
+
+    <style name="listViewItem">
+        <item name="android:layout_height">@dimen/lvItemHeight</item>
+    </style>
+
+    <style name="Widget.CardContent" parent="android:Widget">
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:paddingTop">24dp</item>
+        <item name="android:paddingBottom">24dp</item>
+        <item name="android:orientation">vertical</item>
     </style>
 
 </resources>

@@ -2,6 +2,7 @@ package com.handshake.helpers;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 
 import com.handshake.Handshake.RestClientAsync;
 import com.handshake.Handshake.RestClientSync;
@@ -59,24 +60,55 @@ public class GroupServerSync {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
-                    JSONArray groups = response.getJSONArray("groups");
+                    final JSONArray groups = response.getJSONArray("groups");
 
                     cacheGroup(groups, new GroupArraySyncCompleted() {
                         @Override
-                        public void syncCompletedListener(ArrayList<Group> groups) {
+                        public void syncCompletedListener(ArrayList<Group> c) {
                             Realm realm = Realm.getInstance(context);
                             RealmResults<Group> requestedGroups = realm.where(Group.class).notEqualTo("syncStatus", Utils.GroupSynced).findAll();
                             Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
 
-                            for (final Group group : requestedGroups) {
-                                if (group.getSyncStatus() == Utils.GroupCreated) {
-                                    RequestParams params = new RequestParams();
-                                    params.put("name", group.getName());
-                                    JSONArray cardIds = new JSONArray();
-                                    cardIds.put(account.getCards().first().getCardId());
-                                    params.put("card_ids", cardIds);
+                            ArrayList<Long> allIDs = new ArrayList<Long>();
+                            for (int i = 0; i < groups.length(); i++) {
+                                try {
+                                    allIDs.add(groups.getJSONObject(i).getLong("id"));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            RealmResults<Group> syncedGroups = realm.where(Group.class).equalTo("syncStatus", Utils.GroupSynced).findAll();
+                            for (int i = 0; i < syncedGroups.size(); i++) {
+                                if (!allIDs.contains(syncedGroups.get(i).getGroupId())) {
+                                    realm.beginTransaction();
 
-                                    RestClientAsync.post(context, "/groups", params, new JsonHttpResponseHandler() {
+                                    for (int j = 0; j < syncedGroups.get(i).getFeedItems().size(); j++) {
+                                        syncedGroups.get(i).getFeedItems().get(j).removeFromRealm();
+                                    }
+
+                                    syncedGroups.get(i).removeFromRealm();
+                                    realm.commitTransaction();
+                                }
+                            }
+
+                            if (Looper.myLooper() == null) {
+                                Looper.prepare();
+                            }
+
+                            for (int i = 0; i < requestedGroups.size(); i++) {
+                                final Group group = requestedGroups.get(i);
+                                if (group.getSyncStatus() == Utils.GroupCreated) {
+                                    JSONObject params = new JSONObject();
+                                    try {
+                                        params.put("name", group.getName());
+                                        JSONArray cardIds = new JSONArray();
+                                        cardIds.put(account.getCards().first().getCardId());
+                                        params.put("card_ids", cardIds);
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    RestClientSync.post(context, "/groups", params, "application/json", new JsonHttpResponseHandler() {
                                         @Override
                                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                                             Realm realm = Realm.getInstance(context);
@@ -93,12 +125,12 @@ public class GroupServerSync {
                                         @Override
                                         public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                                             System.out.println(errorResponse.toString());
-                                            if (statusCode == 401) session.logoutUser();
                                         }
                                     });
                                 } else if (group.getSyncStatus() == Utils.GroupUpdated) {
                                     RequestParams params = new RequestParams();
                                     params.put("name", group.getName());
+
                                     RestClientAsync.put(context, "/groups/" + group.getGroupId(), params, new JsonHttpResponseHandler() {
                                         @Override
                                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -116,7 +148,6 @@ public class GroupServerSync {
                                         @Override
                                         public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                                             System.out.println(errorResponse.toString());
-                                            if (statusCode == 401) session.logoutUser();
                                         }
                                     });
                                 } else if (group.getSyncStatus() == Utils.GroupDeleted) {
@@ -132,14 +163,14 @@ public class GroupServerSync {
                                         @Override
                                         public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                                             System.out.println(errorResponse.toString());
-                                            if (statusCode == 401) session.logoutUser();
                                         }
                                     });
                                 }
                             }
 
                             requestedGroups = realm.where(Group.class).findAll();
-                            for (Group group : requestedGroups) {
+                            for (int i = 0; i < requestedGroups.size(); i++) {
+                                Group group = requestedGroups.get(i);
                                 loadGroupMembers(group);
                             }
                         }
@@ -158,8 +189,7 @@ public class GroupServerSync {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                System.out.println(errorResponse.toString());
-                if (statusCode == 401) session.logoutUser();
+                if (errorResponse == null) return;
                 else performSyncHelper();
             }
         });
@@ -189,8 +219,6 @@ public class GroupServerSync {
                         map.put(group.getGroupId(), group);
                 }
 
-                allIDs.clear();
-
                 // update/create users
                 for (int i = 0; i < jsonArray.length(); i++) {
                     try {
@@ -204,13 +232,14 @@ public class GroupServerSync {
                             group = map.get(jsonArray.getJSONObject(i).getLong("id"));
                         }
 
-                        if(group.getSyncStatus() == Utils.GroupSynced) {
+                        if (group.isValid() && group.getSyncStatus() == Utils.GroupSynced) {
                             realm.beginTransaction();
                             group = Group.updateGroup(group, realm, jsonArray.getJSONObject(i));
                             realm.commitTransaction();
                         }
 
-                        map.put(jsonArray.getJSONObject(i).getLong("id"), group);
+                        if (group != null)
+                            map.put(jsonArray.getJSONObject(i).getLong("id"), group);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -219,9 +248,12 @@ public class GroupServerSync {
                 map.clear();
 
                 groups = realm.allObjects(Group.class);
-                for (Group group : groups) {
-                    if (allIDs.contains(group.getGroupId()))
+
+                for (int i = 0; i < groups.size(); i++) {
+                    Group group = groups.get(i);
+                    if (allIDs.contains(group.getGroupId())) {
                         map.put(group.getGroupId(), group);
+                    }
                 }
 
                 ArrayList<Group> orderedArray = new ArrayList<Group>();
@@ -234,9 +266,9 @@ public class GroupServerSync {
         });
     }
 
-    public static void loadGroupMembers(Group group) {
+    public static void loadGroupMembers(final Group group) {
         final long groupId = group.getGroupId();
-        RestClientSync.get(context, "/groups/" + groupId +"/members", new RequestParams(), new JsonHttpResponseHandler() {
+        RestClientSync.get(context, "/groups/" + groupId + "/members", new RequestParams(), new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
@@ -247,14 +279,17 @@ public class GroupServerSync {
                             Realm realm = Realm.getInstance(context);
                             Group group = realm.where(Group.class).equalTo("groupId", groupId).findFirst();
 
-                            if(group == null) return;
+                            if (group == null) return;
 
                             realm.beginTransaction();
-                            group.setMembers(new RealmList<GroupMember>());
+                            RealmResults<GroupMember> members = realm.where(GroupMember.class).equalTo("group.groupId", groupId).findAll();
+                            members.clear();
+                            for (int i = 0; i < group.getMembers().size(); i++)
+                                group.getMembers().get(i).removeFromRealm();
                             realm.commitTransaction();
 
                             ArrayList<Long> allIDs = new ArrayList<Long>();
-                            for(int i = 0; i < membersJSON.length(); i++) {
+                            for (int i = 0; i < membersJSON.length(); i++) {
                                 try {
                                     allIDs.add(membersJSON.getJSONObject(i).getLong("id"));
                                 } catch (JSONException e) {
@@ -271,24 +306,26 @@ public class GroupServerSync {
                                     map.put(user.getUserId(), user);
                             }
 
-                            for(int i = 0; i < membersJSON.length(); i++) {
+                            realm.beginTransaction();
+                            RealmList<GroupMember> groupMembers = new RealmList<>();
+                            for (int i = 0; i < membersJSON.length(); i++) {
                                 try {
                                     User user = map.get(membersJSON.getJSONObject(i).getLong("id"));
 
-                                    if(user == null) return;
+                                    if (user == null) return;
 
-                                    realm.beginTransaction();
                                     GroupMember member = realm.createObject(GroupMember.class);
                                     member.setUser(user);
+                                    member.setName(user.getFirstName() + " " + user.getLastName());
+                                    member.setGroup(group);
 
-                                    RealmList<GroupMember> groupMembers = group.getMembers();
                                     groupMembers.add(member);
-                                    group.setMembers(groupMembers);
-                                    realm.commitTransaction();
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
                             }
+                            group.setMembers(groupMembers);
+                            realm.commitTransaction();
                         }
                     });
                 } catch (JSONException e) {
@@ -298,9 +335,20 @@ public class GroupServerSync {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                System.out.println(errorResponse.toString());
-                if (statusCode == 401) session.logoutUser();
+                if (errorResponse == null) return;
             }
         });
+    }
+
+    public static void deleteGroup(Context context, Group group) {
+        Realm realm = Realm.getInstance(context);
+        realm.beginTransaction();
+        group.setSyncStatus(Utils.GroupDeleted);
+
+        for (int i = 0; i < group.getFeedItems().size(); i++) {
+            group.getFeedItems().get(i).removeFromRealm();
+        }
+
+        realm.commitTransaction();
     }
 }

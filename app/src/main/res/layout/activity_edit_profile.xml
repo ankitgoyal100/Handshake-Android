@@ -1,0 +1,193 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    tools:context="com.handshake.editor.EditProfileActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.handshake.views.TextViewCustomFont
+            android:id="@+id/intro"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:gravity="center"
+            android:padding="22dp"
+            android:text="Add as much or as little contact information as you want!"
+            android:textSize="18sp" />
+
+        <View
+            android:id="@+id/intro_divider"
+            android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:layout_marginBottom="16dip"
+            android:background="@color/divider" />
+
+        <View
+            android:id="@+id/edit_picture_divider"
+            android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:background="@color/divider" />
+
+        <LinearLayout
+            android:id="@+id/edit_picture"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:orientation="horizontal"
+            android:paddingBottom="12dp"
+            android:paddingTop="12dp">
+
+            <ImageView
+                android:id="@+id/picture"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="8dp" />
+
+            <com.handshake.views.TextViewCustomFont
+                android:id="@+id/picture_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="12dp"
+                android:layout_weight="1"
+                android:singleLine="false"
+                android:text="Change picture"
+                android:textColor="#040404"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:background="@color/divider" />
+
+        <LinearLayout
+            android:id="@+id/name_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:orientation="horizontal"
+            android:paddingBottom="12dp"
+            android:paddingTop="12dp">
+
+
+            <com.handshake.views.TextViewCustomFont
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="8dp"
+                android:singleLine="true"
+                android:text="Edit name"
+                android:textColor="#040404"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <com.handshake.views.TextViewCustomFont
+                android:id="@+id/name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="12dp"
+                android:gravity="right"
+                android:singleLine="true"
+                android:textColor="#040404"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/name_divider"
+            android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:background="@color/divider" />
+
+        <LinearLayout
+            android:id="@+id/linear_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dip"
+            android:orientation="vertical" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:background="@color/divider" />
+
+        <com.handshake.views.TextViewCustomFont
+            android:id="@+id/add_information"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:background="@android:color/white"
+            android:paddingBottom="12dp"
+            android:paddingLeft="12dp"
+            android:paddingRight="8dp"
+            android:paddingTop="12dp"
+            android:singleLine="true"
+            android:text="Add contact information"
+            android:textColor="#040404"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:background="@color/divider" />
+
+        <include
+            android:id="@+id/facebook"
+            layout="@layout/social_cell"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dip" />
+
+        <include
+            android:id="@+id/twitter"
+            layout="@layout/social_cell"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+
+        <include
+            android:id="@+id/instagram"
+            layout="@layout/social_cell"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+
+        <include
+            android:id="@+id/snapchat"
+            layout="@layout/social_cell"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:background="@color/divider" />
+
+        <com.handshake.views.ButtonCustomFont
+            android:id="@+id/save"
+            style="@style/button"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/button_orange"
+            android:text="Finish"
+            android:textColor="@android:color/white"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+</ScrollView>

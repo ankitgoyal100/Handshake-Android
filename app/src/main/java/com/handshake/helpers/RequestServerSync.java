@@ -65,10 +65,10 @@ public class RequestServerSync {
 
                             Realm realm = Realm.getInstance(context);
                             RealmResults<User> requestReceivedUsers = realm.where(User.class).equalTo("requestReceived", true).findAll();
-                            for (User user : requestReceivedUsers) {
-                                if (!requestUserIds.contains(user.getUserId())) {
+                            for (int i = 0; i < requestReceivedUsers.size(); i++) {
+                                if (!requestUserIds.contains(requestReceivedUsers.get(i).getUserId())) {
                                     realm.beginTransaction();
-                                    user.setRequestReceived(false);
+                                    requestReceivedUsers.get(i).setRequestReceived(false);
                                     realm.commitTransaction();
                                 }
                             }
@@ -88,7 +88,7 @@ public class RequestServerSync {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                System.out.println(errorResponse.toString());
+                if (errorResponse == null) return;
                 if (statusCode == 401) session.logoutUser();
                 else performSyncHelper();
             }
@@ -96,17 +96,22 @@ public class RequestServerSync {
     }
 
     public static void sendRequest(final User user, final UserSyncCompleted listener) {
-        if(user.isRequestSent()) return;
+        if (user.isRequestSent()) return;
 
         Realm realm = Realm.getInstance(context);
         Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
 
-        RequestParams params = new RequestParams();
         JSONArray cardIds = new JSONArray();
         cardIds.put(account.getCards().first().getCardId());
-        params.put("card_ids", cardIds);
 
-        RestClientAsync.post(context, "/users/" + user.getUserId() + "/request", params, new JsonHttpResponseHandler() {
+        JSONObject jsonParams = new JSONObject();
+        try {
+            jsonParams.put("card_ids", cardIds);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        RestClientAsync.post(context, "/users/" + user.getUserId() + "/request", jsonParams, "application/json", new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 success(listener, user, response);
@@ -114,6 +119,7 @@ public class RequestServerSync {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                if (errorResponse == null) return;
                 Realm realm = Realm.getInstance(context);
                 realm.beginTransaction();
                 user.setRequestSent(false);
@@ -131,7 +137,7 @@ public class RequestServerSync {
     }
 
     public static void deleteRequest(final User user, final UserSyncCompleted listener) {
-        if(!user.isRequestSent()) return;
+        if (!user.isRequestSent()) return;
 
         RestClientAsync.delete(context, "/users/" + user.getUserId() + "/request", new RequestParams(), new JsonHttpResponseHandler() {
             @Override
@@ -141,6 +147,7 @@ public class RequestServerSync {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                if (errorResponse == null) return;
                 Realm realm = Realm.getInstance(context);
                 realm.beginTransaction();
                 user.setRequestSent(true);
@@ -159,19 +166,25 @@ public class RequestServerSync {
     }
 
     public static void acceptRequest(final User user, final UserSyncCompleted listener) {
-        if(!user.isRequestReceived()) return;
+        if (!user.isRequestReceived()) return;
 
         Realm realm = Realm.getInstance(context);
         Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
 
-        RequestParams params = new RequestParams();
         JSONArray cardIds = new JSONArray();
         cardIds.put(account.getCards().first().getCardId());
-        params.put("card_ids", cardIds);
 
-        RestClientAsync.post(context, "/users/" + user.getUserId() + "/accept", params, new JsonHttpResponseHandler() {
+        JSONObject jsonParams = new JSONObject();
+        try {
+            jsonParams.put("card_ids", cardIds);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        RestClientAsync.post(context, "/users/" + user.getUserId() + "/accept", jsonParams, "application/json", new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                System.out.println(response.toString());
                 success(listener, user, response);
                 FeedItemServerSync.performSync(context, new SyncCompleted() {
                     @Override
@@ -182,6 +195,8 @@ public class RequestServerSync {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                if (errorResponse == null) return;
+                System.out.println(errorResponse.toString());
                 Realm realm = Realm.getInstance(context);
                 realm.beginTransaction();
                 user.setIsContact(false);
@@ -201,7 +216,7 @@ public class RequestServerSync {
     }
 
     public static void declineRequest(final User user, final UserSyncCompleted listener) {
-        if(!user.isRequestReceived()) return;
+        if (!user.isRequestReceived()) return;
 
         RestClientAsync.delete(context, "/users/" + user.getUserId() + "/decline", new RequestParams(), new JsonHttpResponseHandler() {
             @Override
@@ -211,6 +226,7 @@ public class RequestServerSync {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                if (errorResponse == null) return;
                 Realm realm = Realm.getInstance(context);
                 realm.beginTransaction();
                 user.setRequestReceived(true);

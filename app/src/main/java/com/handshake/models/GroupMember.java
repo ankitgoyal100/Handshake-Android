@@ -8,6 +8,7 @@ import io.realm.RealmObject;
 public class GroupMember extends RealmObject {
     private Group group;
     private User user;
+    private String name;
 
     public Group getGroup() {
         return group;
@@ -23,5 +24,13 @@ public class GroupMember extends RealmObject {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

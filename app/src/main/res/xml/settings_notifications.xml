@@ -1,0 +1,41 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <SwitchPreference
+        android:key="enabled"
+        android:title="Notifications Enabled" />
+
+    <SwitchPreference
+        android:key="requests"
+        android:title="Requests" />
+
+    <SwitchPreference
+        android:key="new_contacts"
+        android:title="New contacts" />
+
+    <SwitchPreference
+        android:key="new_contact_information"
+        android:title="Updated contact information" />
+
+    <SwitchPreference
+        android:key="new_group_members"
+        android:title="New group members" />
+
+    <SwitchPreference
+        android:key="contact_joined"
+        android:title="Contact joined handshake" />
+
+    <SwitchPreference
+        android:key="suggestions"
+        android:title="Suggestions" />
+
+    <SwitchPreference
+        android:key="new_features"
+        android:title="New features" />
+
+    <SwitchPreference
+        android:key="offers"
+        android:title="Offers" />
+
+</PreferenceScreen>
