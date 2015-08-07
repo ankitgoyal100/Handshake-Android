@@ -97,7 +97,6 @@ public class ContactSync {
         }
 
         for (int i = 0; i < users.size(); i++) {
-            System.out.println(users.get(i).toString());
             syncContactToAddressBook(users.get(i));
         }
 
@@ -183,7 +182,6 @@ public class ContactSync {
         }
 
 
-        System.out.println("Contact ID: " + contactId + ", Matches: " + matches);
         if (contactId.isEmpty() || matches != 1) { // if no record found or multiple matches make a new contact
             createAddressBookContact(user, card);
         } else {
@@ -551,7 +549,7 @@ public class ContactSync {
 
     public static int getRawContactId(int contactId) {
         String[] projection = new String[]{ContactsContract.RawContacts._ID};
-        String selection = ContactsContract.RawContacts.CONTACT_ID + "=?";
+        String selection = ContactsContract.RawContacts.CONTACT_ID + " = ?";
         String[] selectionArgs = new String[]{String.valueOf(contactId)};
         Cursor c = context.getContentResolver().query(ContactsContract.RawContacts.CONTENT_URI, projection, selection, selectionArgs, null);
         int rawContactId = -1;
