@@ -134,7 +134,6 @@ public class ContactSync {
                 // check name
                 String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                 if (name != null && name.contains(user.getFirstName())) {
-                    System.out.println(name);
                     nameMatch = true;
                     certainty++;
                 }
@@ -144,7 +143,6 @@ public class ContactSync {
                 while (phoneCursor != null && phoneCursor.moveToNext()) {
                     String phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(Phone.NUMBER));
                     phoneNumber = phoneNumber.replaceAll("\\D+", "");
-                    System.out.println(phoneNumber);
 
                     for (int i = 0; i < card.getPhones().size(); i++) {
                         if (card.getPhones().get(i).getNumber().contains(phoneNumber)) {
@@ -192,9 +190,6 @@ public class ContactSync {
             updateAddressBookContact(user, card, contactId);
         }
 
-//        if(contactId.isEmpty()) contactId = "-1";
-//        createAndUpdateAddressBookContact(user, card, Integer.parseInt(contactId));
-
         Realm realm = Realm.getInstance(context);
         realm.beginTransaction();
         user.setSaved(true);
@@ -202,8 +197,6 @@ public class ContactSync {
     }
 
     private static void updateAddressBookContact(User user, Card card, String contactId) {
-        System.out.println("Updating: " + user + " " + contactId);
-
         try {
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
             boolean overwritePictures = sharedPreferences.getBoolean("overwrite_pictures_preference", false);
@@ -212,23 +205,21 @@ public class ContactSync {
             ContentResolver contentResolver = context.getContentResolver();
             String where = Data.RAW_CONTACT_ID + " = ? AND " + Data.MIMETYPE + " = ?";
 
-            String[] photoParams = new String[]{contactId, Photo.CONTENT_ITEM_TYPE};
-            String[] nameParams = new String[]{contactId, StructuredName.CONTENT_ITEM_TYPE};
-            String[] socialParams = new String[]{contactId, Note.CONTENT_ITEM_TYPE};
+            String[] photoParams = new String[]{getRawContactId(Integer.parseInt(contactId)) + "", Photo.CONTENT_ITEM_TYPE};
+            String[] nameParams = new String[]{getRawContactId(Integer.parseInt(contactId)) + "", StructuredName.CONTENT_ITEM_TYPE};
+            String[] socialParams = new String[]{getRawContactId(Integer.parseInt(contactId)) + "", Note.CONTENT_ITEM_TYPE};
 
             ArrayList<android.content.ContentProviderOperation> ops = new ArrayList<android.content.ContentProviderOperation>();
 
             if (!user.getPicture().isEmpty() && (!contactHasPhoto(context, contactId) || overwritePictures)) {
-                if (user.getPictureData() != null) {
-                    ContentValues values = new ContentValues();
-                    values.put(Data.RAW_CONTACT_ID, contactId);
-                    values.put(Data.MIMETYPE, Photo.CONTENT_ITEM_TYPE);
-                    values.put(Photo.PHOTO, user.getPictureData());
-                    context.getContentResolver().insert(Data.CONTENT_URI, values);
+                if (user.getPictureData() != null && user.getPictureData().length > 0) {
+                    ops.add(ContentProviderOperation.newUpdate(Data.CONTENT_URI)
+                            .withSelection(where, photoParams)
+                            .withValue(Data.MIMETYPE, ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE)
+                            .withValue(ContactsContract.CommonDataKinds.Photo.PHOTO, user.getPictureData())
+                            .build());
                 } else {
                     try {
-                        System.out.println("Updating picture");
-
                         DefaultHttpClient client = new DefaultHttpClient();
                         HttpGet request = new HttpGet(user.getPicture());
                         HttpResponse response = client.execute(request);
@@ -245,9 +236,15 @@ public class ContactSync {
                             bytesRead += n;
                         }
 
-                        ops.add(newUpdate(Data.CONTENT_URI)
+                        Realm realm = Realm.getInstance(context);
+                        realm.beginTransaction();
+                        user.setPictureData(imageBlob);
+                        realm.commitTransaction();
+
+                        ops.add(ContentProviderOperation.newUpdate(Data.CONTENT_URI)
                                 .withSelection(where, photoParams)
-                                .withValue(Photo.PHOTO, user.getPictureData())
+                                .withValue(Data.MIMETYPE, ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE)
+                                .withValue(ContactsContract.CommonDataKinds.Photo.PHOTO, imageBlob)
                                 .build());
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -283,10 +280,11 @@ public class ContactSync {
                     Phonenumber.PhoneNumber numberObject = phoneUtil.parse(card.getPhones().get(i).getNumber(),
                             card.getPhones().get(i).getCountryCode());
                     if (phoneUtil.isValidNumber(numberObject)) {
+
                         // Adding insert operation to operations list
                         // to insert Phone Number in the table ContactsContract.Data
                         ContentValues values = new ContentValues();
-                        values.put(Data.RAW_CONTACT_ID, contactId);
+                        values.put(Data.RAW_CONTACT_ID, getRawContactId(Integer.parseInt(contactId)));
                         values.put(Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE);
                         values.put(Phone.NUMBER, phoneUtil.format(numberObject, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL));
                         values.put(Phone.TYPE, Utils.labelToType(card.getPhones().get(i).getLabel(), true));
@@ -315,9 +313,9 @@ public class ContactSync {
                 // Adding insert operation to operations list
                 // to insert Email in the table ContactsContract.Data
                 ContentValues values = new ContentValues();
-                values.put(Data.RAW_CONTACT_ID, contactId);
+                values.put(Data.RAW_CONTACT_ID, getRawContactId(Integer.parseInt(contactId)));
                 values.put(Data.MIMETYPE, Email.CONTENT_ITEM_TYPE);
-                values.put(ContactsContract.Data.DATA1, card.getEmails().get(i).getAddress());
+                values.put(Email.ADDRESS, card.getEmails().get(i).getAddress());
                 values.put(Email.TYPE, Utils.labelToType(card.getEmails().get(i).getLabel(), false));
                 context.getContentResolver().insert(Data.CONTENT_URI, values);
             }
@@ -336,7 +334,7 @@ public class ContactSync {
                 if (skip) continue;
 
                 ContentValues values = new ContentValues();
-                values.put(Data.RAW_CONTACT_ID, contactId);
+                values.put(Data.RAW_CONTACT_ID, getRawContactId(Integer.parseInt(contactId)));
                 values.put(Data.MIMETYPE, StructuredPostal.CONTENT_ITEM_TYPE);
                 values.put(Phone.TYPE, Utils.labelToType(card.getPhones().get(i).getLabel(), true));
 
@@ -381,211 +379,7 @@ public class ContactSync {
         }
     }
 
-    private static void createAndUpdateAddressBookContact(User user, Card card, int contactId) {
-        System.out.println("Contact id: " + contactId);
-        System.out.println("Name: " + user.getFirstName() + " " + user.getLastName());
-        ContentResolver contentResolver = context.getContentResolver();
-
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean overwritePictures = sharedPreferences.getBoolean("overwrite_pictures_preference", false);
-        boolean overwriteName = sharedPreferences.getBoolean("overwrite_names_preference", false);
-
-        boolean newRecord = false;
-
-        ArrayList<ContentProviderOperation> ops = new ArrayList<>();
-        if (contactId == -1) {
-            contactId = ops.size();
-
-            // Adding insert operation to operations list
-            // to insert a new raw contact in the table ContactsContract.RawContacts
-            ops.add(newInsert(RawContacts.CONTENT_URI)
-                    .withValue(RawContacts.ACCOUNT_TYPE, null)
-                    .withValue(RawContacts.ACCOUNT_NAME, null)
-                    .build());
-
-            newRecord = true;
-        }
-
-        if (!user.getPicture().isEmpty() && (!contactHasPhoto(context, contactId + "") || overwritePictures)) {
-            if (user.getPictureData() != null) {
-                ops.add(newInsert(Data.CONTENT_URI)
-                        .withValueBackReference(Data.RAW_CONTACT_ID, contactId)
-                        .withValue(Data.IS_SUPER_PRIMARY, 1)
-                        .withValue(Data.MIMETYPE, Photo.CONTENT_ITEM_TYPE)
-                        .withValue(Photo.PHOTO, user.getPictureData())
-                        .build());
-            } else {
-                try {
-                    DefaultHttpClient client = new DefaultHttpClient();
-                    HttpGet request = new HttpGet(user.getPicture());
-                    HttpResponse response = client.execute(request);
-                    HttpEntity entity = response.getEntity();
-                    int imageLength = (int) (entity.getContentLength());
-                    InputStream is = entity.getContent();
-
-                    byte[] imageBlob = new byte[imageLength];
-                    int bytesRead = 0;
-                    while (bytesRead < imageLength) {
-                        int n = is.read(imageBlob, bytesRead, imageLength - bytesRead);
-                        if (n <= 0)
-                            ; // do some error handling
-                        bytesRead += n;
-                    }
-
-                    ops.add(newInsert(Data.CONTENT_URI)
-                            .withValueBackReference(Data.RAW_CONTACT_ID, contactId)
-                            .withValue(Data.IS_SUPER_PRIMARY, 1)
-                            .withValue(Data.MIMETYPE, Photo.CONTENT_ITEM_TYPE)
-                            .withValue(Photo.PHOTO, imageBlob)
-                            .build());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        if (newRecord) {
-            ops.add(newInsert(Data.CONTENT_URI)
-                    .withValueBackReference(Data.RAW_CONTACT_ID, contactId)
-                    .withValue(Data.MIMETYPE, StructuredName.CONTENT_ITEM_TYPE)
-                    .withValue(StructuredName.GIVEN_NAME, user.getFirstName())
-                    .withValue(StructuredName.FAMILY_NAME, user.getLastName())
-                    .build());
-        } else if (overwriteName) {
-            String where = Data.CONTACT_ID + " = ? AND " + Data.MIMETYPE + " = ?";
-            String[] nameParams = new String[]{contactId + "", StructuredName.CONTENT_ITEM_TYPE};
-
-            ops.add(newUpdate(Data.CONTENT_URI)
-                    .withSelection(where, nameParams)
-                    .withValue(StructuredName.GIVEN_NAME, user.getFirstName())
-                    .withValue(StructuredName.FAMILY_NAME, user.getLastName())
-                    .build());
-        }
-
-        for (int i = 0; i < card.getPhones().size(); i++) {
-            boolean skip = false;
-            Cursor phoneCursor = contentResolver.query(Phone.CONTENT_URI, null, Phone.CONTACT_ID + " = ?", new String[]{contactId + ""}, null);
-            while (phoneCursor != null && phoneCursor.moveToNext()) {
-                String phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(Phone.NUMBER));
-                phoneNumber = phoneNumber.replaceAll("\\D+", "");
-
-                if (card.getPhones().get(i).getNumber().contains(phoneNumber)) {
-                    skip = true;
-                    break;
-                }
-            }
-            if (skip) continue;
-
-            PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
-            try {
-                Phonenumber.PhoneNumber numberObject = phoneUtil.parse(card.getPhones().get(i).getNumber(),
-                        card.getPhones().get(i).getCountryCode());
-                if (phoneUtil.isValidNumber(numberObject)) {
-                    // Adding insert operation to operations list
-                    // to insert Phone Number in the table ContactsContract.Data
-                    ops.add(newInsert(Data.CONTENT_URI)
-                            .withValueBackReference(Data.RAW_CONTACT_ID, contactId)
-                            .withValue(Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE)
-                            .withValue(Phone.NUMBER, phoneUtil.format(numberObject, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL))
-                            .withValue(Phone.TYPE, Utils.labelToType(card.getPhones().get(i).getLabel(), true))
-                            .build());
-                }
-            } catch (NumberParseException e) {
-                e.printStackTrace();
-            }
-        }
-
-        for (int i = 0; i < card.getEmails().size(); i++) {
-            boolean skip = false;
-            Cursor emailCursor = contentResolver.query(Email.CONTENT_URI, null, Email.CONTACT_ID + " = ?", new String[]{contactId + ""}, null);
-            while (emailCursor != null && emailCursor.moveToNext()) {
-                String email = emailCursor.getString(emailCursor.getColumnIndex(Email.DATA));
-                if (card.getEmails().get(i).getAddress().contains(email)) {
-                    skip = true;
-                    break;
-                }
-            }
-
-            if (skip) continue;
-
-            if (card.getEmails().get(i).getAddress().isEmpty()) continue;
-            // Adding insert operation to operations list
-            // to insert Email in the table ContactsContract.Data
-            ops.add(newInsert(Data.CONTENT_URI)
-                    .withValueBackReference(Data.RAW_CONTACT_ID, contactId)
-                    .withValue(Data.MIMETYPE, Email.CONTENT_ITEM_TYPE)
-                    .withValue(Email.ADDRESS, card.getEmails().get(i).getAddress())
-                    .withValue(Email.TYPE, Utils.labelToType(card.getEmails().get(i).getLabel(), false))
-                    .build());
-        }
-
-        for (int i = 0; i < card.getAddresses().size(); i++) {
-            boolean skip = false;
-            Cursor addressCursor = contentResolver.query(StructuredPostal.CONTENT_URI, null, StructuredPostal.CONTACT_ID + " = ?", new String[]{contactId + ""}, null);
-            while (addressCursor != null && addressCursor.moveToNext()) {
-                String street = addressCursor.getString(addressCursor.getColumnIndex(StructuredPostal.STREET));
-                if (street.contains(card.getAddresses().get(i).getStreet1())) {
-                    skip = true;
-                    break;
-                }
-            }
-
-            if (skip) continue;
-
-            Builder address =
-                    newInsert(Data.CONTENT_URI)
-                            .withValueBackReference(Data.RAW_CONTACT_ID, contactId)
-                            .withValue(Data.MIMETYPE, StructuredPostal.CONTENT_ITEM_TYPE)
-                            .withValue(StructuredPostal.TYPE, Utils.labelToType(card.getAddresses().get(i).getLabel(), false));
-
-            if (!card.getAddresses().get(i).getStreet1().isEmpty() &&
-                    !card.getAddresses().get(i).getStreet2().isEmpty())
-                address.withValue(StructuredPostal.STREET, card.getAddresses().get(i).getStreet1() + "\n" + card.getAddresses().get(i).getStreet2());
-            else if (!card.getAddresses().get(i).getStreet1().isEmpty())
-                address.withValue(StructuredPostal.STREET, card.getAddresses().get(i).getStreet1());
-            else if (!card.getAddresses().get(i).getStreet2().isEmpty())
-                address.withValue(StructuredPostal.STREET, card.getAddresses().get(i).getStreet2());
-
-            if (!card.getAddresses().get(i).getCity().isEmpty())
-                address.withValue(StructuredPostal.CITY, card.getAddresses().get(i).getCity());
-            if (!card.getAddresses().get(i).getState().isEmpty())
-                address.withValue(StructuredPostal.REGION, card.getAddresses().get(i).getState());
-            if (!card.getAddresses().get(i).getZip().isEmpty())
-                address.withValue(StructuredPostal.POSTCODE, card.getAddresses().get(i).getZip());
-
-            ops.add(address.build());
-        }
-
-        String social = "";
-        for (int i = 0; i < card.getSocials().size(); i++) {
-            if (!card.getSocials().get(i).getNetwork().equals("facebook")) {
-                String network = card.getSocials().get(i).getNetwork();
-                network = network.substring(0, 1).toUpperCase() + network.substring(1);
-
-                social += network + ": " + card.getSocials().get(i).getUsername() + "\n";
-            }
-        }
-
-        if (!social.isEmpty())
-            ops.add(newInsert(Data.CONTENT_URI)
-                    .withValueBackReference(Data.RAW_CONTACT_ID, contactId)
-                    .withValue(Data.MIMETYPE, Note.CONTENT_ITEM_TYPE)
-                    .withValue(Note.NOTE, social)
-                    .build());
-
-        try {
-            // Executing all the insert operations as a single database transaction
-            context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        } catch (OperationApplicationException e) {
-            e.printStackTrace();
-        }
-    }
-
     private static void createAddressBookContact(User user, Card card) {
-        System.out.println("Creating: " + user);
-
         ArrayList<ContentProviderOperation> ops = new ArrayList<>();
 
         int rawContactID = ops.size();
@@ -598,13 +392,16 @@ public class ContactSync {
                 .build());
 
         if (!user.getPicture().isEmpty()) {
-            if (user.getPictureData() != null) {
-                ops.add(newInsert(Data.CONTENT_URI)
-                        .withValueBackReference(Data.RAW_CONTACT_ID, rawContactID)
-                        .withValue(Data.IS_SUPER_PRIMARY, 1)
-                        .withValue(Data.MIMETYPE, Photo.CONTENT_ITEM_TYPE)
-                        .withValue(Photo.PHOTO, user.getPictureData())
+            if (user.getPictureData() != null && user.getPictureData().length > 0) {
+                // Adding insert operation to operations list
+                // to insert Photo in the table ContactsContract.Data
+                ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                        .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactID)
+                        .withValue(ContactsContract.Data.IS_SUPER_PRIMARY, 1)
+                        .withValue(ContactsContract.Data.MIMETYPE, Photo.CONTENT_ITEM_TYPE)
+                        .withValue(ContactsContract.CommonDataKinds.Photo.PHOTO, user.getPictureData())
                         .build());
+
             } else {
                 try {
                     DefaultHttpClient client = new DefaultHttpClient();
@@ -623,11 +420,18 @@ public class ContactSync {
                         bytesRead += n;
                     }
 
-                    ops.add(newInsert(Data.CONTENT_URI)
-                            .withValueBackReference(Data.RAW_CONTACT_ID, rawContactID)
-                            .withValue(Data.IS_SUPER_PRIMARY, 1)
-                            .withValue(Data.MIMETYPE, Photo.CONTENT_ITEM_TYPE)
-                            .withValue(Photo.PHOTO, imageBlob)
+                    Realm realm = Realm.getInstance(context);
+                    realm.beginTransaction();
+                    user.setPictureData(imageBlob);
+                    realm.commitTransaction();
+
+                    // Adding insert operation to operations list
+                    // to insert Photo in the table ContactsContract.Data
+                    ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                            .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactID)
+                            .withValue(ContactsContract.Data.IS_SUPER_PRIMARY, 1)
+                            .withValue(ContactsContract.Data.MIMETYPE, Photo.CONTENT_ITEM_TYPE)
+                            .withValue(ContactsContract.CommonDataKinds.Photo.PHOTO, imageBlob)
                             .build());
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -743,5 +547,17 @@ public class ContactSync {
             return false; // error in cursor process
         }
         return true;
+    }
+
+    public static int getRawContactId(int contactId) {
+        String[] projection = new String[]{ContactsContract.RawContacts._ID};
+        String selection = ContactsContract.RawContacts.CONTACT_ID + "=?";
+        String[] selectionArgs = new String[]{String.valueOf(contactId)};
+        Cursor c = context.getContentResolver().query(ContactsContract.RawContacts.CONTENT_URI, projection, selection, selectionArgs, null);
+        int rawContactId = -1;
+        if (c.moveToFirst()) {
+            rawContactId = c.getInt(c.getColumnIndex(ContactsContract.RawContacts._ID));
+        }
+        return rawContactId;
     }
 }
