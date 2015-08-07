@@ -3,6 +3,8 @@ package com.handshake.Handshake;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -74,7 +76,7 @@ public class ProfileFragment extends Fragment {
 
     private void fillViews() {
         SessionManager session = new SessionManager(getActivity());
-        if(!session.isLoggedIn()) return;
+        if (!session.isLoggedIn()) return;
 
         synchronized (TAG) {
             final Realm realm = Realm.getInstance(getActivity());
@@ -96,6 +98,16 @@ public class ProfileFragment extends Fragment {
                     Picasso.with(getActivity()).load(account.getPicture()).into(backdrop);
                 else
                     Picasso.with(getActivity()).load(account.getThumb()).into(backdrop);
+            } else if (!account.getPicture().isEmpty() && !account.getPicture().equals("null")) {
+                Picasso.with(getActivity()).load(account.getPicture()).transform(new CircleTransform()).into(profileImage);
+                Picasso.with(getActivity()).load(account.getPicture()).into(backdrop);
+            } else if (account.getPictureData() != null && account.getPictureData().length > 0) {
+                Bitmap photo = BitmapFactory.decodeByteArray(account.getPictureData(), 0, account.getPictureData().length);
+                Bitmap photoCopy = photo.copy(photo.getConfig(), true);
+                CircleTransform transform = new CircleTransform();
+                Bitmap circle = transform.transform(photo);
+                profileImage.setImageBitmap(circle);
+                backdrop.setImageBitmap(photoCopy);
             } else {
                 Picasso.with(getActivity()).load(R.drawable.default_profile).transform(new CircleTransform()).into(profileImage);
                 collapsingToolbar.setContentScrimColor(getResources().getColor(R.color.background_window));

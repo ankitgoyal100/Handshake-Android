@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
@@ -54,13 +54,13 @@ import com.handshake.models.Phone;
 import com.handshake.models.Social;
 import com.handshake.views.CircleTransform;
 import com.handshake.views.TextViewCustomFont;
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 
 import io.realm.Realm;
@@ -187,14 +187,12 @@ public class EditProfileActivity extends AppCompatActivity {
                 AccountServerSync.performSync(context, new SyncCompleted() {
                     @Override
                     public void syncCompletedListener() {
-
                     }
                 });
 
                 CardServerSync.performSync(context, new SyncCompleted() {
                     @Override
                     public void syncCompletedListener() {
-
                     }
                 });
 
@@ -674,6 +672,15 @@ public class EditProfileActivity extends AppCompatActivity {
         if (!account.getThumb().isEmpty() && !account.getThumb().equals("null")) {
             Picasso.with(this).load(account.getThumb()).transform(new CircleTransform()).into(profileImage);
             profileImageText.setText("Change picture");
+        } else if (!account.getPicture().isEmpty() && !account.getPicture().equals("null")) {
+            Picasso.with(this).load(account.getPicture()).transform(new CircleTransform()).into(profileImage);
+            profileImageText.setText("Change picture");
+        } else if (account.getPictureData() != null && account.getPictureData().length > 0) {
+            Bitmap photo = BitmapFactory.decodeByteArray(account.getPictureData(), 0, account.getPictureData().length);
+            CircleTransform transform = new CircleTransform();
+            Bitmap circle = transform.transform(photo);
+            profileImage.setImageBitmap(circle);
+            profileImageText.setText("Change picture");
         } else {
             Picasso.with(this).load(R.drawable.default_profile).transform(new CircleTransform()).into(profileImage);
             profileImageText.setText("Add picture");
@@ -743,6 +750,15 @@ public class EditProfileActivity extends AppCompatActivity {
             fillViews();
 
             Bitmap photo = (Bitmap) data.getExtras().get("data");
+
+            Realm realm = Realm.getInstance(context);
+            final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+            realm.beginTransaction();
+            account.setPictureData(getBytesFromBitmap(photo));
+            account.setPicture("");
+            account.setThumb("");
+            realm.commitTransaction();
+
             CircleTransform transform = new CircleTransform();
             Bitmap circle = transform.transform(photo);
             profileImage.setImageBitmap(circle);
@@ -750,27 +766,26 @@ public class EditProfileActivity extends AppCompatActivity {
             fillViews();
 
             Uri selectedImage = data.getData();
-            Picasso.with(this).load(selectedImage).transform(new CircleTransform()).into(profileImage, new Callback() {
-                @Override
-                public void onSuccess() {
-                    Realm realm = Realm.getInstance(context);
-                    final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
-                    realm.beginTransaction();
-                    account.setPictureData(getBytesFromBitmap(((BitmapDrawable) profileImage.getDrawable()).getBitmap()));
-                    realm.commitTransaction();
-                }
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+                Realm realm = Realm.getInstance(context);
+                final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+                realm.beginTransaction();
+                account.setPictureData(getBytesFromBitmap(bitmap));
+                account.setPicture("");
+                account.setThumb("");
+                realm.commitTransaction();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-                @Override
-                public void onError() {
-
-                }
-            });
+            Picasso.with(this).load(selectedImage).transform(new CircleTransform()).into(profileImage);
         }
     }
 
     public byte[] getBytesFromBitmap(Bitmap bitmap) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         return stream.toByteArray();
     }
 
