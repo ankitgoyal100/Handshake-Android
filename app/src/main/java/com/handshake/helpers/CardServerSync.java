@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.handshake.Handshake.RestClientAsync;
 import com.handshake.Handshake.RestClientSync;
 import com.handshake.Handshake.SessionManager;
 import com.handshake.Handshake.Utils;
@@ -104,7 +103,7 @@ public class CardServerSync {
                 for (final Card c : cards) {
                     if (c.getSyncStatus() == Utils.CardCreated) {
                         RequestParams params = Card.cardToParams(c);
-                        RestClientAsync.post(context, "/cards", params, new JsonHttpResponseHandler() {
+                        RestClientSync.post(context, "/cards", params, new JsonHttpResponseHandler() {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                                 Card card = c;
@@ -129,9 +128,11 @@ public class CardServerSync {
                     } else {
                         if (c.getSyncStatus() == Utils.CardUpdated) {
                             RequestParams params = Card.cardToParams(c);
-                            RestClientAsync.put(context, "/cards/" + c.getCardId(), params, new JsonHttpResponseHandler() {
+                            System.out.println(params);
+                            RestClientSync.put(context, "/cards/" + c.getCardId(), params, new JsonHttpResponseHandler() {
                                 @Override
                                 public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                                    System.out.println(response);
                                     Card card = c;
 
                                     Realm realm = Realm.getInstance(context);
@@ -148,11 +149,12 @@ public class CardServerSync {
 
                                 @Override
                                 public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                                    System.out.println(statusCode  +" " + errorResponse);
                                     if (statusCode == 401) session.logoutUser();
                                 }
                             });
                         } else if (c.getSyncStatus() == Utils.CardDeleted) {
-                            RestClientAsync.delete(context, "/cards/" + c.getCardId(), new RequestParams(), new JsonHttpResponseHandler() {
+                            RestClientSync.delete(context, "/cards/" + c.getCardId(), new RequestParams(), new JsonHttpResponseHandler() {
                                 @Override
                                 public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                                     Card card = c;
