@@ -89,7 +89,7 @@ public class ContactSync {
         RealmResults<User> users;
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean isAutosync = sharedPreferences.getBoolean("autosync_preference", false);
+        boolean isAutosync = sharedPreferences.getBoolean("autosync_preference", true);
         if (isAutosync) {
             users = realm.where(User.class).equalTo("isContact", true).equalTo("saved", false).findAll();
         } else {
@@ -197,8 +197,8 @@ public class ContactSync {
     private static void updateAddressBookContact(User user, Card card, String contactId) {
         try {
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-            boolean overwritePictures = sharedPreferences.getBoolean("overwrite_pictures_preference", false);
-            boolean overwriteName = sharedPreferences.getBoolean("overwrite_names_preference", false);
+            boolean overwritePictures = sharedPreferences.getBoolean("overwrite_pictures_preference", true);
+            boolean overwriteName = sharedPreferences.getBoolean("overwrite_names_preference", true);
 
             ContentResolver contentResolver = context.getContentResolver();
             String where = Data.RAW_CONTACT_ID + " = ? AND " + Data.MIMETYPE + " = ?";

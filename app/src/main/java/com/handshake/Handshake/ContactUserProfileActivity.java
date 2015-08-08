@@ -76,7 +76,7 @@ public class ContactUserProfileActivity extends AppCompatActivity {
         ToggleButton autoSyncToggle = (ToggleButton) findViewById(R.id.save_to_phone);
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        boolean isAutosync = sharedPreferences.getBoolean("autosync_preference", false);
+        boolean isAutosync = sharedPreferences.getBoolean("autosync_preference", true);
 
         if(!isAutosync) {
             autoSyncLayout.setVisibility(View.VISIBLE);
