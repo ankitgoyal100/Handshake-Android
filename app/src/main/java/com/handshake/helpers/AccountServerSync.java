@@ -67,6 +67,7 @@ public class AccountServerSync {
                     }
                     account[0].setSyncStatus(Utils.AccountSynced);
                     realm.commitTransaction();
+                    realm.close();
                 }
 
                 @Override
@@ -85,6 +86,7 @@ public class AccountServerSync {
                         account[0] = Account.updateAccount(account[0], realm, response.getJSONObject("user"));
                         account[0].setSyncStatus(Utils.AccountSynced);
                         realm.commitTransaction();
+                        realm.close();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -99,7 +101,7 @@ public class AccountServerSync {
             });
         }
 
-
+        realm.close();
         handler.post(new Runnable() {
             @Override
             public void run() {

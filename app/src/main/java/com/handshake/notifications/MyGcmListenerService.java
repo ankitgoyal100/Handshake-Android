@@ -103,6 +103,7 @@ public class MyGcmListenerService extends GcmListenerService {
                                         Realm realm = Realm.getInstance(getApplicationContext());
                                         Group group = realm.where(Group.class).equalTo("groupId", data.getLong("group_id")).findFirst();
                                         GroupServerSync.loadGroupMembers(group);
+                                        realm.close();
                                     }
 
                                     sendNotification(data, users.get(0).getUserId(), users.get(0).isContact());

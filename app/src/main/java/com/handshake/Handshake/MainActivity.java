@@ -159,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
                     i = new Intent(MainActivity.this, GenericUserProfileActivity.class);
                 }
 
+                realm.close();
                 i.putExtra("userId", userId);
                 startActivity(i);
 
@@ -325,6 +326,8 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.makeText(context, "There was an error. Please try again.", Toast.LENGTH_LONG).show();
                             }
                         });
+
+                        realm.close();
                     }
                 });
             }
@@ -333,6 +336,8 @@ public class MainActivity extends AppCompatActivity {
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
             }
         });
+
+        realm.close();
     }
 
     private void performSyncs(final SyncCompleted listener) {

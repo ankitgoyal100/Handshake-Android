@@ -96,6 +96,7 @@ public class GenericUserProfileActivity extends AppCompatActivity {
 
         MainActivity.setContactButtons(context, account,
                 (ImageView) findViewById(R.id.button_one), (ImageView) findViewById(R.id.button_two), text);
+        realm.close();
     }
 
     public void changeColor(int newColor) {

@@ -81,6 +81,7 @@ public class ContactSync {
         }
         realm.commitTransaction();
 
+        realm.close();
         performSync(context, listener);
     }
 
@@ -100,6 +101,7 @@ public class ContactSync {
             syncContactToAddressBook(users.get(i));
         }
 
+        realm.close();
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -192,6 +194,7 @@ public class ContactSync {
         realm.beginTransaction();
         user.setSaved(true);
         realm.commitTransaction();
+        realm.close();
     }
 
     private static void updateAddressBookContact(User user, Card card, String contactId) {
@@ -238,6 +241,7 @@ public class ContactSync {
                         realm.beginTransaction();
                         user.setPictureData(imageBlob);
                         realm.commitTransaction();
+                        realm.close();
 
                         ops.add(ContentProviderOperation.newUpdate(Data.CONTENT_URI)
                                 .withSelection(where, photoParams)
@@ -422,6 +426,7 @@ public class ContactSync {
                     realm.beginTransaction();
                     user.setPictureData(imageBlob);
                     realm.commitTransaction();
+                    realm.close();
 
                     // Adding insert operation to operations list
                     // to insert Photo in the table ContactsContract.Data

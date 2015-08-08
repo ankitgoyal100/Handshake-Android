@@ -105,6 +105,7 @@ public class ContactActivity extends AppCompatActivity {
                                         text.setText("No contacts");
                                         addContentView(empty, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                                         list.setEmptyView(empty);
+                                        realm.close();
                                     }
                                 });
                             }
@@ -132,6 +133,7 @@ public class ContactActivity extends AppCompatActivity {
             text.setText("No contacts");
             addContentView(empty, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             list.setEmptyView(empty);
+            realm.close();
         }
     }
 

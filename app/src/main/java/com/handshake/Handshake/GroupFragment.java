@@ -21,6 +21,7 @@ import io.realm.RealmResults;
  */
 public class GroupFragment extends Fragment {
     private SwipeRefreshLayout swipeContainer;
+    private Realm realm;
 
     public static GroupFragment newInstance() {
         GroupFragment fragment = new GroupFragment();
@@ -65,7 +66,7 @@ public class GroupFragment extends Fragment {
         SessionManager session = new SessionManager(getActivity());
         if(!session.isLoggedIn()) return;
         
-        Realm realm = Realm.getInstance(getActivity());
+        realm = Realm.getInstance(getActivity());
         RealmResults<Group> groups = realm.where(Group.class).notEqualTo("syncStatus", Utils.GroupDeleted).findAll();
         groups.sort("createdAt", false);
         GroupAdapter adapter = new GroupAdapter(getActivity(), groups, true);
@@ -83,6 +84,13 @@ public class GroupFragment extends Fragment {
     public void onResume() {
         super.onResume();
         swipeContainer.setRefreshing(false);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(realm != null)
+            realm.close();
     }
 }
 

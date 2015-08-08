@@ -82,6 +82,8 @@ public class FeedAdapter extends RealmBaseAdapter<FeedItem> implements ListAdapt
 
         viewHolder.description.setText(Utils.getTimeSince(item.getCreatedAt()));
 
+        realm.close();
+
         return convertView;
     }
 

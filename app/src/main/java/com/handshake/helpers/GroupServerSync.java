@@ -120,6 +120,8 @@ public class GroupServerSync {
                                             }
                                             group.setSyncStatus(Utils.GroupSynced);
                                             realm.commitTransaction();
+
+                                            realm.close();
                                         }
 
                                         @Override
@@ -143,6 +145,8 @@ public class GroupServerSync {
                                             }
                                             group.setSyncStatus(Utils.GroupSynced);
                                             realm.commitTransaction();
+
+                                            realm.close();
                                         }
 
                                         @Override
@@ -158,6 +162,8 @@ public class GroupServerSync {
                                             realm.beginTransaction();
                                             group.removeFromRealm();
                                             realm.commitTransaction();
+
+                                            realm.close();
                                         }
 
                                         @Override
@@ -173,6 +179,8 @@ public class GroupServerSync {
                                 Group group = requestedGroups.get(i);
                                 loadGroupMembers(group);
                             }
+
+                            realm.close();
                         }
                     });
                 } catch (JSONException e) {
@@ -261,6 +269,8 @@ public class GroupServerSync {
                     orderedArray.add(map.get(id));
                 }
 
+                realm.close();
+
                 listener.syncCompletedListener(orderedArray);
             }
         });
@@ -326,6 +336,7 @@ public class GroupServerSync {
                             }
                             group.setMembers(groupMembers);
                             realm.commitTransaction();
+                            realm.close();
                         }
                     });
                 } catch (JSONException e) {
@@ -350,5 +361,6 @@ public class GroupServerSync {
         }
 
         realm.commitTransaction();
+        realm.close();
     }
 }

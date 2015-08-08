@@ -144,6 +144,8 @@ public class JoinGroupActivity extends AppCompatActivity {
                             Toast.makeText(context, "Could not join group at this time. Please try again later.", Toast.LENGTH_LONG).show();
                     }
                 });
+
+                realm.close();
             }
         });
 
@@ -371,6 +373,8 @@ public class JoinGroupActivity extends AppCompatActivity {
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
             }
         });
+
+        realm.close();
     }
 
     public void changeColor(int newColor) {

@@ -69,6 +69,7 @@ public class EditSocialActivity extends AppCompatActivity {
                 finish();
             }
         });
+        realm.close();
     }
 
     @Override

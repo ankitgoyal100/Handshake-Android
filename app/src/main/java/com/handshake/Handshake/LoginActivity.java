@@ -86,6 +86,8 @@ public class LoginActivity extends AppCompatActivity {
                             account = Account.updateAccount(account, realm, response.getJSONObject("user"));
                             realm.commitTransaction();
 
+                            realm.close();
+
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             startActivity(intent);
                         } catch (JSONException e) {

@@ -58,6 +58,7 @@ public class ContactServerSync {
 
         if (result.size() > 0) date = Utils.toGmtString(result.first().getContactUpdated());
 
+        realm.close();
         syncPage(1, date, new SyncCompleted() {
             @Override
             public void syncCompletedListener() {
@@ -100,6 +101,8 @@ public class ContactServerSync {
                         }
                     });
                 }
+
+                realm.close();
             }
         });
     }
@@ -140,7 +143,7 @@ public class ContactServerSync {
 
                             }
 
-
+                            realm.close();
                         }
                     });
 
@@ -184,5 +187,6 @@ public class ContactServerSync {
         realm.commitTransaction();
 
         performSync(context, listener);
+        realm.close();
     }
 }

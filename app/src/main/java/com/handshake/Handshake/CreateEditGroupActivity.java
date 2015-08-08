@@ -53,6 +53,7 @@ public class CreateEditGroupActivity extends AppCompatActivity {
             groupName.setText(group.getName());
 
             create.setText("Save");
+            realm.close();
         } else {
             create.setText("Create");
         }
@@ -95,6 +96,7 @@ public class CreateEditGroupActivity extends AppCompatActivity {
 
                     CreateEditGroupActivity.this.finish();
                 }
+                realm.close();
             }
         });
     }

@@ -24,6 +24,7 @@ import io.realm.RealmResults;
 public class FeedFragment extends ListFragment {
     private SwipeRefreshLayout swipeContainer;
     Handler handler = new Handler();
+    private Realm realm;
 
     public static FeedFragment newInstance() {
         FeedFragment fragment = new FeedFragment();
@@ -72,7 +73,7 @@ public class FeedFragment extends ListFragment {
         SessionManager session = new SessionManager(getActivity());
         if(!session.isLoggedIn()) return;
 
-        Realm realm = Realm.getInstance(getActivity());
+        realm = Realm.getInstance(getActivity());
         RealmResults<FeedItem> feedItems = realm.where(FeedItem.class).findAll();
         feedItems.sort("updatedAt", false);
         FeedAdapter feedAdapter = new FeedAdapter(getActivity(), feedItems, true);
@@ -113,5 +114,12 @@ public class FeedFragment extends ListFragment {
     public void onResume() {
         super.onResume();
         swipeContainer.setRefreshing(false);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(realm != null)
+            realm.close();
     }
 }

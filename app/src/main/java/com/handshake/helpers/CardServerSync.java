@@ -118,6 +118,7 @@ public class CardServerSync {
                                 }
                                 card.setSyncStatus(Utils.CardSynced);
                                 realm.commitTransaction();
+                                realm.close();
                             }
 
                             @Override
@@ -142,6 +143,7 @@ public class CardServerSync {
                                     }
                                     card.setSyncStatus(Utils.CardSynced);
                                     realm.commitTransaction();
+                                    realm.close();
                                 }
 
                                 @Override
@@ -159,6 +161,7 @@ public class CardServerSync {
                                     realm.beginTransaction();
                                     card.removeFromRealm();
                                     realm.commitTransaction();
+                                    realm.close();
                                 }
 
                                 @Override
@@ -170,6 +173,7 @@ public class CardServerSync {
                     }
                 }
 
+                realm.close();
                 handler.post(new Runnable() {
                     @Override
                     public void run() {

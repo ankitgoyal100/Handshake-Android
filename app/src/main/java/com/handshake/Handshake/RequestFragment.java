@@ -29,6 +29,7 @@ import io.realm.RealmResults;
 public class RequestFragment extends ListFragment {
     private SwipeRefreshLayout swipeContainer;
     Handler handler = new Handler();
+    private Realm realm;
 
     public static RequestFragment newInstance() {
         RequestFragment fragment = new RequestFragment();
@@ -73,7 +74,7 @@ public class RequestFragment extends ListFragment {
         SessionManager session = new SessionManager(getActivity());
         if(!session.isLoggedIn()) return;
 
-        Realm realm = Realm.getInstance(getActivity());
+        realm = Realm.getInstance(getActivity());
         RealmResults<User> users = realm.where(User.class).equalTo("requestReceived", true).findAll();
         users.sort("createdAt", false);
         ContactAdapter contactAdapter = new ContactAdapter(getActivity(), users, true);
@@ -114,5 +115,12 @@ public class RequestFragment extends ListFragment {
     public void onResume() {
         super.onResume();
         swipeContainer.setRefreshing(false);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(realm != null)
+            realm.close();
     }
 }

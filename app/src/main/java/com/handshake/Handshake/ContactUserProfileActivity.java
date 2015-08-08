@@ -94,6 +94,7 @@ public class ContactUserProfileActivity extends AppCompatActivity {
                     realm.commitTransaction();
                 }
             });
+            realm.close();
         } else {
             autoSyncLayout.setVisibility(View.GONE);
             autoSyncDivider.setVisibility(View.GONE);
@@ -411,8 +412,10 @@ public class ContactUserProfileActivity extends AppCompatActivity {
                         }
                     });
                 }
+                realm.close();
             }
         });
+        realm.close();
     }
 
     private void setNotificationsButton(final User account, final ImageView notifications) {
@@ -432,6 +435,7 @@ public class ContactUserProfileActivity extends AppCompatActivity {
                             realm.beginTransaction();
                             account.setNotifications(false);
                             realm.commitTransaction();
+                            realm.close();
 
                             setNotificationsButton(account, notifications);
                         }
@@ -459,6 +463,7 @@ public class ContactUserProfileActivity extends AppCompatActivity {
                             realm.beginTransaction();
                             account.setNotifications(true);
                             realm.commitTransaction();
+                            realm.close();
 
                             setNotificationsButton(account, notifications);
                         }

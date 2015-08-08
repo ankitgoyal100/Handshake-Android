@@ -183,6 +183,7 @@ public class EditPhoneActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 }
+                realm.close();
             }
         });
     }

@@ -95,6 +95,7 @@ public class ContactAdapter extends RealmBaseAdapter<User> implements ListAdapte
                     i = new Intent(context, GenericUserProfileActivity.class);
                 }
                 i.putExtra("userId", userId);
+                realm.close();
                 context.startActivity(i);
             }
         });

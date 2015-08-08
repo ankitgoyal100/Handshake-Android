@@ -120,6 +120,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 startActivityForResult(i, 0);
             }
         });
+        realm.close();
     }
 
     private void initialSetup() {
@@ -183,6 +184,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 account.setSyncStatus(Utils.AccountUpdated);
                 card.setSyncStatus(Utils.CardUpdated);
                 realm.commitTransaction();
+                realm.close();
 
                 AccountServerSync.performSync(context, new SyncCompleted() {
                     @Override
@@ -237,6 +239,7 @@ public class EditProfileActivity extends AppCompatActivity {
                                             realm.beginTransaction();
                                             phone.removeFromRealm();
                                             realm.commitTransaction();
+                                            realm.close();
                                         }
                                     })
                                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -301,6 +304,7 @@ public class EditProfileActivity extends AppCompatActivity {
                                             realm.beginTransaction();
                                             email.removeFromRealm();
                                             realm.commitTransaction();
+                                            realm.close();
                                         }
                                     })
                                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -359,6 +363,7 @@ public class EditProfileActivity extends AppCompatActivity {
                                             realm.beginTransaction();
                                             address.removeFromRealm();
                                             realm.commitTransaction();
+                                            realm.close();
                                         }
                                     })
                                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -650,6 +655,8 @@ public class EditProfileActivity extends AppCompatActivity {
                 }
             }
         });
+
+        realm.close();
     }
 
     private void addFacebookToCard(String id) {
@@ -663,6 +670,7 @@ public class EditProfileActivity extends AppCompatActivity {
         social.setUsername(id);
         card.getSocials().add(realm.copyToRealm(social));
         realm.commitTransaction();
+        realm.close();
     }
 
     private void setImage(Account account) {
@@ -758,6 +766,7 @@ public class EditProfileActivity extends AppCompatActivity {
             account.setPicture("");
             account.setThumb("");
             realm.commitTransaction();
+            realm.close();
 
             CircleTransform transform = new CircleTransform();
             Bitmap circle = transform.transform(photo);
@@ -775,6 +784,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 account.setPicture("");
                 account.setThumb("");
                 realm.commitTransaction();
+                realm.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }

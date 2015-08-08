@@ -50,6 +50,8 @@ public class ProfileFragment extends Fragment {
 
     private static final String TAG = "ProfileFragment";
 
+    private Realm r;
+
     public static ProfileFragment newInstance() {
         ProfileFragment fragment = new ProfileFragment();
         return fragment;
@@ -150,9 +152,9 @@ public class ProfileFragment extends Fragment {
 
                     }
 
-                    Realm realm = Realm.getInstance(getActivity());
+                    r = Realm.getInstance(getActivity());
 
-                    final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+                    final Account account = r.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
                     final Card card = account.getCards().first();
                     if (card == null) return;
 
@@ -385,9 +387,11 @@ public class ProfileFragment extends Fragment {
                                 socialLayout.addView(mLinearView);
                             }
                         });
+
                     }
                 }
             }).start();
+            realm.close();
         }
     }
 
@@ -399,5 +403,12 @@ public class ProfileFragment extends Fragment {
             if (session.isLoggedIn())
                 fillViews();
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (r != null)
+            r.close();
     }
 }

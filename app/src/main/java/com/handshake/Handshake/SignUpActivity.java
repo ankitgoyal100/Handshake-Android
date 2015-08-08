@@ -105,6 +105,7 @@ public class SignUpActivity extends AppCompatActivity {
                                     Account account = realm.createObject(Account.class);
                                     account = Account.updateAccount(account, realm, response.getJSONObject("user"));
                                     realm.commitTransaction();
+                                    realm.close();
 
                                     Intent intent = new Intent(SignUpActivity.this, GetStartedActivity.class);
                                     intent.putExtra("first_name", firstName.getText().toString());

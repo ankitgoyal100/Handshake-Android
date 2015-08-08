@@ -171,7 +171,7 @@ public class FeedItemServerSync {
                                                     realm.beginTransaction();
                                                     feedItem = FeedItem.updateFeedItem(feedItem, realm, feedObjects.getJSONObject(i));
 
-                                                    if (feedItem != null && feedObjects.getJSONObject(i).has("user") && !feedObjects.getJSONObject(i).isNull("user")) {
+                                                    if (feedItem != null && feedItem.isValid() && feedObjects.getJSONObject(i).has("user") && !feedObjects.getJSONObject(i).isNull("user")) {
                                                         feedItem.setUser(usersMap.get(
                                                                 feedObjects.getJSONObject(i).getJSONObject("user").getLong("id")));
 
@@ -179,7 +179,7 @@ public class FeedItemServerSync {
                                                             usersMap.get(
                                                                     feedObjects.getJSONObject(i).getJSONObject("user").getLong("id")).getFeedItems().add(realm.copyToRealm(feedItem));
                                                     }
-                                                    if (feedItem != null && feedObjects.getJSONObject(i).has("group") && !feedObjects.getJSONObject(i).isNull("group")) {
+                                                    if (feedItem != null && feedItem.isValid() && feedObjects.getJSONObject(i).has("group") && !feedObjects.getJSONObject(i).isNull("group")) {
                                                         feedItem.setGroup(groupsMap.get(
                                                                 feedObjects.getJSONObject(i).getJSONObject("group").getLong("id")));
 
@@ -203,6 +203,8 @@ public class FeedItemServerSync {
                                                     }
                                                 }
                                             }
+
+                                            realm.close();
 
                                             if (feedObjects.length() < 100) {
                                                 handler.post(new Runnable() {
