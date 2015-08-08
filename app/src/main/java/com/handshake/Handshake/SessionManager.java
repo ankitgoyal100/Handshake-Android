@@ -103,10 +103,10 @@ public class SessionManager {
         boolean introScreenDisplayed = getIntroScreenDisplayed();
 
         Intent i;
-        if (introScreenDisplayed)
-            i = new Intent(sContext, IntroActivity.class);
-        else
-            i = new Intent(sContext, AppIntroActivity.class);
+//        if (introScreenDisplayed)
+        i = new Intent(sContext, IntroActivity.class);
+//        else
+//            i = new Intent(sContext, AppIntroActivity.class);
 
         // Clearing all data from Shared Preferences
         editor.clear();
