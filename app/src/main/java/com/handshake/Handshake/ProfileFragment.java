@@ -76,7 +76,7 @@ public class ProfileFragment extends Fragment {
         socialLayout = (LinearLayout) getView().findViewById(R.id.linear_layout_2);
     }
 
-    private void fillViews() {
+    public void fillViews() {
         SessionManager session = new SessionManager(getActivity());
         if (!session.isLoggedIn()) return;
 
@@ -148,15 +148,24 @@ public class ProfileFragment extends Fragment {
                         }
                     });
 
-                    while (!MainActivity.cardSyncCompleted) {
-
-                    }
+//                    while (!MainActivity.cardSyncCompleted) {
+//
+//                    }
 
                     r = Realm.getInstance(getActivity());
 
                     final Account account = r.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
                     final Card card = account.getCards().first();
                     if (card == null) return;
+
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (card.getSocials().size() == 0) {
+                                getView().findViewById(R.id.divider2).setVisibility(View.GONE);
+                            }
+                        }
+                    });
 
                     for (final Phone phone : card.getPhones()) {
                         LayoutInflater inflater = (LayoutInflater) getActivity().getApplicationContext()
@@ -175,7 +184,6 @@ public class ProfileFragment extends Fragment {
                             @Override
                             public void run() {
 //                            dialog.cancel();
-
                                 getView().findViewById(R.id.divider1).setVisibility(View.VISIBLE);
 
                                 imageView1.setVisibility(View.VISIBLE);
@@ -318,11 +326,7 @@ public class ProfileFragment extends Fragment {
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
-                                if (card.getSocials().size() == 0) {
-                                    getView().findViewById(R.id.divider1).setVisibility(View.GONE);
-                                } else {
-                                    getView().findViewById(R.id.divider2).setVisibility(View.VISIBLE);
-                                }
+                                getView().findViewById(R.id.divider2).setVisibility(View.VISIBLE);
 
                                 if (network.equals("facebook")) {
                                     imageView1.setImageDrawable(getResources().getDrawable(R.mipmap.facebook_icon));

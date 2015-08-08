@@ -88,8 +88,8 @@ public class UserServerSync {
                     orderedArray.add(map.get(id));
                 }
 
-                realm.close();
                 listener.syncCompletedListener(orderedArray);
+                realm.close();
             }
         });
     }

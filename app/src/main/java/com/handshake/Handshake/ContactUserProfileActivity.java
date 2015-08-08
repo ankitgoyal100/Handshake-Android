@@ -1,5 +1,6 @@
 package com.handshake.Handshake;
 
+import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -63,6 +64,7 @@ public class ContactUserProfileActivity extends AppCompatActivity {
     private LinearLayout infoLayout;
     private LinearLayout socialLayout;
     private static Executor executor = Executors.newSingleThreadExecutor();
+    private Realm r;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +80,7 @@ public class ContactUserProfileActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         boolean isAutosync = sharedPreferences.getBoolean("autosync_preference", true);
 
-        if(!isAutosync) {
+        if (!isAutosync) {
             autoSyncLayout.setVisibility(View.VISIBLE);
             autoSyncDivider.setVisibility(View.VISIBLE);
 
@@ -94,7 +96,7 @@ public class ContactUserProfileActivity extends AppCompatActivity {
                     realm.commitTransaction();
                 }
             });
-            realm.close();
+//            realm.close();
         } else {
             autoSyncLayout.setVisibility(View.GONE);
             autoSyncDivider.setVisibility(View.GONE);
@@ -164,6 +166,8 @@ public class ContactUserProfileActivity extends AppCompatActivity {
         ImageView notifications = (ImageView) findViewById(R.id.notifications);
         setNotificationsButton(account, notifications);
 
+        final ProgressDialog dialog = ProgressDialog.show(this, "", "Loading profile...", true);
+
         executor.execute(new Runnable() {
             @Override
             public void run() {
@@ -179,10 +183,22 @@ public class ContactUserProfileActivity extends AppCompatActivity {
 
                 }
 
-                Realm realm = Realm.getInstance(context);
+                r = Realm.getInstance(context);
 
-                final User account = realm.where(User.class).equalTo("userId", getIntent().getLongExtra("userId", SessionManager.getID())).findFirst();
+                final User account = r.where(User.class).equalTo("userId", getIntent().getLongExtra("userId", SessionManager.getID())).findFirst();
                 final Card card = account.getCards().first();
+                if (card == null) return;
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialog.cancel();
+
+                        if (card.isValid() && card.getSocials().size() == 0) {
+                            findViewById(R.id.divider2).setVisibility(View.GONE);
+                        }
+                    }
+                });
 
                 for (final Phone phone : card.getPhones()) {
                     LayoutInflater inflater = (LayoutInflater) context.getApplicationContext()
@@ -342,11 +358,7 @@ public class ContactUserProfileActivity extends AppCompatActivity {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            if (card.getSocials().size() == 0) {
-                                findViewById(R.id.divider1).setVisibility(View.GONE);
-                            } else {
-                                findViewById(R.id.divider2).setVisibility(View.VISIBLE);
-                            }
+                            findViewById(R.id.divider2).setVisibility(View.VISIBLE);
 
                             if (network.equals("facebook")) {
                                 imageView1.setImageDrawable(getResources().getDrawable(R.mipmap.facebook_icon));
@@ -412,10 +424,10 @@ public class ContactUserProfileActivity extends AppCompatActivity {
                         }
                     });
                 }
-                realm.close();
+                r.close();
             }
         });
-        realm.close();
+//        realm.close();
     }
 
     private void setNotificationsButton(final User account, final ImageView notifications) {
@@ -435,7 +447,7 @@ public class ContactUserProfileActivity extends AppCompatActivity {
                             realm.beginTransaction();
                             account.setNotifications(false);
                             realm.commitTransaction();
-                            realm.close();
+//                            realm.close();
 
                             setNotificationsButton(account, notifications);
                         }
@@ -463,7 +475,7 @@ public class ContactUserProfileActivity extends AppCompatActivity {
                             realm.beginTransaction();
                             account.setNotifications(true);
                             realm.commitTransaction();
-                            realm.close();
+//                            realm.close();
 
                             setNotificationsButton(account, notifications);
                         }
@@ -552,5 +564,12 @@ public class ContactUserProfileActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (r != null)
+            r.close();
     }
 }

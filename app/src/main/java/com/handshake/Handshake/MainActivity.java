@@ -95,6 +95,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int QR_CODE = 1;
 
+    private ProfileFragment profileFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -362,6 +364,7 @@ public class MainActivity extends AppCompatActivity {
             public void syncCompletedListener() {
                 syncsCompleted++;
                 cardSyncCompleted = true;
+                profileFragment.fillViews();
 //                System.out.println("Card sync completed " + syncsCompleted);
             }
         });
@@ -458,8 +461,10 @@ public class MainActivity extends AppCompatActivity {
                 return RequestFragment.newInstance();
             else if (position == 2)
                 return GroupFragment.newInstance();
-            else
-                return ProfileFragment.newInstance();
+            else {
+                profileFragment = ProfileFragment.newInstance();
+                return profileFragment;
+            }
         }
     }
 

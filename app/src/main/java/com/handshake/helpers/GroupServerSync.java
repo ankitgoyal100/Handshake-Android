@@ -269,9 +269,8 @@ public class GroupServerSync {
                     orderedArray.add(map.get(id));
                 }
 
-                realm.close();
-
                 listener.syncCompletedListener(orderedArray);
+                realm.close();
             }
         });
     }
