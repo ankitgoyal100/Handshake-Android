@@ -7,6 +7,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ListView;
 
 import com.handshake.helpers.FeedItemServerSync;
@@ -71,13 +72,28 @@ public class FeedFragment extends ListFragment {
         super.onActivityCreated(savedInstanceState);
 
         SessionManager session = new SessionManager(getActivity());
-        if(!session.isLoggedIn()) return;
+        if (!session.isLoggedIn()) return;
 
         realm = Realm.getInstance(getActivity());
         RealmResults<FeedItem> feedItems = realm.where(FeedItem.class).findAll();
         feedItems.sort("updatedAt", false);
         FeedAdapter feedAdapter = new FeedAdapter(getActivity(), feedItems, true);
         setListAdapter(feedAdapter);
+
+        getListView().setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                int topRowVerticalPosition =
+                        (getListView() == null || getListView().getChildCount() == 0) ?
+                                0 : getListView().getChildAt(0).getTop();
+                swipeContainer.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
+            }
+        });
 
         final RealmResults<Suggestion> suggestionItems = realm.where(Suggestion.class).findAll();
         final TextViewCustomFont suggestionText = (TextViewCustomFont) getView().findViewById(R.id.suggestion_text);
@@ -119,7 +135,7 @@ public class FeedFragment extends ListFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(realm != null)
+        if (realm != null)
             realm.close();
     }
 }

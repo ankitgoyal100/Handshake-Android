@@ -9,6 +9,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ListView;
 
 import com.handshake.helpers.RequestServerSync;
@@ -79,6 +80,21 @@ public class RequestFragment extends ListFragment {
         users.sort("createdAt", false);
         ContactAdapter contactAdapter = new ContactAdapter(getActivity(), users, true);
         setListAdapter(contactAdapter);
+
+        getListView().setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                int topRowVerticalPosition =
+                        (getListView() == null || getListView().getChildCount() == 0) ?
+                                0 : getListView().getChildAt(0).getTop();
+                swipeContainer.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
+            }
+        });
 
         final RealmResults<Suggestion> suggestionItems = realm.where(Suggestion.class).findAll();
         final TextViewCustomFont suggestionText = (TextViewCustomFont) getView().findViewById(R.id.suggestion_text);
