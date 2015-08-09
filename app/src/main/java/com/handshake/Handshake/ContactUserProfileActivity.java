@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -102,6 +103,10 @@ public class ContactUserProfileActivity extends AppCompatActivity {
             autoSyncDivider.setVisibility(View.GONE);
         }
 
+        CircleImageView profileImage = (CircleImageView) findViewById(R.id.profile_image);
+        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) profileImage.getLayoutParams();
+        params.setMargins(Utils.dpToPx(context, 16), Utils.getStatusBarHeight(context) + Utils.dpToPx(context, 16),
+                Utils.dpToPx(context, 16), Utils.dpToPx(context, 16));
 
         infoLayout = (LinearLayout) findViewById(R.id.linear_layout);
         socialLayout = (LinearLayout) findViewById(R.id.linear_layout_2);
