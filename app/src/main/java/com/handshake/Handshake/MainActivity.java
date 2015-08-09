@@ -88,7 +88,6 @@ public class MainActivity extends AppCompatActivity {
     private int TAG_ADD = 1;
 
     public static boolean cardSyncCompleted = false;
-    public static boolean suggestionSyncCompleted = false;
 
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private static final String TAG = "MainActivity";
@@ -96,6 +95,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int QR_CODE = 1;
 
     private ProfileFragment profileFragment;
+    private FeedFragment feedFragment;
+    private RequestFragment requestFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -403,7 +404,8 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void syncCompletedListener() {
                         syncsCompleted++;
-                        suggestionSyncCompleted = true;
+                        feedFragment.setSuggestionText();
+                        requestFragment.setSuggestionText();
 //                        System.out.println("Suggestion sync completed " + syncsCompleted);
                     }
                 });
@@ -455,11 +457,13 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            if (position == 0)
-                return FeedFragment.newInstance();
-            else if (position == 1)
-                return RequestFragment.newInstance();
-            else if (position == 2)
+            if (position == 0) {
+                feedFragment = FeedFragment.newInstance();
+                return feedFragment;
+            } else if (position == 1) {
+                requestFragment = RequestFragment.newInstance();
+                return requestFragment;
+            } else if (position == 2)
                 return GroupFragment.newInstance();
             else {
                 profileFragment = ProfileFragment.newInstance();

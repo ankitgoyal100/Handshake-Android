@@ -84,6 +84,8 @@ public class ProfileFragment extends Fragment {
             final Realm realm = Realm.getInstance(getActivity());
             final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
 
+            if(account == null) return;
+
             TextViewCustomFont name = (TextViewCustomFont) getView().findViewById(R.id.name);
             String lastName = "";
             if (!account.getLastName().equals("null"))

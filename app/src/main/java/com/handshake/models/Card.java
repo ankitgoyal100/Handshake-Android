@@ -222,14 +222,16 @@ public class Card extends RealmObject {
                     address.getZip().length() > 0) && address.getLabel().length() > 0) {
                 JSONObject addressJSON = new JSONObject();
                 try {
-                    if (address.getStreet1().length() > 0)
-                        addressJSON.put("street1", address.getStreet1());
-                    if (address.getStreet2().length() > 0)
-                        addressJSON.put("street2", address.getStreet2());
-                    if (address.getCity().length() > 0) addressJSON.put("city", address.getCity());
-                    if (address.getState().length() > 0)
-                        addressJSON.put("state", address.getState());
-                    if (address.getZip().length() > 0) addressJSON.put("zip", address.getZip());
+//                    if (address.getStreet1().length() > 0)
+                    addressJSON.put("street1", address.getStreet1());
+//                    if (address.getStreet2().length() > 0)
+                    addressJSON.put("street2", address.getStreet2());
+//                    if (address.getCity().length() > 0)
+                    addressJSON.put("city", address.getCity());
+//                    if (address.getState().length() > 0)
+                    addressJSON.put("state", address.getState());
+//                    if (address.getZip().length() > 0)
+                    addressJSON.put("zip", address.getZip());
                     addressJSON.put("label", address.getLabel());
                     addresses.put(addressJSON);
                 } catch (JSONException e) {
@@ -240,8 +242,8 @@ public class Card extends RealmObject {
         params.put("addresses_attributes", addresses);
 
         JSONArray socials = new JSONArray();
-        for(Social social : card.getSocials()) {
-            if(social.getUsername().length() > 0 && social.getNetwork().length() > 0) {
+        for (Social social : card.getSocials()) {
+            if (social.getUsername().length() > 0 && social.getNetwork().length() > 0) {
                 JSONObject socialJSON = new JSONObject();
 
                 try {

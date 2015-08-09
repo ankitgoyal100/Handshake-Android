@@ -26,6 +26,7 @@ public class FeedFragment extends ListFragment {
     private SwipeRefreshLayout swipeContainer;
     Handler handler = new Handler();
     private Realm realm;
+    private TextViewCustomFont suggestionText;
 
     public static FeedFragment newInstance() {
         FeedFragment fragment = new FeedFragment();
@@ -96,28 +97,11 @@ public class FeedFragment extends ListFragment {
         });
 
         final RealmResults<Suggestion> suggestionItems = realm.where(Suggestion.class).findAll();
-        final TextViewCustomFont suggestionText = (TextViewCustomFont) getView().findViewById(R.id.suggestion_text);
+        suggestionText = (TextViewCustomFont) getView().findViewById(R.id.suggestion_text);
         if (suggestionItems.size() > 0) {
             suggestionText.setVisibility(View.VISIBLE);
         }
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (!MainActivity.suggestionSyncCompleted) {
-                }
 
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (suggestionItems.size() > 0) {
-                            suggestionText.setVisibility(View.VISIBLE);
-                        } else {
-                            suggestionText.setVisibility(View.GONE);
-                        }
-                    }
-                });
-            }
-        }).start();
         SuggestionAdapter suggestionAdapter = new SuggestionAdapter(getActivity(), suggestionItems, true);
         ListView suggestionListView = (ListView) getView().findViewById(R.id.listView2);
         suggestionListView.setAdapter(suggestionAdapter);
@@ -137,5 +121,15 @@ public class FeedFragment extends ListFragment {
         super.onDestroy();
         if (realm != null)
             realm.close();
+    }
+    
+    public void setSuggestionText() {
+        final Realm r = Realm.getInstance(getActivity());
+        if (r.where(Suggestion.class).findAll().size() > 0) {
+            suggestionText.setVisibility(View.VISIBLE);
+        } else {
+            suggestionText.setVisibility(View.GONE);
+        }
+        r.close();
     }
 }

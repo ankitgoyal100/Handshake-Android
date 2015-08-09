@@ -80,7 +80,7 @@ public class RestClientSync {
         client.addHeader("Content-type", "application/json");
         params.put("auth_token", SessionManager.getToken());
         params.put("user_id", SessionManager.getID());
-        client.put(getAbsoluteUrl(url), params, responseHandler);
+        client.put(context, getAbsoluteUrl(url), params, responseHandler);
     }
 
 
