@@ -7,6 +7,7 @@ import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.SyncHttpClient;
 
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
@@ -37,8 +38,10 @@ public class RestClientSync {
         client.addHeader("Accept", "application/json");
         client.addHeader("Content-type", "application/json");
         try {
-            jsonObject.put("auth_token", SessionManager.getToken());
-            jsonObject.put("user_id", SessionManager.getID());
+            if (!jsonObject.has("auth_token"))
+                jsonObject.put("auth_token", SessionManager.getToken());
+            if (!jsonObject.has("user_id"))
+                jsonObject.put("user_id", SessionManager.getID());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -67,7 +70,7 @@ public class RestClientSync {
         client.post(context, getAbsoluteUrl(url), params, responseHandler);
     }
 
-    public static void put(Context context, String url, ByteArrayEntity entity, AsyncHttpResponseHandler responseHandler) {
+    public static void put(Context context, String url, HttpEntity entity, AsyncHttpResponseHandler responseHandler) {
         client.setTimeout(DEFAULT_TIMEOUT);
         client.addHeader("Accept", "application/json");
         client.addHeader("Content-type", "application/json");

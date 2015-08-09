@@ -13,10 +13,12 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 import org.apache.http.Header;
+import org.apache.http.entity.StringEntity;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 
 import io.realm.Realm;
@@ -100,10 +102,10 @@ public class CardServerSync {
                     Looper.prepare();
                 }
 
-                for (final Card c : cards) {
+                for (int i = 0; i < cards.size(); i++) {
+                    final Card c = cards.get(i);
                     if (c.getSyncStatus() == Utils.CardCreated) {
-                        RequestParams params = Card.cardToParams(c);
-                        RestClientSync.post(context, "/cards", params, new JsonHttpResponseHandler() {
+                        RestClientSync.post(context, "/cards", Card.cardToJSONObject(c), "application/json", new JsonHttpResponseHandler() {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                                 Card card = c;
@@ -127,32 +129,33 @@ public class CardServerSync {
                         });
                     } else {
                         if (c.getSyncStatus() == Utils.CardUpdated) {
-                            RequestParams params = Card.cardToParams(c);
-                            System.out.println(params);
-                            RestClientSync.put(context, "/cards/" + c.getCardId(), params, new JsonHttpResponseHandler() {
-                                @Override
-                                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                                    System.out.println(response);
-                                    Card card = c;
+                            try {
+                                StringEntity entity = new StringEntity(Card.cardToJSONObject(c).toString());
+                                RestClientSync.put(context, "/cards/" + c.getCardId(), entity, new JsonHttpResponseHandler() {
+                                    @Override
+                                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                                        Card card = c;
 
-                                    Realm realm = Realm.getInstance(context);
-                                    realm.beginTransaction();
-                                    try {
-                                        card = Card.updateCard(card, realm, response.getJSONObject("card"));
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
+                                        Realm realm = Realm.getInstance(context);
+                                        realm.beginTransaction();
+                                        try {
+                                            card = Card.updateCard(card, realm, response.getJSONObject("card"));
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                        card.setSyncStatus(Utils.CardSynced);
+                                        realm.commitTransaction();
+                                        realm.close();
                                     }
-                                    card.setSyncStatus(Utils.CardSynced);
-                                    realm.commitTransaction();
-                                    realm.close();
-                                }
 
-                                @Override
-                                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                                    System.out.println(statusCode + " " + errorResponse);
-                                    if (statusCode == 401) session.logoutUser();
-                                }
-                            });
+                                    @Override
+                                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                                        if (statusCode == 401) session.logoutUser();
+                                    }
+                                });
+                            } catch (UnsupportedEncodingException e) {
+                                e.printStackTrace();
+                            }
                         } else if (c.getSyncStatus() == Utils.CardDeleted) {
                             RestClientSync.delete(context, "/cards/" + c.getCardId(), new RequestParams(), new JsonHttpResponseHandler() {
                                 @Override
