@@ -45,9 +45,4 @@ public class ScanActivity extends AppCompatActivity implements ScannerView.Scann
         finish();
         return true;
     }
-
-    @Override
-    public void onBackPressed() {
-        finish();
-    }
 }
