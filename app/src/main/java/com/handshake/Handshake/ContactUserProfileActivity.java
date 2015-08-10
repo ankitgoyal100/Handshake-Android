@@ -439,9 +439,9 @@ public class ContactUserProfileActivity extends AppCompatActivity {
         if (account.isNotifications()) {
             ViewGroup.LayoutParams params = notifications.getLayoutParams();
             params.height = dipToPixels(context, 37.5f);
-            params.width = dipToPixels(context, 141.25f);
+            params.width = dipToPixels(context, 117.71f);
             notifications.setLayoutParams(params);
-            notifications.setImageDrawable(getResources().getDrawable(R.mipmap.notifications_button));
+            notifications.setImageDrawable(getResources().getDrawable(R.drawable.notifications_on_button));
             notifications.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -467,9 +467,9 @@ public class ContactUserProfileActivity extends AppCompatActivity {
         } else {
             ViewGroup.LayoutParams params = notifications.getLayoutParams();
             params.height = dipToPixels(context, 37.5f);
-            params.width = dipToPixels(context, 155f);
+            params.width = dipToPixels(context, 129.17f);
             notifications.setLayoutParams(params);
-            notifications.setImageDrawable(getResources().getDrawable(R.mipmap.notifications_off_button));
+            notifications.setImageDrawable(getResources().getDrawable(R.drawable.notifications_off_button));
             notifications.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

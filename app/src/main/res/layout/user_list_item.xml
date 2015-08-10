@@ -28,15 +28,16 @@
 
     <ImageView
         android:id="@+id/button_two"
-        android:layout_width="60dip"
-        android:layout_height="60dip"
+        android:layout_width="50dip"
+        android:layout_height="50dip"
         android:layout_alignBottom="@id/thumbnail"
         android:layout_alignParentRight="true"
         android:layout_alignTop="@id/thumbnail"
         android:layout_gravity="center"
+        android:layout_marginRight="8dp"
         android:gravity="center_vertical"
         android:scaleType="fitCenter"
-        android:src="@mipmap/accept_button" />
+        android:src="@drawable/accept_button" />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -77,14 +78,15 @@
 
     <ImageView
         android:id="@+id/button_one"
-        android:layout_width="60dip"
-        android:layout_height="60dip"
+        android:layout_width="50dip"
+        android:layout_height="50dip"
         android:layout_alignBottom="@id/thumbnail"
         android:layout_alignTop="@id/thumbnail"
         android:layout_gravity="center"
+        android:layout_marginRight="8dp"
         android:layout_toLeftOf="@+id/button_two"
         android:layout_toStartOf="@+id/button_two"
         android:scaleType="fitCenter"
-        android:src="@mipmap/decline_button" />
+        android:src="@drawable/decline_button" />
 
 </RelativeLayout>

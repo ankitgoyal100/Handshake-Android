@@ -119,20 +119,20 @@ public class MainActivity extends AppCompatActivity {
         if (account.isContact()) {
             buttonOne.setVisibility(View.GONE);
             buttonTwo.setVisibility(View.VISIBLE);
-            buttonTwo.setImageDrawable(context.getResources().getDrawable(R.mipmap.contacts_button));
+            buttonTwo.setImageDrawable(context.getResources().getDrawable(R.drawable.contacts_button));
         } else if (account.isRequestReceived()) {
             buttonOne.setVisibility(View.VISIBLE);
             buttonTwo.setVisibility(View.VISIBLE);
-            buttonOne.setImageDrawable(context.getResources().getDrawable(R.mipmap.decline_button));
-            buttonTwo.setImageDrawable(context.getResources().getDrawable(R.mipmap.accept_button));
+            buttonOne.setImageDrawable(context.getResources().getDrawable(R.drawable.decline_button));
+            buttonTwo.setImageDrawable(context.getResources().getDrawable(R.drawable.accept_button));
         } else if (account.isRequestSent()) {
             buttonOne.setVisibility(View.GONE);
             buttonTwo.setVisibility(View.VISIBLE);
-            buttonTwo.setImageDrawable(context.getResources().getDrawable(R.mipmap.requested_button));
+            buttonTwo.setImageDrawable(context.getResources().getDrawable(R.drawable.requested_button));
         } else {
             buttonOne.setVisibility(View.GONE);
             buttonTwo.setVisibility(View.VISIBLE);
-            buttonTwo.setImageDrawable(context.getResources().getDrawable(R.mipmap.add_button));
+            buttonTwo.setImageDrawable(context.getResources().getDrawable(R.drawable.add_button));
         }
 
         if (text != null) {
@@ -196,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
                 } else if (account.isRequestReceived()) {
                     buttonOne.setVisibility(View.GONE);
                     buttonTwo.setVisibility(View.VISIBLE);
-                    buttonTwo.setImageDrawable(context.getResources().getDrawable(R.mipmap.contacts_button));
+                    buttonTwo.setImageDrawable(context.getResources().getDrawable(R.drawable.contacts_button));
 
                     Toast.makeText(context, "Request accepted", Toast.LENGTH_SHORT).show();
 
@@ -245,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
                         public void syncCompletedListener(User users) {
                             buttonOne.setVisibility(View.GONE);
                             buttonTwo.setVisibility(View.VISIBLE);
-                            buttonTwo.setImageDrawable(context.getResources().getDrawable(R.mipmap.requested_button));
+                            buttonTwo.setImageDrawable(context.getResources().getDrawable(R.drawable.requested_button));
                             setContactButtons(context, account, buttonOne, buttonTwo, text);
                         }
 
