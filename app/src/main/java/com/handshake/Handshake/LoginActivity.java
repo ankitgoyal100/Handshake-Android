@@ -192,43 +192,6 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    public void changeColor(int newColor) {
-        // change ActionBar color just if an ActionBar is available
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-
-            Drawable colorDrawable = new ColorDrawable(newColor);
-            LayerDrawable ld = new LayerDrawable(new Drawable[]{colorDrawable});
-
-            if (oldBackground == null) {
-
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                    ld.setCallback(drawableCallback);
-                } else {
-                    getSupportActionBar().setBackgroundDrawable(ld);
-                }
-
-            } else {
-
-                TransitionDrawable td = new TransitionDrawable(new Drawable[]{oldBackground, ld});
-
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                    td.setCallback(drawableCallback);
-                } else {
-                    getSupportActionBar().setBackgroundDrawable(td);
-                }
-
-                td.startTransition(200);
-
-            }
-
-            oldBackground = ld;
-
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
-            getSupportActionBar().setDisplayShowTitleEnabled(true);
-
-        }
-    }
-
     private Drawable.Callback drawableCallback = new Drawable.Callback() {
         @Override
         public void invalidateDrawable(Drawable who) {
