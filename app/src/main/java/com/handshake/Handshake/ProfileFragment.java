@@ -43,24 +43,21 @@ import io.realm.Realm;
  * Created by ankitgoyal on 6/27/15.
  */
 public class ProfileFragment extends Fragment {
+    private static final String TAG = "ProfileFragment";
+    private static Executor executor = Executors.newSingleThreadExecutor();
     private Handler handler = new Handler();
     private LinearLayout infoLayout;
     private LinearLayout socialLayout;
-    private static Executor executor = Executors.newSingleThreadExecutor();
-
-    private static final String TAG = "ProfileFragment";
-
     private Realm r;
-
-    public static ProfileFragment newInstance() {
-        ProfileFragment fragment = new ProfileFragment();
-        return fragment;
-    }
 
     public ProfileFragment() {
         // Required empty public constructor
     }
 
+    public static ProfileFragment newInstance() {
+        ProfileFragment fragment = new ProfileFragment();
+        return fragment;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -84,7 +81,7 @@ public class ProfileFragment extends Fragment {
             final Realm realm = Realm.getInstance(getActivity());
             final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
 
-            if(account == null) return;
+            if (account == null) return;
 
             TextViewCustomFont name = (TextViewCustomFont) getView().findViewById(R.id.name);
             String lastName = "";
@@ -165,6 +162,10 @@ public class ProfileFragment extends Fragment {
                         public void run() {
                             if (card.getSocials().size() == 0) {
                                 getView().findViewById(R.id.divider2).setVisibility(View.GONE);
+                            }
+
+                            if (card.getPhones().size() + card.getEmails().size() + card.getAddresses().size() + card.getSocials().size() == 0) {
+                                getView().findViewById(R.id.no_info).setVisibility(View.VISIBLE);
                             }
                         }
                     });

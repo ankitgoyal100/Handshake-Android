@@ -190,7 +190,6 @@ public class RequestServerSync {
         RestClientAsync.post(context, "/users/" + user.getUserId() + "/accept", jsonParams, "application/json", new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                System.out.println(response.toString());
                 success(listener, user, response);
                 FeedItemServerSync.performSync(context, new SyncCompleted() {
                     @Override

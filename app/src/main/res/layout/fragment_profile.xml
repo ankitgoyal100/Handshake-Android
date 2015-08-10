@@ -87,6 +87,18 @@
                 android:layout_height="1dip"
                 android:background="@color/divider" />
 
+            <com.handshake.views.TextViewCustomFont
+                android:id="@+id/no_info"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_horizontal"
+                android:text="No contact information"
+                android:textColor="@color/dark_gray"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
             <LinearLayout
                 android:id="@+id/linear_layout"
                 android:layout_width="fill_parent"

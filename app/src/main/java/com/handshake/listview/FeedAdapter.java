@@ -12,11 +12,11 @@ import android.widget.ListAdapter;
 
 import com.handshake.Handshake.R;
 import com.handshake.Handshake.SessionManager;
-import com.handshake.views.CircleTransform;
-import com.handshake.views.TextViewCustomFont;
 import com.handshake.Handshake.Utils;
 import com.handshake.models.Account;
 import com.handshake.models.FeedItem;
+import com.handshake.views.CircleTransform;
+import com.handshake.views.TextViewCustomFont;
 import com.squareup.picasso.Picasso;
 
 import io.realm.Realm;
@@ -74,6 +74,7 @@ public class FeedAdapter extends RealmBaseAdapter<FeedItem> implements ListAdapt
                 Picasso.with(context).load(R.drawable.default_profile).transform(new CircleTransform()).into(viewHolder.image);
         } else {
             Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+            if (account == null) return convertView;
             if (!account.getThumb().isEmpty() && !account.getThumb().equals("null"))
                 Picasso.with(context).load(account.getThumb()).transform(new CircleTransform()).into(viewHolder.image);
             else
@@ -89,13 +90,6 @@ public class FeedAdapter extends RealmBaseAdapter<FeedItem> implements ListAdapt
 
     public RealmResults<FeedItem> getRealmResults() {
         return realmResults;
-    }
-
-    class ViewHolder {
-        ImageView image;
-        TextViewCustomFont title;
-        TextViewCustomFont description;
-        ImageView rightImage;
     }
 
     private Spannable getMessageForItem(FeedItem item) {
@@ -122,5 +116,12 @@ public class FeedAdapter extends RealmBaseAdapter<FeedItem> implements ListAdapt
         }
 
         return messageString;
+    }
+
+    class ViewHolder {
+        ImageView image;
+        TextViewCustomFont title;
+        TextViewCustomFont description;
+        ImageView rightImage;
     }
 }
