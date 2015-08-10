@@ -37,8 +37,11 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_margin="64dp"
+        android:layout_marginBottom="64dp"
+        android:layout_marginTop="64dp"
         android:background="@drawable/button_white"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
         android:text="Let's get started!"
         android:textColor="@color/orange"
         android:textSize="18sp" />

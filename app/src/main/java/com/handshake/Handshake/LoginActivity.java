@@ -100,6 +100,11 @@ public class LoginActivity extends AppCompatActivity {
                         login.setEnabled(true);
                         dialog.cancel();
 
+                        if (errorResponse == null) {
+                            Toast.makeText(context, "There was an error. Please try again.", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+
                         try {
                             Toast.makeText(context, errorResponse.getJSONArray("errors").getString(0), Toast.LENGTH_LONG).show();
                         } catch (JSONException e) {
