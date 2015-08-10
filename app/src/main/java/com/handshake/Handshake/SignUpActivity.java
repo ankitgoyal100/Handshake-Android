@@ -31,13 +31,27 @@ import io.realm.Realm;
 
 public class SignUpActivity extends AppCompatActivity {
 
+    public static boolean cardSyncCompleted = false;
     private final Handler handler = new Handler();
+    SessionManager session;
     private Drawable oldBackground = null;
     private Context context = this;
+    private Drawable.Callback drawableCallback = new Drawable.Callback() {
+        @Override
+        public void invalidateDrawable(Drawable who) {
+            getSupportActionBar().setBackgroundDrawable(who);
+        }
 
-    SessionManager session;
+        @Override
+        public void scheduleDrawable(Drawable who, Runnable what, long when) {
+            handler.postAtTime(what, when);
+        }
 
-    public static boolean cardSyncCompleted = false;
+        @Override
+        public void unscheduleDrawable(Drawable who, Runnable what) {
+            handler.removeCallbacks(what);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,6 +155,11 @@ public class SignUpActivity extends AppCompatActivity {
                         login.setEnabled(true);
                         dialog.cancel();
 
+                        if (errorResponse == null) {
+                            Toast.makeText(context, "There was an error. Please try again.", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+
                         try {
                             Toast.makeText(context, errorResponse.getJSONArray("errors").getString(0), Toast.LENGTH_LONG).show();
                         } catch (JSONException e) {
@@ -188,21 +207,4 @@ public class SignUpActivity extends AppCompatActivity {
 
         }
     }
-
-    private Drawable.Callback drawableCallback = new Drawable.Callback() {
-        @Override
-        public void invalidateDrawable(Drawable who) {
-            getSupportActionBar().setBackgroundDrawable(who);
-        }
-
-        @Override
-        public void scheduleDrawable(Drawable who, Runnable what, long when) {
-            handler.postAtTime(what, when);
-        }
-
-        @Override
-        public void unscheduleDrawable(Drawable who, Runnable what) {
-            handler.removeCallbacks(what);
-        }
-    };
 }

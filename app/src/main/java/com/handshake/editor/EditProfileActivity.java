@@ -83,6 +83,8 @@ public class EditProfileActivity extends AppCompatActivity {
 
     public static boolean isIntialSetup;
     private CallbackManager callbackManager;
+    private Bitmap circle;
+    private Bitmap photo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,14 +129,14 @@ public class EditProfileActivity extends AppCompatActivity {
         Button saveButton = (Button) findViewById(R.id.save);
         if (isIntialSetup) {
             LinearLayout nameLayout = (LinearLayout) findViewById(R.id.name_layout);
-            View nameDivider = (View) findViewById(R.id.name_divider);
+            View nameDivider = findViewById(R.id.name_divider);
             nameLayout.setVisibility(View.GONE);
             nameDivider.setVisibility(View.GONE);
             saveButton.setText("Next");
 
             TextViewCustomFont intro = (TextViewCustomFont) findViewById(R.id.intro);
-            View introDivider = (View) findViewById(R.id.intro_divider);
-            View pictureDivider = (View) findViewById(R.id.edit_picture_divider);
+            View introDivider = findViewById(R.id.intro_divider);
+            View pictureDivider = findViewById(R.id.edit_picture_divider);
             intro.setVisibility(View.VISIBLE);
             introDivider.setVisibility(View.VISIBLE);
             pictureDivider.setVisibility(View.VISIBLE);
@@ -160,14 +162,14 @@ public class EditProfileActivity extends AppCompatActivity {
             }
         } else {
             TextViewCustomFont intro = (TextViewCustomFont) findViewById(R.id.intro);
-            View introDivider = (View) findViewById(R.id.intro_divider);
-            View pictureDivider = (View) findViewById(R.id.edit_picture_divider);
+            View introDivider = findViewById(R.id.intro_divider);
+            View pictureDivider = findViewById(R.id.edit_picture_divider);
             intro.setVisibility(View.GONE);
             introDivider.setVisibility(View.GONE);
             pictureDivider.setVisibility(View.GONE);
 
             LinearLayout nameLayout = (LinearLayout) findViewById(R.id.name_layout);
-            View nameDivider = (View) findViewById(R.id.name_divider);
+            View nameDivider = findViewById(R.id.name_divider);
             nameLayout.setVisibility(View.VISIBLE);
             nameDivider.setVisibility(View.VISIBLE);
             saveButton.setText("Save");
@@ -206,6 +208,201 @@ public class EditProfileActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    private void setContactInformation(Card card) {
+        final LinearLayout infoLayout = (LinearLayout) findViewById(R.id.linear_layout);
+        infoLayout.removeAllViews();
+
+        for (int i = 0; i < card.getPhones().size(); i++) {
+            final Phone phone = card.getPhones().get(i);
+            LayoutInflater inflater = (LayoutInflater) getApplicationContext()
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            final View mLinearView = inflater.inflate(R.layout.added_info_cell, null);
+            final TextViewCustomFont title = (TextViewCustomFont) mLinearView.findViewById(R.id.title);
+            final TextViewCustomFont description = (TextViewCustomFont) mLinearView.findViewById(R.id.description);
+            final ImageView imageView1 = (ImageView) mLinearView.findViewById(R.id.imageView1);
+            final String phoneNumber = phone.getNumber();
+            final String phoneCountryCode = phone.getCountryCode();
+            final String phoneLabel = phone.getLabel();
+
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    imageView1.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            new AlertDialogWrapper.Builder(context)
+                                    .setMessage("Are you sure?")
+                                    .setPositiveButton("Remove", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            infoLayout.removeView(mLinearView);
+                                            Realm realm = Realm.getInstance(context);
+                                            realm.beginTransaction();
+                                            phone.removeFromRealm();
+                                            realm.commitTransaction();
+                                            realm.close();
+                                        }
+                                    })
+                                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.cancel();
+                                        }
+                                    })
+                                    .show();
+                        }
+                    });
+
+                    PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+                    try {
+                        Phonenumber.PhoneNumber numberObject = phoneUtil.parse(phoneNumber, phoneCountryCode);
+                        if (phoneUtil.isValidNumber(numberObject))
+                            title.setText(phoneUtil.format(numberObject, PhoneNumberUtil.PhoneNumberFormat.NATIONAL));
+                    } catch (NumberParseException e) {
+                        title.setText(phoneNumber);
+                        e.printStackTrace();
+                    }
+
+                    description.setText(phoneLabel);
+                    mLinearView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent i = new Intent(context, EditPhoneActivity.class);
+                            i.putExtra("number", phoneNumber);
+                            i.putExtra("code", phoneCountryCode);
+                            i.putExtra("label", phoneLabel);
+                            startActivityForResult(i, 0);
+                        }
+                    });
+
+                    infoLayout.addView(mLinearView);
+                }
+            });
+        }
+
+        for (int i = 0; i < card.getEmails().size(); i++) {
+            final Email email = card.getEmails().get(i);
+            LayoutInflater inflater = (LayoutInflater) getApplicationContext()
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            final View mLinearView = inflater.inflate(R.layout.added_info_cell, null);
+            final TextViewCustomFont title = (TextViewCustomFont) mLinearView.findViewById(R.id.title);
+            final TextViewCustomFont description = (TextViewCustomFont) mLinearView.findViewById(R.id.description);
+            final ImageView imageView1 = (ImageView) mLinearView.findViewById(R.id.imageView1);
+            final String emailAddress = email.getAddress();
+            final String emailLabel = email.getLabel();
+
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    imageView1.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            new AlertDialogWrapper.Builder(context)
+                                    .setMessage("Are you sure?")
+                                    .setPositiveButton("Remove", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            infoLayout.removeView(mLinearView);
+                                            Realm realm = Realm.getInstance(context);
+                                            realm.beginTransaction();
+                                            email.removeFromRealm();
+                                            realm.commitTransaction();
+                                            realm.close();
+                                        }
+                                    })
+                                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.cancel();
+                                        }
+                                    })
+                                    .show();
+                        }
+                    });
+
+                    title.setText(emailAddress);
+                    description.setText(emailLabel);
+                    mLinearView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent i = new Intent(context, EditEmailActivity.class);
+                            i.putExtra("address", emailAddress);
+                            i.putExtra("label", emailLabel);
+                            startActivityForResult(i, 0);
+                        }
+                    });
+
+                    infoLayout.addView(mLinearView);
+                }
+            });
+        }
+
+        for (int i = 0; i < card.getAddresses().size(); i++) {
+            final Address address = card.getAddresses().get(i);
+            LayoutInflater inflater = (LayoutInflater) getApplicationContext()
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            final View mLinearView = inflater.inflate(R.layout.added_info_cell, null);
+            final TextViewCustomFont title = (TextViewCustomFont) mLinearView.findViewById(R.id.title);
+            final TextViewCustomFont description = (TextViewCustomFont) mLinearView.findViewById(R.id.description);
+            final ImageView imageView1 = (ImageView) mLinearView.findViewById(R.id.imageView1);
+            final String addressStreet1 = address.getStreet1();
+            final String addressStreet2 = address.getStreet2();
+            final String addressCity = address.getCity();
+            final String addressState = address.getState();
+            final String addressZip = address.getZip();
+            final String addressLabel = address.getLabel();
+
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    imageView1.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            new AlertDialogWrapper.Builder(context)
+                                    .setMessage("Are you sure?")
+                                    .setPositiveButton("Remove", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            infoLayout.removeView(mLinearView);
+                                            Realm realm = Realm.getInstance(context);
+                                            realm.beginTransaction();
+                                            address.removeFromRealm();
+                                            realm.commitTransaction();
+                                            realm.close();
+                                        }
+                                    })
+                                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.cancel();
+                                        }
+                                    })
+                                    .show();
+                        }
+                    });
+
+                    if (addressStreet2.length() != 0)
+                        title.setText(addressStreet1 + "\n" + addressStreet2 + "\n" +
+                                addressCity + ", " + addressState + " " + addressZip);
+                    else
+                        title.setText(addressStreet1 + "\n" +
+                                addressCity + ", " + addressState + " " + addressZip);
+
+                    description.setText(addressLabel);
+                    mLinearView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent i = new Intent(context, EditAddressActivity.class);
+                            i.putExtra("street1", addressStreet1);
+                            i.putExtra("street2", addressStreet2);
+                            i.putExtra("city", addressCity);
+                            i.putExtra("state", addressState);
+                            i.putExtra("zip", addressZip);
+                            i.putExtra("label", addressLabel);
+                            startActivityForResult(i, 0);
+                        }
+                    });
+                    infoLayout.addView(mLinearView);
+                }
+            });
+        }
+
     }
 
     private void setContactInformation(Card card) {
@@ -684,9 +881,9 @@ public class EditProfileActivity extends AppCompatActivity {
             Picasso.with(this).load(account.getPicture()).transform(new CircleTransform()).into(profileImage);
             profileImageText.setText("Change picture");
         } else if (account.getPictureData() != null && account.getPictureData().length > 0) {
-            Bitmap photo = BitmapFactory.decodeByteArray(account.getPictureData(), 0, account.getPictureData().length);
+            photo = BitmapFactory.decodeByteArray(account.getPictureData(), 0, account.getPictureData().length);
             CircleTransform transform = new CircleTransform();
-            Bitmap circle = transform.transform(photo);
+            circle = transform.transform(photo);
             profileImage.setImageBitmap(circle);
             profileImageText.setText("Change picture");
         } else {
@@ -852,4 +1049,12 @@ public class EditProfileActivity extends AppCompatActivity {
             handler.removeCallbacks(what);
         }
     };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (circle != null) circle.recycle();
+        if (photo != null) photo.recycle();
+    }
 }

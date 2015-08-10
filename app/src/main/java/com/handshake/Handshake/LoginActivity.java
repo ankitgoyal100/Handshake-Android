@@ -100,6 +100,11 @@ public class LoginActivity extends AppCompatActivity {
                         login.setEnabled(true);
                         dialog.cancel();
 
+                        if (errorResponse == null) {
+                            Toast.makeText(context, "There was an error. Please try again.", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+
                         try {
                             Toast.makeText(context, errorResponse.getJSONArray("errors").getString(0), Toast.LENGTH_LONG).show();
                         } catch (JSONException e) {
@@ -148,6 +153,43 @@ public class LoginActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    public void changeColor(int newColor) {
+        // change ActionBar color just if an ActionBar is available
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+
+            Drawable colorDrawable = new ColorDrawable(newColor);
+            LayerDrawable ld = new LayerDrawable(new Drawable[]{colorDrawable});
+
+            if (oldBackground == null) {
+
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                    ld.setCallback(drawableCallback);
+                } else {
+                    getSupportActionBar().setBackgroundDrawable(ld);
+                }
+
+            } else {
+
+                TransitionDrawable td = new TransitionDrawable(new Drawable[]{oldBackground, ld});
+
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                    td.setCallback(drawableCallback);
+                } else {
+                    getSupportActionBar().setBackgroundDrawable(td);
+                }
+
+                td.startTransition(200);
+
+            }
+
+            oldBackground = ld;
+
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            getSupportActionBar().setDisplayShowTitleEnabled(true);
+
+        }
     }
 
     public void changeColor(int newColor) {

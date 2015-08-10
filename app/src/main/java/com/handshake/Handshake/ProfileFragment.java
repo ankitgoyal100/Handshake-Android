@@ -104,11 +104,10 @@ public class ProfileFragment extends Fragment {
                 Picasso.with(getActivity()).load(account.getPicture()).into(backdrop);
             } else if (account.getPictureData() != null && account.getPictureData().length > 0) {
                 Bitmap photo = BitmapFactory.decodeByteArray(account.getPictureData(), 0, account.getPictureData().length);
-                Bitmap photoCopy = photo.copy(photo.getConfig(), true);
                 CircleTransform transform = new CircleTransform();
                 Bitmap circle = transform.transform(photo);
                 profileImage.setImageBitmap(circle);
-                backdrop.setImageBitmap(photoCopy);
+                backdrop.setImageBitmap(BitmapFactory.decodeByteArray(account.getPictureData(), 0, account.getPictureData().length));
             } else {
                 Picasso.with(getActivity()).load(R.drawable.default_profile).transform(new CircleTransform()).into(profileImage);
                 collapsingToolbar.setContentScrimColor(getResources().getColor(R.color.background_window));
