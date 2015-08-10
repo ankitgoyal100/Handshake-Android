@@ -405,7 +405,6 @@ public class EditProfileActivity extends AppCompatActivity {
 
     }
 
-
     private void setName(Account account) {
         TextViewCustomFont name = (TextViewCustomFont) findViewById(R.id.name);
         String lastName = "";
