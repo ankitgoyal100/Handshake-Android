@@ -175,7 +175,7 @@
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
-                <ToggleButton
+                <Switch
                     android:id="@+id/save_to_phone"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

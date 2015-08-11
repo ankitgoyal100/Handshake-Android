@@ -26,8 +26,8 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
@@ -76,7 +76,7 @@ public class ContactUserProfileActivity extends AppCompatActivity {
 
         RelativeLayout autoSyncLayout = (RelativeLayout) findViewById(R.id.save_to_phone_layout);
         View autoSyncDivider = findViewById(R.id.save_to_phone_divider);
-        ToggleButton autoSyncToggle = (ToggleButton) findViewById(R.id.save_to_phone);
+        Switch autoSyncToggle = (Switch) findViewById(R.id.save_to_phone);
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         boolean isAutosync = sharedPreferences.getBoolean("autosync_preference", true);
