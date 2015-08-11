@@ -66,7 +66,7 @@ public class FeedFragment extends ListFragment {
                     @Override
                     public void syncCompletedListener() {
                         swipeContainer.setRefreshing(false);
-//                        setIntroVisible();
+                        setIntroVisible();
                     }
                 });
             }

@@ -184,7 +184,7 @@ public class ContactUserProfileActivity extends AppCompatActivity {
                     }
                 });
 
-                while (!MainActivity.cardSyncCompleted) {
+                while (!MainActivity.contactSyncCompleted) {
 
                 }
 
@@ -192,15 +192,13 @@ public class ContactUserProfileActivity extends AppCompatActivity {
 
                 final User account = r.where(User.class).equalTo("userId", getIntent().getLongExtra("userId", SessionManager.getID())).findFirst();
                 final Card card = account.getCards().first();
-                if (card == null) return;
 
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
                         dialog.cancel();
-
-                        if (card.isValid() && card.getSocials().size() == 0) {
-                            findViewById(R.id.divider2).setVisibility(View.GONE);
+                        if (card == null) {
+                            Toast.makeText(context, "There was an error. Please try again.", Toast.LENGTH_LONG).show();
                         }
                     }
                 });
@@ -221,6 +219,7 @@ public class ContactUserProfileActivity extends AppCompatActivity {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
+                            findViewById(R.id.no_info).setVisibility(View.GONE);
                             findViewById(R.id.divider1).setVisibility(View.VISIBLE);
 
                             imageView1.setVisibility(View.VISIBLE);
@@ -277,6 +276,7 @@ public class ContactUserProfileActivity extends AppCompatActivity {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
+                            findViewById(R.id.no_info).setVisibility(View.GONE);
                             imageView1.setVisibility(View.GONE);
                             imageView2.setVisibility(View.VISIBLE);
                             imageView2.setImageDrawable(getResources().getDrawable(R.mipmap.email_button));
@@ -316,6 +316,7 @@ public class ContactUserProfileActivity extends AppCompatActivity {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
+                            findViewById(R.id.no_info).setVisibility(View.GONE);
                             imageView1.setVisibility(View.GONE);
                             imageView2.setVisibility(View.VISIBLE);
                             imageView2.setImageDrawable(getResources().getDrawable(R.mipmap.maps_button));
@@ -363,6 +364,7 @@ public class ContactUserProfileActivity extends AppCompatActivity {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
+                            findViewById(R.id.no_info).setVisibility(View.GONE);
                             findViewById(R.id.divider2).setVisibility(View.VISIBLE);
 
                             if (network.equals("facebook")) {

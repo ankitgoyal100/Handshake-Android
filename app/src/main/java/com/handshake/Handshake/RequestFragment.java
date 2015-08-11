@@ -61,7 +61,7 @@ public class RequestFragment extends ListFragment {
                     @Override
                     public void syncCompletedListener() {
                         swipeContainer.setRefreshing(false);
-//                        setIntroVisible();
+                        setIntroVisible();
                     }
                 });
             }
