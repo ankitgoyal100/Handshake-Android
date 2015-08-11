@@ -94,6 +94,7 @@ public class SuggestionsServerSync {
                                         }
                                     }
 
+                                    realm.close();
                                     handler.post(new Runnable() {
                                         @Override
                                         public void run() {

@@ -43,22 +43,21 @@ import io.realm.Realm;
  * Created by ankitgoyal on 6/27/15.
  */
 public class ProfileFragment extends Fragment {
+    private static final String TAG = "ProfileFragment";
+    private static Executor executor = Executors.newSingleThreadExecutor();
     private Handler handler = new Handler();
     private LinearLayout infoLayout;
     private LinearLayout socialLayout;
-    private static Executor executor = Executors.newSingleThreadExecutor();
-
-    private static final String TAG = "ProfileFragment";
-
-    public static ProfileFragment newInstance() {
-        ProfileFragment fragment = new ProfileFragment();
-        return fragment;
-    }
+    private Realm r;
 
     public ProfileFragment() {
         // Required empty public constructor
     }
 
+    public static ProfileFragment newInstance() {
+        ProfileFragment fragment = new ProfileFragment();
+        return fragment;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -74,13 +73,15 @@ public class ProfileFragment extends Fragment {
         socialLayout = (LinearLayout) getView().findViewById(R.id.linear_layout_2);
     }
 
-    private void fillViews() {
+    public void fillViews() {
         SessionManager session = new SessionManager(getActivity());
         if (!session.isLoggedIn()) return;
 
         synchronized (TAG) {
             final Realm realm = Realm.getInstance(getActivity());
             final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+
+            if (account == null) return;
 
             TextViewCustomFont name = (TextViewCustomFont) getView().findViewById(R.id.name);
             String lastName = "";
@@ -103,11 +104,10 @@ public class ProfileFragment extends Fragment {
                 Picasso.with(getActivity()).load(account.getPicture()).into(backdrop);
             } else if (account.getPictureData() != null && account.getPictureData().length > 0) {
                 Bitmap photo = BitmapFactory.decodeByteArray(account.getPictureData(), 0, account.getPictureData().length);
-                Bitmap photoCopy = photo.copy(photo.getConfig(), true);
                 CircleTransform transform = new CircleTransform();
                 Bitmap circle = transform.transform(photo);
                 profileImage.setImageBitmap(circle);
-                backdrop.setImageBitmap(photoCopy);
+                backdrop.setImageBitmap(BitmapFactory.decodeByteArray(account.getPictureData(), 0, account.getPictureData().length));
             } else {
                 Picasso.with(getActivity()).load(R.drawable.default_profile).transform(new CircleTransform()).into(profileImage);
                 collapsingToolbar.setContentScrimColor(getResources().getColor(R.color.background_window));
@@ -146,15 +146,28 @@ public class ProfileFragment extends Fragment {
                         }
                     });
 
-                    while (!MainActivity.cardSyncCompleted) {
+//                    while (!MainActivity.cardSyncCompleted) {
+//
+//                    }
 
-                    }
+                    r = Realm.getInstance(getActivity());
 
-                    Realm realm = Realm.getInstance(getActivity());
-
-                    final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+                    final Account account = r.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
                     final Card card = account.getCards().first();
                     if (card == null) return;
+
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (card.getSocials().size() == 0) {
+                                getView().findViewById(R.id.divider2).setVisibility(View.GONE);
+                            }
+
+                            if (card.getPhones().size() + card.getEmails().size() + card.getAddresses().size() + card.getSocials().size() == 0) {
+                                getView().findViewById(R.id.no_info).setVisibility(View.VISIBLE);
+                            }
+                        }
+                    });
 
                     for (final Phone phone : card.getPhones()) {
                         LayoutInflater inflater = (LayoutInflater) getActivity().getApplicationContext()
@@ -173,7 +186,6 @@ public class ProfileFragment extends Fragment {
                             @Override
                             public void run() {
 //                            dialog.cancel();
-
                                 getView().findViewById(R.id.divider1).setVisibility(View.VISIBLE);
 
                                 imageView1.setVisibility(View.VISIBLE);
@@ -316,11 +328,7 @@ public class ProfileFragment extends Fragment {
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
-                                if (card.getSocials().size() == 0) {
-                                    getView().findViewById(R.id.divider1).setVisibility(View.GONE);
-                                } else {
-                                    getView().findViewById(R.id.divider2).setVisibility(View.VISIBLE);
-                                }
+                                getView().findViewById(R.id.divider2).setVisibility(View.VISIBLE);
 
                                 if (network.equals("facebook")) {
                                     imageView1.setImageDrawable(getResources().getDrawable(R.mipmap.facebook_icon));
@@ -385,9 +393,11 @@ public class ProfileFragment extends Fragment {
                                 socialLayout.addView(mLinearView);
                             }
                         });
+
                     }
                 }
             }).start();
+            realm.close();
         }
     }
 
@@ -399,5 +409,12 @@ public class ProfileFragment extends Fragment {
             if (session.isLoggedIn())
                 fillViews();
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (r != null)
+            r.close();
     }
 }

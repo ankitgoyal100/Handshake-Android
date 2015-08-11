@@ -7,6 +7,7 @@ import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.SyncHttpClient;
 
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
@@ -20,10 +21,11 @@ import java.io.UnsupportedEncodingException;
  */
 public class RestClientSync {
     private static final String BASE_URL = "https://handshakeapi11.herokuapp.com";
-
     private static SyncHttpClient client = new SyncHttpClient();
+    private static final int DEFAULT_TIMEOUT = 20 * 1000;
 
     public static void get(Context context, String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        client.setTimeout(DEFAULT_TIMEOUT);
         client.addHeader("Accept", "application/json");
         client.addHeader("Content-type", "application/json");
         params.put("auth_token", SessionManager.getToken());
@@ -32,11 +34,14 @@ public class RestClientSync {
     }
 
     public static void post(Context context, String url, JSONObject jsonObject, String contentType, AsyncHttpResponseHandler responseHandler) {
+        client.setTimeout(DEFAULT_TIMEOUT);
         client.addHeader("Accept", "application/json");
         client.addHeader("Content-type", "application/json");
         try {
-            jsonObject.put("auth_token", SessionManager.getToken());
-            jsonObject.put("user_id", SessionManager.getID());
+            if (!jsonObject.has("auth_token"))
+                jsonObject.put("auth_token", SessionManager.getToken());
+            if (!jsonObject.has("user_id"))
+                jsonObject.put("user_id", SessionManager.getID());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -50,12 +55,14 @@ public class RestClientSync {
     }
 
     public static void post(Context context, String url, ByteArrayEntity entity, AsyncHttpResponseHandler responseHandler) {
+        client.setTimeout(DEFAULT_TIMEOUT);
         client.addHeader("Accept", "application/json");
         client.addHeader("Content-type", "application/json");
         client.post(context, getAbsoluteUrl(url), entity, "application/json", responseHandler);
     }
 
     public static void post(Context context, String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        client.setTimeout(DEFAULT_TIMEOUT);
         client.addHeader("Accept", "application/json");
         client.addHeader("Content-type", "application/json");
         params.put("auth_token", SessionManager.getToken());
@@ -63,22 +70,25 @@ public class RestClientSync {
         client.post(context, getAbsoluteUrl(url), params, responseHandler);
     }
 
-    public static void put(Context context, String url, ByteArrayEntity entity, AsyncHttpResponseHandler responseHandler) {
+    public static void put(Context context, String url, HttpEntity entity, AsyncHttpResponseHandler responseHandler) {
+        client.setTimeout(DEFAULT_TIMEOUT);
         client.addHeader("Accept", "application/json");
         client.addHeader("Content-type", "application/json");
         client.put(context, getAbsoluteUrl(url), entity, "application/json", responseHandler);
     }
 
     public static void put(Context context, String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        client.setTimeout(DEFAULT_TIMEOUT);
         client.addHeader("Accept", "application/json");
         client.addHeader("Content-type", "application/json");
         params.put("auth_token", SessionManager.getToken());
         params.put("user_id", SessionManager.getID());
-        client.put(getAbsoluteUrl(url), params, responseHandler);
+        client.put(context, getAbsoluteUrl(url), params, responseHandler);
     }
 
 
     public static void delete(Context context, String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        client.setTimeout(DEFAULT_TIMEOUT);
         client.addHeader("Accept", "application/json");
         client.addHeader("Content-type", "application/json");
         Header[] headers = {

@@ -7,6 +7,8 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.handshake.helpers.FeedItemServerSync;
@@ -15,6 +17,7 @@ import com.handshake.listview.FeedAdapter;
 import com.handshake.listview.SuggestionAdapter;
 import com.handshake.models.FeedItem;
 import com.handshake.models.Suggestion;
+import com.handshake.views.ButtonCustomFont;
 import com.handshake.views.TextViewCustomFont;
 
 import io.realm.Realm;
@@ -22,16 +25,20 @@ import io.realm.RealmResults;
 
 
 public class FeedFragment extends ListFragment {
-    private SwipeRefreshLayout swipeContainer;
     Handler handler = new Handler();
+    private SwipeRefreshLayout swipeContainer;
+    private Realm realm;
+    private TextViewCustomFont suggestionText;
+    private LinearLayout introView;
+    private ListView suggestionListView;
+
+    public FeedFragment() {
+        // Required empty public constructor
+    }
 
     public static FeedFragment newInstance() {
         FeedFragment fragment = new FeedFragment();
         return fragment;
-    }
-
-    public FeedFragment() {
-        // Required empty public constructor
     }
 
     @Override
@@ -59,6 +66,7 @@ public class FeedFragment extends ListFragment {
                     @Override
                     public void syncCompletedListener() {
                         swipeContainer.setRefreshing(false);
+                        setIntroVisible();
                     }
                 });
             }
@@ -70,48 +78,87 @@ public class FeedFragment extends ListFragment {
         super.onActivityCreated(savedInstanceState);
 
         SessionManager session = new SessionManager(getActivity());
-        if(!session.isLoggedIn()) return;
+        if (!session.isLoggedIn()) return;
 
-        Realm realm = Realm.getInstance(getActivity());
+        realm = Realm.getInstance(getActivity());
         RealmResults<FeedItem> feedItems = realm.where(FeedItem.class).findAll();
+        introView = (LinearLayout) getView().findViewById(R.id.intro_layout);
         feedItems.sort("updatedAt", false);
         FeedAdapter feedAdapter = new FeedAdapter(getActivity(), feedItems, true);
         setListAdapter(feedAdapter);
 
-        final RealmResults<Suggestion> suggestionItems = realm.where(Suggestion.class).findAll();
-        final TextViewCustomFont suggestionText = (TextViewCustomFont) getView().findViewById(R.id.suggestion_text);
-        if (suggestionItems.size() > 0) {
-            suggestionText.setVisibility(View.VISIBLE);
-        }
-        new Thread(new Runnable() {
+        getListView().setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
-            public void run() {
-                while (!MainActivity.suggestionSyncCompleted) {
-                }
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
 
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (suggestionItems.size() > 0) {
-                            suggestionText.setVisibility(View.VISIBLE);
-                        } else {
-                            suggestionText.setVisibility(View.GONE);
-                        }
-                    }
-                });
             }
-        }).start();
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                int topRowVerticalPosition =
+                        (getListView() == null || getListView().getChildCount() == 0) ?
+                                0 : getListView().getChildAt(0).getTop();
+                swipeContainer.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
+            }
+        });
+
+        final RealmResults<Suggestion> suggestionItems = realm.where(Suggestion.class).findAll();
+        suggestionText = (TextViewCustomFont) getView().findViewById(R.id.suggestion_text);
         SuggestionAdapter suggestionAdapter = new SuggestionAdapter(getActivity(), suggestionItems, true);
-        ListView suggestionListView = (ListView) getView().findViewById(R.id.listView2);
+        suggestionListView = (ListView) getView().findViewById(R.id.listView2);
         suggestionListView.setAdapter(suggestionAdapter);
+
+        setIntroVisible();
+        setSuggestionText();
 
         Utils.setDynamicHeight(getListView());
         Utils.setDynamicHeight(suggestionListView);
+
+        ButtonCustomFont getStarted = (ButtonCustomFont) getView().findViewById(R.id.get_started);
+        getStarted.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((MainActivity) getActivity()).selectSearchView();
+            }
+        });
     }
 
     @Override
     public void onResume() {
         super.onResume();
         swipeContainer.setRefreshing(false);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (realm != null)
+            realm.close();
+    }
+
+    public void setSuggestionText() {
+        Utils.setDynamicHeight(getListView());
+        Utils.setDynamicHeight(suggestionListView);
+
+        final Realm r = Realm.getInstance(getActivity());
+        if (r.where(Suggestion.class).findAll().size() > 0) {
+            suggestionText.setVisibility(View.VISIBLE);
+        } else {
+            suggestionText.setVisibility(View.GONE);
+        }
+        r.close();
+    }
+
+    public void setIntroVisible() {
+        Utils.setDynamicHeight(getListView());
+        Utils.setDynamicHeight(suggestionListView);
+
+        final Realm r = Realm.getInstance(getActivity());
+        if (r.where(FeedItem.class).findAll().size() > 0) {
+            introView.setVisibility(View.GONE);
+        } else {
+            introView.setVisibility(View.VISIBLE);
+        }
+        r.close();
     }
 }

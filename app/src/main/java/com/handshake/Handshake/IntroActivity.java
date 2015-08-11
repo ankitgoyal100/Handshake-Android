@@ -70,4 +70,8 @@ public class IntroActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    public void onBackPressed() {
+        moveTaskToBack(true);
+    }
 }

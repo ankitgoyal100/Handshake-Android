@@ -97,6 +97,7 @@ public class SuggestionAdapter extends RealmBaseAdapter<Suggestion> implements L
                     i = new Intent(context, GenericUserProfileActivity.class);
                 }
                 i.putExtra("userId", userId);
+                realm.close();
                 context.startActivity(i);
             }
         });

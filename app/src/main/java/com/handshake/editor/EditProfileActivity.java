@@ -83,6 +83,8 @@ public class EditProfileActivity extends AppCompatActivity {
 
     public static boolean isIntialSetup;
     private CallbackManager callbackManager;
+    private Bitmap circle;
+    private Bitmap photo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,20 +122,21 @@ public class EditProfileActivity extends AppCompatActivity {
                 startActivityForResult(i, 0);
             }
         });
+        realm.close();
     }
 
     private void initialSetup() {
         Button saveButton = (Button) findViewById(R.id.save);
         if (isIntialSetup) {
             LinearLayout nameLayout = (LinearLayout) findViewById(R.id.name_layout);
-            View nameDivider = (View) findViewById(R.id.name_divider);
+            View nameDivider = findViewById(R.id.name_divider);
             nameLayout.setVisibility(View.GONE);
             nameDivider.setVisibility(View.GONE);
             saveButton.setText("Next");
 
             TextViewCustomFont intro = (TextViewCustomFont) findViewById(R.id.intro);
-            View introDivider = (View) findViewById(R.id.intro_divider);
-            View pictureDivider = (View) findViewById(R.id.edit_picture_divider);
+            View introDivider = findViewById(R.id.intro_divider);
+            View pictureDivider = findViewById(R.id.edit_picture_divider);
             intro.setVisibility(View.VISIBLE);
             introDivider.setVisibility(View.VISIBLE);
             pictureDivider.setVisibility(View.VISIBLE);
@@ -159,14 +162,14 @@ public class EditProfileActivity extends AppCompatActivity {
             }
         } else {
             TextViewCustomFont intro = (TextViewCustomFont) findViewById(R.id.intro);
-            View introDivider = (View) findViewById(R.id.intro_divider);
-            View pictureDivider = (View) findViewById(R.id.edit_picture_divider);
+            View introDivider = findViewById(R.id.intro_divider);
+            View pictureDivider = findViewById(R.id.edit_picture_divider);
             intro.setVisibility(View.GONE);
             introDivider.setVisibility(View.GONE);
             pictureDivider.setVisibility(View.GONE);
 
             LinearLayout nameLayout = (LinearLayout) findViewById(R.id.name_layout);
-            View nameDivider = (View) findViewById(R.id.name_divider);
+            View nameDivider = findViewById(R.id.name_divider);
             nameLayout.setVisibility(View.VISIBLE);
             nameDivider.setVisibility(View.VISIBLE);
             saveButton.setText("Save");
@@ -183,6 +186,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 account.setSyncStatus(Utils.AccountUpdated);
                 card.setSyncStatus(Utils.CardUpdated);
                 realm.commitTransaction();
+                realm.close();
 
                 AccountServerSync.performSync(context, new SyncCompleted() {
                     @Override
@@ -237,6 +241,7 @@ public class EditProfileActivity extends AppCompatActivity {
                                             realm.beginTransaction();
                                             phone.removeFromRealm();
                                             realm.commitTransaction();
+                                            realm.close();
                                         }
                                     })
                                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -301,6 +306,7 @@ public class EditProfileActivity extends AppCompatActivity {
                                             realm.beginTransaction();
                                             email.removeFromRealm();
                                             realm.commitTransaction();
+                                            realm.close();
                                         }
                                     })
                                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -359,6 +365,7 @@ public class EditProfileActivity extends AppCompatActivity {
                                             realm.beginTransaction();
                                             address.removeFromRealm();
                                             realm.commitTransaction();
+                                            realm.close();
                                         }
                                     })
                                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -650,6 +657,8 @@ public class EditProfileActivity extends AppCompatActivity {
                 }
             }
         });
+
+        realm.close();
     }
 
     private void addFacebookToCard(String id) {
@@ -663,6 +672,7 @@ public class EditProfileActivity extends AppCompatActivity {
         social.setUsername(id);
         card.getSocials().add(realm.copyToRealm(social));
         realm.commitTransaction();
+        realm.close();
     }
 
     private void setImage(Account account) {
@@ -676,9 +686,9 @@ public class EditProfileActivity extends AppCompatActivity {
             Picasso.with(this).load(account.getPicture()).transform(new CircleTransform()).into(profileImage);
             profileImageText.setText("Change picture");
         } else if (account.getPictureData() != null && account.getPictureData().length > 0) {
-            Bitmap photo = BitmapFactory.decodeByteArray(account.getPictureData(), 0, account.getPictureData().length);
+            photo = BitmapFactory.decodeByteArray(account.getPictureData(), 0, account.getPictureData().length);
             CircleTransform transform = new CircleTransform();
-            Bitmap circle = transform.transform(photo);
+            circle = transform.transform(photo);
             profileImage.setImageBitmap(circle);
             profileImageText.setText("Change picture");
         } else {
@@ -758,6 +768,7 @@ public class EditProfileActivity extends AppCompatActivity {
             account.setPicture("");
             account.setThumb("");
             realm.commitTransaction();
+            realm.close();
 
             CircleTransform transform = new CircleTransform();
             Bitmap circle = transform.transform(photo);
@@ -775,6 +786,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 account.setPicture("");
                 account.setThumb("");
                 realm.commitTransaction();
+                realm.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -842,4 +854,12 @@ public class EditProfileActivity extends AppCompatActivity {
             handler.removeCallbacks(what);
         }
     };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (circle != null) circle.recycle();
+        if (photo != null) photo.recycle();
+    }
 }

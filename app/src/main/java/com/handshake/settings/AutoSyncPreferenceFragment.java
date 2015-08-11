@@ -23,6 +23,9 @@ public class AutoSyncPreferenceFragment extends android.preference.PreferenceFra
         final SwitchPreference overwriteNamesPreference = (SwitchPreference) getPreferenceScreen().findPreference("overwrite_names_preference");
         final SwitchPreference overwritePicturesPreference = (SwitchPreference) getPreferenceScreen().findPreference("overwrite_pictures_preference");
 
+        overwriteNamesPreference.setEnabled(autosyncPreference.isChecked());
+        overwritePicturesPreference.setEnabled(autosyncPreference.isChecked());
+
         autosyncPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {

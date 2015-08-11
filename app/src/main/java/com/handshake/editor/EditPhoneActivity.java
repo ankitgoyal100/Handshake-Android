@@ -166,6 +166,7 @@ public class EditPhoneActivity extends AppCompatActivity {
                             phone.setNumber(phoneUtil.format(numberObject, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL).replaceAll("\\s", ""));
                         else {
                             Toast.makeText(context, "Invalid phone number.", Toast.LENGTH_SHORT).show();
+                            realm.cancelTransaction();
                             return;
                         }
                     } catch (NumberParseException e) {
@@ -183,6 +184,7 @@ public class EditPhoneActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 }
+                realm.close();
             }
         });
     }

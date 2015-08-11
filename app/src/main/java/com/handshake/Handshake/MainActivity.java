@@ -25,6 +25,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -72,28 +73,25 @@ import io.realm.Realm;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final Handler handler = new Handler();
-    private Drawable oldBackground = null;
-    public Context context = this;
-
-    SessionManager session;
-
-    private PagerSlidingTabStrip tabs;
-    private TabAdapter tabAdapter;
-    private static ViewPager sPager;
-
-    int syncsCompleted = 0;
-
-    private int TAG_CONTACTS = 0;
-    private int TAG_ADD = 1;
-
-    public static boolean cardSyncCompleted = false;
-    public static boolean suggestionSyncCompleted = false;
-
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private static final String TAG = "MainActivity";
-
     private static final int QR_CODE = 1;
+    public static boolean contactSyncCompleted = false;
+    private static ViewPager sPager;
+    private final Handler handler = new Handler();
+    public Context context = this;
+    SessionManager session;
+    int syncsCompleted = 0;
+    private Drawable oldBackground = null;
+    private PagerSlidingTabStrip tabs;
+    private TabAdapter tabAdapter;
+    private int TAG_CONTACTS = 0;
+    private int TAG_ADD = 1;
+    private ProfileFragment profileFragment;
+    private FeedFragment feedFragment;
+    private RequestFragment requestFragment;
+    private GroupFragment groupFragment;
+    private DelayAutoCompleteTextView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        final DelayAutoCompleteTextView searchView = (DelayAutoCompleteTextView) v.findViewById(R.id.search);
+        searchView = (DelayAutoCompleteTextView) v.findViewById(R.id.search);
         searchView.setAdapter(new SearchAdapter(this)); // 'this' is Activity instance
         searchView.setLoadingIndicator(
                 (android.widget.ProgressBar) findViewById(R.id.pb_loading_indicator));
@@ -159,6 +157,7 @@ public class MainActivity extends AppCompatActivity {
                     i = new Intent(MainActivity.this, GenericUserProfileActivity.class);
                 }
 
+                realm.close();
                 i.putExtra("userId", userId);
                 startActivity(i);
 
@@ -203,6 +202,19 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void syncCompletedListener() {
 //                    System.out.println("All syncs completed");
+                    if (profileFragment != null)
+                        profileFragment.fillViews();
+                    if (feedFragment != null) {
+                        feedFragment.setIntroVisible();
+                        feedFragment.setSuggestionText();
+                    }
+                    if (requestFragment != null) {
+                        requestFragment.setIntroVisible();
+                        requestFragment.setSuggestionText();
+                    }
+                    if (groupFragment != null)
+                        groupFragment.setIntroVisible();
+
                     ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
                     String code = Utils.getCodes(context, clipboard.getPrimaryClip());
                     if (!code.equals("") && !code.equals(SessionManager.getLastCopiedGroup())) {
@@ -325,6 +337,8 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.makeText(context, "There was an error. Please try again.", Toast.LENGTH_LONG).show();
                             }
                         });
+
+                        realm.close();
                     }
                 });
             }
@@ -333,6 +347,8 @@ public class MainActivity extends AppCompatActivity {
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
             }
         });
+
+        realm.close();
     }
 
     private void performSyncs(final SyncCompleted listener) {
@@ -340,6 +356,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
+                contactSyncCompleted = true;
 //                System.out.println("Contact sync completed " + syncsCompleted);
             }
         });
@@ -348,6 +365,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
+                if (profileFragment != null)
+                    profileFragment.fillViews();
 //                System.out.println("Account sync completed " + syncsCompleted);
             }
         });
@@ -356,7 +375,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
-                cardSyncCompleted = true;
+                if (profileFragment != null)
+                    profileFragment.fillViews();
 //                System.out.println("Card sync completed " + syncsCompleted);
             }
         });
@@ -365,6 +385,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
+                if (feedFragment != null)
+                    feedFragment.setIntroVisible();
 //                System.out.println("FeedItem sync completed " + syncsCompleted);
             }
         });
@@ -373,6 +395,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
+                if (groupFragment != null)
+                    groupFragment.setIntroVisible();
 //                System.out.println("Group sync completed " + syncsCompleted);
             }
         });
@@ -381,6 +405,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void syncCompletedListener() {
                 syncsCompleted++;
+                if (requestFragment != null)
+                    requestFragment.setIntroVisible();
 //                System.out.println("Request sync completed " + syncsCompleted);
             }
         });
@@ -395,7 +421,10 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void syncCompletedListener() {
                         syncsCompleted++;
-                        suggestionSyncCompleted = true;
+                        if (feedFragment != null)
+                            feedFragment.setSuggestionText();
+                        if (requestFragment != null)
+                            requestFragment.setSuggestionText();
 //                        System.out.println("Suggestion sync completed " + syncsCompleted);
                     }
                 });
@@ -421,41 +450,6 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         }).start();
-    }
-
-    public class TabAdapter extends FragmentPagerAdapter implements PagerSlidingTabStrip.IconTabProvider {
-
-        private final int[] ICONS = {
-                R.mipmap.home_tab,
-                R.mipmap.inbox_tab,
-                R.mipmap.groups_tab,
-                R.mipmap.profile_tab};
-
-        public TabAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public int getCount() {
-            return ICONS.length;
-        }
-
-        @Override
-        public int getPageIconResId(int position) {
-            return ICONS[position];
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            if (position == 0)
-                return FeedFragment.newInstance();
-            else if (position == 1)
-                return RequestFragment.newInstance();
-            else if (position == 2)
-                return GroupFragment.newInstance();
-            else
-                return ProfileFragment.newInstance();
-        }
     }
 
     public void changeColor(int newColor) {
@@ -495,6 +489,89 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void onBackPressed() {
+        moveTaskToBack(true);
+    }
+
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        if (requestCode == QR_CODE && resultCode == Activity.RESULT_OK) {
+            String code = data.getStringExtra(ScanActivity.RESULT_EXTRA_STR);
+            if (!code.equals("") && !code.equals(SessionManager.getLastCopiedGroup())) {
+                checkCode(code);
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    /**
+     * Check the device to make sure it has the Google Play Services APK. If
+     * it doesn't, display a dialog that allows users to download the APK from
+     * the Google Play Store or enable it in the device's system settings.
+     */
+    private boolean checkPlayServices() {
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+                GooglePlayServicesUtil.getErrorDialog(resultCode, this,
+                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
+            } else {
+                Log.i(TAG, "This device is not supported.");
+                finish();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    public void selectSearchView() {
+        if (searchView != null) {
+            searchView.requestFocus();
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(searchView, InputMethodManager.SHOW_IMPLICIT);
+        }
+    }
+
+    public class TabAdapter extends FragmentPagerAdapter implements PagerSlidingTabStrip.IconTabProvider {
+
+        private final int[] ICONS = {
+                R.mipmap.home_tab,
+                R.mipmap.inbox_tab,
+                R.mipmap.groups_tab,
+                R.mipmap.profile_tab};
+
+        public TabAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public int getCount() {
+            return ICONS.length;
+        }
+
+        @Override
+        public int getPageIconResId(int position) {
+            return ICONS[position];
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            if (position == 0) {
+                feedFragment = FeedFragment.newInstance();
+                return feedFragment;
+            } else if (position == 1) {
+                requestFragment = RequestFragment.newInstance();
+                return requestFragment;
+            } else if (position == 2) {
+                groupFragment = GroupFragment.newInstance();
+                return groupFragment;
+            } else {
+                profileFragment = ProfileFragment.newInstance();
+                return profileFragment;
+            }
+        }
+    }
+
     private Drawable.Callback drawableCallback = new Drawable.Callback() {
         @Override
         public void invalidateDrawable(Drawable who) {
@@ -512,10 +589,6 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    public void onBackPressed() {
-        moveTaskToBack(true);
-    }
-
     public static void setContactButtons(final Context context, final User account,
                                          final ImageView buttonOne, final ImageView buttonTwo, final TextViewCustomFont text) {
         String lastName = "";
@@ -526,20 +599,20 @@ public class MainActivity extends AppCompatActivity {
         if (account.isContact()) {
             buttonOne.setVisibility(View.GONE);
             buttonTwo.setVisibility(View.VISIBLE);
-            buttonTwo.setImageDrawable(context.getResources().getDrawable(R.mipmap.contacts_button));
+            buttonTwo.setImageDrawable(context.getResources().getDrawable(R.drawable.contacts_button));
         } else if (account.isRequestReceived()) {
             buttonOne.setVisibility(View.VISIBLE);
             buttonTwo.setVisibility(View.VISIBLE);
-            buttonOne.setImageDrawable(context.getResources().getDrawable(R.mipmap.decline_button));
-            buttonTwo.setImageDrawable(context.getResources().getDrawable(R.mipmap.accept_button));
+            buttonOne.setImageDrawable(context.getResources().getDrawable(R.drawable.decline_button));
+            buttonTwo.setImageDrawable(context.getResources().getDrawable(R.drawable.accept_button));
         } else if (account.isRequestSent()) {
             buttonOne.setVisibility(View.GONE);
             buttonTwo.setVisibility(View.VISIBLE);
-            buttonTwo.setImageDrawable(context.getResources().getDrawable(R.mipmap.requested_button));
+            buttonTwo.setImageDrawable(context.getResources().getDrawable(R.drawable.requested_button));
         } else {
             buttonOne.setVisibility(View.GONE);
             buttonTwo.setVisibility(View.VISIBLE);
-            buttonTwo.setImageDrawable(context.getResources().getDrawable(R.mipmap.add_button));
+            buttonTwo.setImageDrawable(context.getResources().getDrawable(R.drawable.add_button));
         }
 
         if (text != null) {
@@ -603,7 +676,7 @@ public class MainActivity extends AppCompatActivity {
                 } else if (account.isRequestReceived()) {
                     buttonOne.setVisibility(View.GONE);
                     buttonTwo.setVisibility(View.VISIBLE);
-                    buttonTwo.setImageDrawable(context.getResources().getDrawable(R.mipmap.contacts_button));
+                    buttonTwo.setImageDrawable(context.getResources().getDrawable(R.drawable.contacts_button));
 
                     Toast.makeText(context, "Request accepted", Toast.LENGTH_SHORT).show();
 
@@ -652,7 +725,7 @@ public class MainActivity extends AppCompatActivity {
                         public void syncCompletedListener(User users) {
                             buttonOne.setVisibility(View.GONE);
                             buttonTwo.setVisibility(View.VISIBLE);
-                            buttonTwo.setImageDrawable(context.getResources().getDrawable(R.mipmap.requested_button));
+                            buttonTwo.setImageDrawable(context.getResources().getDrawable(R.drawable.requested_button));
                             setContactButtons(context, account, buttonOne, buttonTwo, text);
                         }
 
@@ -666,17 +739,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        if (requestCode == QR_CODE && resultCode == Activity.RESULT_OK) {
-            String code = data.getStringExtra(ScanActivity.RESULT_EXTRA_STR);
-            if (!code.equals("") && !code.equals(SessionManager.getLastCopiedGroup())) {
-                checkCode(code);
-            }
-        } else {
-            super.onActivityResult(requestCode, resultCode, data);
-        }
-    }
-
     public static boolean isConnected(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netinfo = cm.getActiveNetworkInfo();
@@ -685,29 +747,7 @@ public class MainActivity extends AppCompatActivity {
             android.net.NetworkInfo wifi = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
             android.net.NetworkInfo mobile = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 
-            if ((mobile != null && mobile.isConnectedOrConnecting()) || (wifi != null && wifi.isConnectedOrConnecting()))
-                return true;
-            else return false;
+            return (mobile != null && mobile.isConnectedOrConnecting()) || (wifi != null && wifi.isConnectedOrConnecting());
         } else return false;
-    }
-
-    /**
-     * Check the device to make sure it has the Google Play Services APK. If
-     * it doesn't, display a dialog that allows users to download the APK from
-     * the Google Play Store or enable it in the device's system settings.
-     */
-    private boolean checkPlayServices() {
-        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        if (resultCode != ConnectionResult.SUCCESS) {
-            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-                GooglePlayServicesUtil.getErrorDialog(resultCode, this,
-                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
-            } else {
-                Log.i(TAG, "This device is not supported.");
-                finish();
-            }
-            return false;
-        }
-        return true;
     }
 }

@@ -89,6 +89,7 @@ public class UserServerSync {
                 }
 
                 listener.syncCompletedListener(orderedArray);
+                realm.close();
             }
         });
     }

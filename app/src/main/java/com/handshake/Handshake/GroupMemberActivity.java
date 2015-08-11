@@ -82,15 +82,18 @@ public class GroupMemberActivity extends AppCompatActivity {
                 User user = realm.where(User.class).equalTo("userId", userId).findFirst();
 
                 Intent i;
-                if(user.isContact()) {
+                if (user.isContact()) {
                     i = new Intent(context, ContactUserProfileActivity.class);
                 } else {
                     i = new Intent(context, GenericUserProfileActivity.class);
                 }
+                realm.close();
                 i.putExtra("userId", userId);
                 context.startActivity(i);
             }
         });
+
+        realm.close();
     }
 
     public void changeColor(int newColor) {

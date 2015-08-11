@@ -88,18 +88,19 @@
 
                 <ImageView
                     android:id="@+id/button_two"
-                    android:layout_width="60dip"
-                    android:layout_height="60dip"
+                    android:layout_width="50dip"
+                    android:layout_height="50dip"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentTop="true"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginRight="8dp"
                     android:scaleType="fitCenter" />
 
                 <ImageView
                     android:id="@+id/button_one"
-                    android:layout_width="60dip"
-                    android:layout_height="60dip"
+                    android:layout_width="50dip"
+                    android:layout_height="50dip"
                     android:layout_alignParentTop="true"
+                    android:layout_marginRight="8dp"
                     android:layout_toLeftOf="@id/button_two"
                     android:scaleType="fitCenter" />
             </RelativeLayout>
@@ -168,6 +169,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
+                    android:text="Contact information will remain hidden until the request is accepted."
                     android:textColor="#040404"
                     android:textSize="14sp" />
             </LinearLayout>

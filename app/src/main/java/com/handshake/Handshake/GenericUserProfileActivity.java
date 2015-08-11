@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
@@ -38,6 +39,11 @@ public class GenericUserProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_generic_user_profile);
 
 //        changeColor(getResources().getColor(R.color.orange));
+
+        CircleImageView profileImage = (CircleImageView) findViewById(R.id.profile_image);
+        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) profileImage.getLayoutParams();
+        params.setMargins(Utils.dpToPx(context, 16), Utils.getStatusBarHeight(context) + Utils.dpToPx(context, 16),
+                Utils.dpToPx(context, 16), Utils.dpToPx(context, 16));
 
         fillViews();
     }
@@ -96,6 +102,7 @@ public class GenericUserProfileActivity extends AppCompatActivity {
 
         MainActivity.setContactButtons(context, account,
                 (ImageView) findViewById(R.id.button_one), (ImageView) findViewById(R.id.button_two), text);
+        realm.close();
     }
 
     public void changeColor(int newColor) {

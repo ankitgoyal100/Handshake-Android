@@ -115,6 +115,7 @@ public class EditEmailActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 }
+                realm.close();
             }
         });
     }

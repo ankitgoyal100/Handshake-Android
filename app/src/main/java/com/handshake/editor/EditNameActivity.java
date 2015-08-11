@@ -57,6 +57,7 @@ public class EditNameActivity extends AppCompatActivity {
                 finish();
             }
         });
+        realm.close();
     }
 
     @Override

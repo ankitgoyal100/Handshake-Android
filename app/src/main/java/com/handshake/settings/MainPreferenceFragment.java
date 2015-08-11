@@ -106,6 +106,7 @@ public class MainPreferenceFragment extends android.preference.PreferenceFragmen
                         .setPositiveButton("Log Out", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 SessionManager session = new SessionManager(getActivity());
+                                getActivity().finish();
                                 session.logoutUser();
                             }
                         })

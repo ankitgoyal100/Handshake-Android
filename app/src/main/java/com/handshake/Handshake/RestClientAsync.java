@@ -20,16 +20,18 @@ import java.io.UnsupportedEncodingException;
  */
 public class RestClientAsync {
     private static final String BASE_URL = "https://handshakeapi11.herokuapp.com";
-
     private static AsyncHttpClient client = new AsyncHttpClient();
+    private static final int DEFAULT_TIMEOUT = 20 * 1000;
 
     public static void get(Context context, String url, AsyncHttpResponseHandler responseHandler) {
+        client.setTimeout(DEFAULT_TIMEOUT);
         client.addHeader("Accept", "application/json");
         client.addHeader("Content-type", "application/json");
         client.get(context, getAbsoluteUrl(url), new RequestParams(), responseHandler);
     }
 
     public static void get(Context context, String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        client.setTimeout(DEFAULT_TIMEOUT);
         client.addHeader("Accept", "application/json");
         client.addHeader("Content-type", "application/json");
         params.put("auth_token", SessionManager.getToken());
@@ -39,6 +41,7 @@ public class RestClientAsync {
     }
 
     public static void post(Context context, String url, JSONObject jsonObject, String contentType, AsyncHttpResponseHandler responseHandler) {
+        client.setTimeout(DEFAULT_TIMEOUT);
         client.addHeader("Accept", "application/json");
         client.addHeader("Content-type", "application/json");
         try {
@@ -57,6 +60,7 @@ public class RestClientAsync {
     }
 
     public static void post(Context context, String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        client.setTimeout(DEFAULT_TIMEOUT);
         client.addHeader("Accept", "application/json");
         client.addHeader("Content-type", "application/json");
         params.put("auth_token", SessionManager.getToken());
@@ -65,12 +69,14 @@ public class RestClientAsync {
     }
 
     public static void put(Context context, String url, ByteArrayEntity entity, AsyncHttpResponseHandler responseHandler) {
+        client.setTimeout(DEFAULT_TIMEOUT);
         client.addHeader("Accept", "application/json");
         client.addHeader("Content-type", "application/json");
         client.put(context, getAbsoluteUrl(url), entity, "application/json", responseHandler);
     }
 
     public static void put(Context context, String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        client.setTimeout(DEFAULT_TIMEOUT);
         client.addHeader("Accept", "application/json");
         client.addHeader("Content-type", "application/json");
         params.put("auth_token", SessionManager.getToken());
@@ -80,6 +86,7 @@ public class RestClientAsync {
 
 
     public static void delete(Context context, String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        client.setTimeout(DEFAULT_TIMEOUT);
         client.addHeader("Accept", "application/json");
         client.addHeader("Content-type", "application/json");
         Header[] headers = {

@@ -1,10 +1,21 @@
 package com.handshake.Handshake;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+
+import com.handshake.models.Account;
+import com.handshake.models.Address;
+import com.handshake.models.Card;
+import com.handshake.models.Email;
+import com.handshake.models.FeedItem;
+import com.handshake.models.Group;
+import com.handshake.models.GroupMember;
+import com.handshake.models.Phone;
+import com.handshake.models.Social;
+import com.handshake.models.Suggestion;
+import com.handshake.models.User;
 
 import io.realm.Realm;
 
@@ -49,22 +60,6 @@ public class SessionManager {
      * Create login session
      */
     public void createLoginSession(long id, String token, String email) {
-        //wTODO clear db
-        Realm realm = Realm.getInstance(sContext);
-        realm.beginTransaction();
-//        realm.where(Account.class).findAll().clear();
-//        realm.where(Address.class).findAll().clear();
-//        realm.where(Card.class).findAll().clear();
-//        realm.where(Email.class).findAll().clear();
-//        realm.where(FeedItem.class).findAll().clear();
-//        realm.where(Group.class).findAll().clear();
-//        realm.where(GroupMember.class).findAll().clear();
-//        realm.where(Phone.class).findAll().clear();
-//        realm.where(Social.class).findAll().clear();
-//        realm.where(Suggestion.class).findAll().clear();
-//        realm.where(User.class).findAll().clear();
-        realm.commitTransaction();
-
         // Storing login value as TRUE
         editor.putBoolean(sIsLogin, true);
 
@@ -100,13 +95,29 @@ public class SessionManager {
      * Clear session details
      */
     public void logoutUser() {
+        Realm realm = Realm.getInstance(sContext);
+        realm.beginTransaction();
+        realm.where(Account.class).findAll().clear();
+        realm.where(Address.class).findAll().clear();
+        realm.where(Card.class).findAll().clear();
+        realm.where(Email.class).findAll().clear();
+        realm.where(FeedItem.class).findAll().clear();
+        realm.where(Group.class).findAll().clear();
+        realm.where(GroupMember.class).findAll().clear();
+        realm.where(Phone.class).findAll().clear();
+        realm.where(Social.class).findAll().clear();
+        realm.where(Suggestion.class).findAll().clear();
+        realm.where(User.class).findAll().clear();
+        realm.commitTransaction();
+        realm.close();
+
         boolean introScreenDisplayed = getIntroScreenDisplayed();
 
         Intent i;
-        if (introScreenDisplayed)
-            i = new Intent(sContext, IntroActivity.class);
-        else
-            i = new Intent(sContext, AppIntroActivity.class);
+//        if (introScreenDisplayed)
+        i = new Intent(sContext, IntroActivity.class);
+//        else
+//            i = new Intent(sContext, AppIntroActivity.class);
 
         // Clearing all data from Shared Preferences
         editor.clear();
@@ -115,7 +126,7 @@ public class SessionManager {
 
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        ((Activity) sContext).finish();
+//        ((Activity) sContext).finish();
         sContext.startActivity(i);
     }
 

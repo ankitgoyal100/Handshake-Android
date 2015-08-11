@@ -72,6 +72,7 @@ public class RequestServerSync {
                                     realm.commitTransaction();
                                 }
                             }
+                            realm.close();
                         }
                     });
                 } catch (JSONException e) {
@@ -110,6 +111,7 @@ public class RequestServerSync {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        realm.close();
 
         RestClientAsync.post(context, "/users/" + user.getUserId() + "/request", jsonParams, "application/json", new JsonHttpResponseHandler() {
             @Override
@@ -124,6 +126,7 @@ public class RequestServerSync {
                 realm.beginTransaction();
                 user.setRequestSent(false);
                 realm.commitTransaction();
+                realm.close();
 
                 listener.syncFailedListener();
 
@@ -153,6 +156,7 @@ public class RequestServerSync {
                 user.setRequestSent(true);
                 realm.commitTransaction();
 
+                realm.close();
                 listener.syncFailedListener();
 
                 if (statusCode == 401) session.logoutUser();
@@ -163,6 +167,7 @@ public class RequestServerSync {
         realm.beginTransaction();
         user.setRequestSent(false);
         realm.commitTransaction();
+        realm.close();
     }
 
     public static void acceptRequest(final User user, final UserSyncCompleted listener) {
@@ -180,11 +185,11 @@ public class RequestServerSync {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        realm.close();
 
         RestClientAsync.post(context, "/users/" + user.getUserId() + "/accept", jsonParams, "application/json", new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                System.out.println(response.toString());
                 success(listener, user, response);
                 FeedItemServerSync.performSync(context, new SyncCompleted() {
                     @Override
@@ -203,6 +208,7 @@ public class RequestServerSync {
                 user.setRequestReceived(true);
                 realm.commitTransaction();
 
+                realm.close();
                 listener.syncFailedListener();
 
                 if (statusCode == 401) session.logoutUser();
@@ -232,6 +238,7 @@ public class RequestServerSync {
                 user.setRequestReceived(true);
                 realm.commitTransaction();
 
+                realm.close();
                 listener.syncFailedListener();
 
                 if (statusCode == 401) session.logoutUser();
@@ -242,6 +249,7 @@ public class RequestServerSync {
         realm.beginTransaction();
         user.setRequestReceived(false);
         realm.commitTransaction();
+        realm.close();
     }
 
     private static void success(UserSyncCompleted listener, User user, JSONObject response) {
@@ -254,6 +262,7 @@ public class RequestServerSync {
         }
         realm.commitTransaction();
 
+        realm.close();
         listener.syncCompletedListener(user);
     }
 }

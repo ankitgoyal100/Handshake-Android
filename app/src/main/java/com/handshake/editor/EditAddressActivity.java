@@ -140,6 +140,7 @@ public class EditAddressActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 }
+                realm.close();
             }
         });
     }

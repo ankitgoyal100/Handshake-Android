@@ -1,5 +1,6 @@
 package com.handshake.Handshake;
 
+import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +15,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -24,8 +26,8 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
@@ -63,6 +65,7 @@ public class ContactUserProfileActivity extends AppCompatActivity {
     private LinearLayout infoLayout;
     private LinearLayout socialLayout;
     private static Executor executor = Executors.newSingleThreadExecutor();
+    private Realm r;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,12 +76,12 @@ public class ContactUserProfileActivity extends AppCompatActivity {
 
         RelativeLayout autoSyncLayout = (RelativeLayout) findViewById(R.id.save_to_phone_layout);
         View autoSyncDivider = findViewById(R.id.save_to_phone_divider);
-        ToggleButton autoSyncToggle = (ToggleButton) findViewById(R.id.save_to_phone);
+        Switch autoSyncToggle = (Switch) findViewById(R.id.save_to_phone);
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        boolean isAutosync = sharedPreferences.getBoolean("autosync_preference", false);
+        boolean isAutosync = sharedPreferences.getBoolean("autosync_preference", true);
 
-        if(!isAutosync) {
+        if (!isAutosync) {
             autoSyncLayout.setVisibility(View.VISIBLE);
             autoSyncDivider.setVisibility(View.VISIBLE);
 
@@ -94,11 +97,16 @@ public class ContactUserProfileActivity extends AppCompatActivity {
                     realm.commitTransaction();
                 }
             });
+//            realm.close();
         } else {
             autoSyncLayout.setVisibility(View.GONE);
             autoSyncDivider.setVisibility(View.GONE);
         }
 
+        CircleImageView profileImage = (CircleImageView) findViewById(R.id.profile_image);
+        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) profileImage.getLayoutParams();
+        params.setMargins(Utils.dpToPx(context, 16), Utils.getStatusBarHeight(context) + Utils.dpToPx(context, 16),
+                Utils.dpToPx(context, 16), Utils.dpToPx(context, 16));
 
         infoLayout = (LinearLayout) findViewById(R.id.linear_layout);
         socialLayout = (LinearLayout) findViewById(R.id.linear_layout_2);
@@ -163,6 +171,8 @@ public class ContactUserProfileActivity extends AppCompatActivity {
         ImageView notifications = (ImageView) findViewById(R.id.notifications);
         setNotificationsButton(account, notifications);
 
+        final ProgressDialog dialog = ProgressDialog.show(this, "", "Loading profile...", true);
+
         executor.execute(new Runnable() {
             @Override
             public void run() {
@@ -174,14 +184,24 @@ public class ContactUserProfileActivity extends AppCompatActivity {
                     }
                 });
 
-                while (!MainActivity.cardSyncCompleted) {
+                while (!MainActivity.contactSyncCompleted) {
 
                 }
 
-                Realm realm = Realm.getInstance(context);
+                r = Realm.getInstance(context);
 
-                final User account = realm.where(User.class).equalTo("userId", getIntent().getLongExtra("userId", SessionManager.getID())).findFirst();
+                final User account = r.where(User.class).equalTo("userId", getIntent().getLongExtra("userId", SessionManager.getID())).findFirst();
                 final Card card = account.getCards().first();
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialog.cancel();
+                        if (card == null) {
+                            Toast.makeText(context, "There was an error. Please try again.", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
 
                 for (final Phone phone : card.getPhones()) {
                     LayoutInflater inflater = (LayoutInflater) context.getApplicationContext()
@@ -199,6 +219,7 @@ public class ContactUserProfileActivity extends AppCompatActivity {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
+                            findViewById(R.id.no_info).setVisibility(View.GONE);
                             findViewById(R.id.divider1).setVisibility(View.VISIBLE);
 
                             imageView1.setVisibility(View.VISIBLE);
@@ -255,6 +276,7 @@ public class ContactUserProfileActivity extends AppCompatActivity {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
+                            findViewById(R.id.no_info).setVisibility(View.GONE);
                             imageView1.setVisibility(View.GONE);
                             imageView2.setVisibility(View.VISIBLE);
                             imageView2.setImageDrawable(getResources().getDrawable(R.mipmap.email_button));
@@ -294,6 +316,7 @@ public class ContactUserProfileActivity extends AppCompatActivity {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
+                            findViewById(R.id.no_info).setVisibility(View.GONE);
                             imageView1.setVisibility(View.GONE);
                             imageView2.setVisibility(View.VISIBLE);
                             imageView2.setImageDrawable(getResources().getDrawable(R.mipmap.maps_button));
@@ -341,11 +364,8 @@ public class ContactUserProfileActivity extends AppCompatActivity {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            if (card.getSocials().size() == 0) {
-                                findViewById(R.id.divider1).setVisibility(View.GONE);
-                            } else {
-                                findViewById(R.id.divider2).setVisibility(View.VISIBLE);
-                            }
+                            findViewById(R.id.no_info).setVisibility(View.GONE);
+                            findViewById(R.id.divider2).setVisibility(View.VISIBLE);
 
                             if (network.equals("facebook")) {
                                 imageView1.setImageDrawable(getResources().getDrawable(R.mipmap.facebook_icon));
@@ -411,17 +431,19 @@ public class ContactUserProfileActivity extends AppCompatActivity {
                         }
                     });
                 }
+                r.close();
             }
         });
+//        realm.close();
     }
 
     private void setNotificationsButton(final User account, final ImageView notifications) {
         if (account.isNotifications()) {
             ViewGroup.LayoutParams params = notifications.getLayoutParams();
             params.height = dipToPixels(context, 37.5f);
-            params.width = dipToPixels(context, 141.25f);
+            params.width = dipToPixels(context, 117.71f);
             notifications.setLayoutParams(params);
-            notifications.setImageDrawable(getResources().getDrawable(R.mipmap.notifications_button));
+            notifications.setImageDrawable(getResources().getDrawable(R.drawable.notifications_on_button));
             notifications.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -432,6 +454,7 @@ public class ContactUserProfileActivity extends AppCompatActivity {
                             realm.beginTransaction();
                             account.setNotifications(false);
                             realm.commitTransaction();
+//                            realm.close();
 
                             setNotificationsButton(account, notifications);
                         }
@@ -446,9 +469,9 @@ public class ContactUserProfileActivity extends AppCompatActivity {
         } else {
             ViewGroup.LayoutParams params = notifications.getLayoutParams();
             params.height = dipToPixels(context, 37.5f);
-            params.width = dipToPixels(context, 155f);
+            params.width = dipToPixels(context, 129.17f);
             notifications.setLayoutParams(params);
-            notifications.setImageDrawable(getResources().getDrawable(R.mipmap.notifications_off_button));
+            notifications.setImageDrawable(getResources().getDrawable(R.drawable.notifications_off_button));
             notifications.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -459,6 +482,7 @@ public class ContactUserProfileActivity extends AppCompatActivity {
                             realm.beginTransaction();
                             account.setNotifications(true);
                             realm.commitTransaction();
+//                            realm.close();
 
                             setNotificationsButton(account, notifications);
                         }
@@ -547,5 +571,12 @@ public class ContactUserProfileActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (r != null)
+            r.close();
     }
 }
