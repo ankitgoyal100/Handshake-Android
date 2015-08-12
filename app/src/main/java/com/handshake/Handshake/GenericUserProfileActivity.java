@@ -52,6 +52,13 @@ public class GenericUserProfileActivity extends AppCompatActivity {
         final Realm realm = Realm.getInstance(context);
         final User account = realm.where(User.class).equalTo("userId", getIntent().getLongExtra("userId", SessionManager.getID())).findFirst();
 
+        if(account.isContact()) {
+            Intent i = new Intent(this, ContactUserProfileActivity.class);
+            i.putExtra("userId", getIntent().getLongExtra("userId", SessionManager.getID()));
+            startActivity(i);
+            finish();
+        }
+
         TextViewCustomFont name = (TextViewCustomFont) findViewById(R.id.name);
         String lastName = "";
         if (!account.getLastName().equals("null"))
