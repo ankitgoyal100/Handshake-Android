@@ -65,10 +65,6 @@ public class MyGcmListenerService extends GcmListenerService {
         SessionManager session = new SessionManager(this);
         if (!session.isLoggedIn()) return;
 
-        for (String key : data.keySet()) {
-            System.out.println(data.get(key));
-        }
-
         /**
          * Production applications would usually process the message here.
          * Eg: - Syncing with server.
@@ -83,7 +79,8 @@ public class MyGcmListenerService extends GcmListenerService {
 
         try {
             JSONArray users = new JSONArray();
-            JSONObject user = new JSONObject(data.getString("user"));
+            if (!data.containsKey("user")) return;
+            final JSONObject user = new JSONObject(data.getString("user"));
             users.put(user);
             UserServerSync.cacheUser(getApplicationContext(), users, new UserArraySyncCompleted() {
                 @Override
@@ -93,6 +90,9 @@ public class MyGcmListenerService extends GcmListenerService {
                         return;
                     }
 
+                    final long userId = users.get(0).getUserId();
+                    final boolean isContact = users.get(0).isContact();
+
                     FeedItemServerSync.performSync(getApplicationContext(), new SyncCompleted() {
                         @Override
                         public void syncCompletedListener() {
@@ -101,12 +101,12 @@ public class MyGcmListenerService extends GcmListenerService {
                                 public void syncCompletedListener() {
                                     if (data.containsKey("group_id")) {
                                         Realm realm = Realm.getInstance(getApplicationContext());
-                                        Group group = realm.where(Group.class).equalTo("groupId", data.getLong("group_id")).findFirst();
+                                        Group group = realm.where(Group.class).equalTo("groupId", Long.parseLong(data.getString("group_id"))).findFirst();
                                         GroupServerSync.loadGroupMembers(group);
                                         realm.close();
                                     }
 
-                                    sendNotification(data, users.get(0).getUserId(), users.get(0).isContact());
+                                    sendNotification(data, userId, isContact);
                                 }
                             });
                         }

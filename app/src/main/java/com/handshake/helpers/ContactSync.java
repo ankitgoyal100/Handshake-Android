@@ -393,7 +393,7 @@ public class ContactSync {
                 .withValue(RawContacts.ACCOUNT_NAME, null)
                 .build());
 
-        if (!user.getPicture().isEmpty()) {
+        if (!user.getPicture().isEmpty() && !user.getPicture().equals("null")) {
             if (user.getPictureData() != null && user.getPictureData().length > 0) {
                 // Adding insert operation to operations list
                 // to insert Photo in the table ContactsContract.Data
