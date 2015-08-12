@@ -637,8 +637,6 @@ public class MainActivity extends AppCompatActivity {
                     RequestServerSync.declineRequest(account, new UserSyncCompleted() {
                         @Override
                         public void syncCompletedListener(User users) {
-//                            if (text != null)
-//                                text.setText("Know " + name + "? Send a request!");
                             setContactButtons(context, account, buttonOne, buttonTwo, text);
                         }
 
@@ -683,7 +681,14 @@ public class MainActivity extends AppCompatActivity {
                     RequestServerSync.acceptRequest(account, new UserSyncCompleted() {
                         @Override
                         public void syncCompletedListener(User users) {
-                            setContactButtons(context, account, buttonOne, buttonTwo, text);
+                            if (text == null) {
+                                setContactButtons(context, account, buttonOne, buttonTwo, text);
+                            } else {
+                                Intent i = new Intent(context, ContactUserProfileActivity.class);
+                                i.putExtra("userId", account.getUserId());
+                                context.startActivity(i);
+                                ((Activity) context).finish();
+                            }
                         }
 
                         @Override
@@ -700,8 +705,6 @@ public class MainActivity extends AppCompatActivity {
                                     RequestServerSync.deleteRequest(account, new UserSyncCompleted() {
                                         @Override
                                         public void syncCompletedListener(User users) {
-//                                            if (text != null)
-//                                                text.setText("Know " + name + "? Send a request!");
                                             setContactButtons(context, account, buttonOne, buttonTwo, text);
                                         }
 
