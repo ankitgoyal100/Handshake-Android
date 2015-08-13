@@ -3,6 +3,7 @@ package com.handshake.Handshake;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
@@ -66,6 +67,7 @@ public class ContactUserProfileActivity extends AppCompatActivity {
     private LinearLayout socialLayout;
     private static Executor executor = Executors.newSingleThreadExecutor();
     private Realm r;
+    private ProgressDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,7 +119,7 @@ public class ContactUserProfileActivity extends AppCompatActivity {
         final Realm realm = Realm.getInstance(context);
         final User account = realm.where(User.class).equalTo("userId", getIntent().getLongExtra("userId", SessionManager.getID())).findFirst();
 
-        if(!account.isContact()) {
+        if (!account.isContact()) {
             Intent i = new Intent(this, GenericUserProfileActivity.class);
             i.putExtra("userId", getIntent().getLongExtra("userId", SessionManager.getID()));
             startActivity(i);
@@ -178,7 +180,14 @@ public class ContactUserProfileActivity extends AppCompatActivity {
         ImageView notifications = (ImageView) findViewById(R.id.notifications);
         setNotificationsButton(account, notifications);
 
-        final ProgressDialog dialog = ProgressDialog.show(this, "", "Loading profile...", true);
+        dialog = ProgressDialog.show(this, "", "Loading profile...", true);
+        dialog.setCancelable(true);
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                Toast.makeText(context, "Could not load current profile at this time. Please try again later.", Toast.LENGTH_LONG).show();
+            }
+        });
 
         executor.execute(new Runnable() {
             @Override
@@ -203,7 +212,7 @@ public class ContactUserProfileActivity extends AppCompatActivity {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        dialog.cancel();
+                        dialog.dismiss();
                         if (card == null) {
                             Toast.makeText(context, "There was an error. Please try again.", Toast.LENGTH_LONG).show();
                         }
@@ -585,5 +594,10 @@ public class ContactUserProfileActivity extends AppCompatActivity {
         super.onDestroy();
         if (r != null)
             r.close();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 }
