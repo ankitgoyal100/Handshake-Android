@@ -130,5 +130,7 @@ public class AccountServerSync {
 
             }
         });
+
+        gpsTracker.stopUsingGPS();
     }
 }
