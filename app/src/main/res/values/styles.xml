@@ -1,18 +1,23 @@
 <resources>
 
     <!-- Base application theme. -->
-    <!--<style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar"></style>-->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="NoActionBarTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:dropDownListViewStyle">@style/DropDownListViewStyle</item>
+        <!-- ...and here we setting appcompat’s color theming attrs -->
+        <item name="colorPrimary">@color/orange</item>
+        <item name="colorPrimaryDark">@color/dark_orange</item>
+    </style>
+
+    <style name="DarkActionBarTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- ...and here we setting appcompat’s color theming attrs -->
+        <item name="colorPrimary">@color/orange</item>
+        <item name="colorPrimaryDark">@color/dark_orange</item>
     </style>
 
     <style name="DropDownListViewStyle">
         <item name="android:divider">@color/divider</item>
         <item name="android:dividerHeight">1dp</item>
     </style>
-    <!--<item name="windowActionBar">false</item>--><!--<item name="android:windowNoTitle">true</item>--><!--<style name="AppTheme" parent="Theme.AppCompat">--><!--<item name="toolbarStyle">@style/AppThemeToolbar</item>--><!--</style>-->
-
-    <!--<style name="AppThemeToolbar" parent="Widget.AppCompat.Toolbar">--><!--<item name="contentInsetStart">0dp</item>--><!--</style>-->
 
     <style name="button" parent="@android:style/Widget.Button">
         <item name="com.handshake.Handshake:font">assets/HelveticaNeue.ttf</item>
