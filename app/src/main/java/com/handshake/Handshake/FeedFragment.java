@@ -67,6 +67,7 @@ public class FeedFragment extends ListFragment {
                     public void syncCompletedListener() {
                         swipeContainer.setRefreshing(false);
                         setIntroVisible();
+                        setSuggestionText();
                     }
                 });
             }
