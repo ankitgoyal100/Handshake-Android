@@ -8,7 +8,8 @@
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true" />
+        android:layout_alignParentTop="true"
+        android:scaleType="centerCrop" />
 
     <com.handshake.views.TransparentCircle
         android:id="@+id/transparent_circle"
