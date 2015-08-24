@@ -3,6 +3,7 @@ package com.handshake.Handshake;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
@@ -11,10 +12,14 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CompoundButton;
+import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.AlertDialogWrapper;
@@ -47,13 +52,44 @@ public class GroupActivity extends AppCompatActivity {
 
         changeColor(getResources().getColor(R.color.orange));
 
-        Long id = getIntent().getLongExtra("id", -1);
+        final Long id = getIntent().getLongExtra("id", -1);
         if (id == -1) finish();
 
-        Realm realm = Realm.getInstance(context);
+        final Realm realm = Realm.getInstance(context);
         group = realm.where(Group.class).equalTo("groupId", id).findFirst();
 
         if (group == null) finish();
+
+        RelativeLayout autoSyncLayout = (RelativeLayout) findViewById(R.id.save_to_phone_layout);
+        View autoSyncDivider = findViewById(R.id.save_to_phone_divider);
+        Switch autoSyncToggle = (Switch) findViewById(R.id.save_to_phone);
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        boolean isAutosync = sharedPreferences.getBoolean("autosync_groups_preference", true);
+
+        if (!isAutosync) {
+            autoSyncLayout.setVisibility(View.VISIBLE);
+            autoSyncDivider.setVisibility(View.VISIBLE);
+
+            autoSyncToggle.setChecked(group.isSavesToPhone());
+
+            autoSyncToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    realm.beginTransaction();
+                    group.setSavesToPhone(isChecked);
+                    RealmResults<GroupMember> groupMembers = realm.where(GroupMember.class).equalTo("group.groupId", id).findAll();
+                    for (int i = 0; i < groupMembers.size(); i++) {
+                        System.out.println("Group Member: " + groupMembers.get(i));
+                        groupMembers.get(i).getUser().setSavesToPhone(isChecked);
+                    }
+                    realm.commitTransaction();
+                }
+            });
+        } else {
+            autoSyncLayout.setVisibility(View.GONE);
+            autoSyncDivider.setVisibility(View.GONE);
+        }
 
         int position = 0;
 

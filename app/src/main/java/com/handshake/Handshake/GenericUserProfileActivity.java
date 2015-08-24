@@ -52,7 +52,7 @@ public class GenericUserProfileActivity extends AppCompatActivity {
         final Realm realm = Realm.getInstance(context);
         final User account = realm.where(User.class).equalTo("userId", getIntent().getLongExtra("userId", SessionManager.getID())).findFirst();
 
-        if(account.isContact()) {
+        if (account.isContact()) {
             Intent i = new Intent(this, ContactUserProfileActivity.class);
             i.putExtra("userId", getIntent().getLongExtra("userId", SessionManager.getID()));
             startActivity(i);
@@ -83,8 +83,12 @@ public class GenericUserProfileActivity extends AppCompatActivity {
         TextViewCustomFont contacts = (TextViewCustomFont) findViewById(R.id.contacts);
         TextViewCustomFont mutual = (TextViewCustomFont) findViewById(R.id.mutual);
 
-        contacts.setText(account.getContacts() + " contacts");
+        if (account.getContacts() == 1)
+            contacts.setText(account.getContacts() + " contact");
+        else
+            contacts.setText(account.getContacts() + " contacts");
         mutual.setText(account.getMutual() + " mutual");
+
         contacts.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

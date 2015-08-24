@@ -33,9 +33,6 @@ import com.handshake.views.CircleTransform;
 import com.handshake.views.TextViewCustomFont;
 import com.squareup.picasso.Picasso;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
 
@@ -44,7 +41,6 @@ import io.realm.Realm;
  */
 public class ProfileFragment extends Fragment {
     private static final String TAG = "ProfileFragment";
-    private static Executor executor = Executors.newSingleThreadExecutor();
     private Handler handler = new Handler();
     private LinearLayout infoLayout;
     private LinearLayout socialLayout;

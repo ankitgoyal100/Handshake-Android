@@ -19,6 +19,7 @@ public class Group extends RealmObject {
     private Date createdAt;
     private long groupId;
     private String name;
+    private boolean savesToPhone;
     private short syncStatus;
     private Date updatedAt;
 
@@ -55,6 +56,14 @@ public class Group extends RealmObject {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isSavesToPhone() {
+        return savesToPhone;
+    }
+
+    public void setSavesToPhone(boolean savesToPhone) {
+        this.savesToPhone = savesToPhone;
     }
 
     public short getSyncStatus() {

@@ -136,8 +136,9 @@ public class ContactServerSync {
                                 if (!map.keySet().contains(areContacts.get(i).getUserId())) {
                                     realm.beginTransaction();
                                     try {
-                                        areContacts.get(i).setContactUpdated(Utils.formatDate(
-                                                map.get(areContacts.get(i).getUserId()).getString("contact_updated")));
+                                        if (map.containsKey(areContacts.get(i).getUserId()) && map.get(areContacts.get(i).getUserId()).has("contact_updated"))
+                                            areContacts.get(i).setContactUpdated(Utils.formatDate(
+                                                    map.get(areContacts.get(i).getUserId()).getString("contact_updated")));
                                     } catch (JSONException e) {
 
                                     }

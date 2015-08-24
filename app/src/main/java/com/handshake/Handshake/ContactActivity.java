@@ -14,7 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
-import com.handshake.helpers.GroupServerSync;
+import com.handshake.helpers.ContactServerSync;
 import com.handshake.helpers.SyncCompleted;
 import com.handshake.helpers.UserArraySyncCompleted;
 import com.handshake.helpers.UserServerSync;
@@ -59,9 +59,10 @@ public class ContactActivity extends AppCompatActivity {
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                GroupServerSync.performSync(context, new SyncCompleted() {
+                ContactServerSync.performSync(context, new SyncCompleted() {
                     @Override
                     public void syncCompletedListener() {
+                        MainActivity.contactSyncCompleted = true;
                         swipeContainer.setRefreshing(false);
                     }
                 });

@@ -1,5 +1,6 @@
 package com.handshake.Handshake;
 
+import android.app.ProgressDialog;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -88,6 +89,8 @@ public class JoinGroupActivity extends AppCompatActivity {
                     return;
                 }
 
+                final ProgressDialog dialog = ProgressDialog.show(context, "", "Joining Group...", true);
+
                 String code = (et1.getText().toString().charAt(0) + "") + (et2.getText().toString().charAt(0) + "") +
                         (et3.getText().toString().charAt(0) + "") + (et4.getText().toString().charAt(0) + "") +
                         (et5.getText().toString().charAt(0) + "") + (et6.getText().toString().charAt(0) + "");
@@ -109,6 +112,7 @@ public class JoinGroupActivity extends AppCompatActivity {
                 RestClientAsync.post(context, "/groups/join", jsonParams, "application/json", new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                        dialog.cancel();
                         try {
                             JSONObject groupJSONObject = response.getJSONObject("group");
                             JSONArray jsonArray = new JSONArray();
@@ -121,13 +125,12 @@ public class JoinGroupActivity extends AppCompatActivity {
                                     FeedItemServerSync.performSync(context, new SyncCompleted() {
                                         @Override
                                         public void syncCompletedListener() {
+                                            Toast.makeText(context, "Successfully joined group.", Toast.LENGTH_SHORT).show();
+                                            JoinGroupActivity.this.finish();
                                         }
                                     });
                                 }
                             });
-
-                            Toast.makeText(context, "Successfully joined group.", Toast.LENGTH_SHORT).show();
-                            JoinGroupActivity.this.finish();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -135,6 +138,8 @@ public class JoinGroupActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                        if (dialog.isShowing())
+                            dialog.cancel();
                         if (errorResponse == null) return;
                         System.out.println(errorResponse.toString());
                         if (statusCode == 401) session.logoutUser();

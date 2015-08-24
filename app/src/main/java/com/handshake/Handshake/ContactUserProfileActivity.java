@@ -50,9 +50,6 @@ import com.squareup.picasso.Picasso;
 import org.apache.http.Header;
 import org.json.JSONObject;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.realm.Realm;
 
@@ -65,9 +62,10 @@ public class ContactUserProfileActivity extends AppCompatActivity {
 
     private LinearLayout infoLayout;
     private LinearLayout socialLayout;
-    private static Executor executor = Executors.newSingleThreadExecutor();
     private Realm r;
     private ProgressDialog dialog;
+
+    private static final String TAG = "ContactUserProfileActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,7 +110,10 @@ public class ContactUserProfileActivity extends AppCompatActivity {
 
         infoLayout = (LinearLayout) findViewById(R.id.linear_layout);
         socialLayout = (LinearLayout) findViewById(R.id.linear_layout_2);
-        fillViews();
+
+//        synchronized (TAG) {
+//            fillViews();
+//        }
     }
 
     private void fillViews() {
@@ -126,331 +127,343 @@ public class ContactUserProfileActivity extends AppCompatActivity {
             finish();
         }
 
-        TextViewCustomFont name = (TextViewCustomFont) findViewById(R.id.name);
-        String lastName = "";
-        if (!account.getLastName().equals("null"))
-            lastName = account.getLastName();
-        name.setText(account.getFirstName() + " " + lastName);
+        synchronized (TAG) {
+            TextViewCustomFont name = (TextViewCustomFont) findViewById(R.id.name);
+            String lastName = "";
+            if (!account.getLastName().equals("null"))
+                lastName = account.getLastName();
+            name.setText(account.getFirstName() + " " + lastName);
 
-        CircleImageView profileImage = (CircleImageView) findViewById(R.id.profile_image);
-        ImageView backdrop = (ImageView) findViewById(R.id.backdrop);
-        CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+            CircleImageView profileImage = (CircleImageView) findViewById(R.id.profile_image);
+            ImageView backdrop = (ImageView) findViewById(R.id.backdrop);
+            CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
 
-        if (!account.getThumb().isEmpty() && !account.getThumb().equals("null")) {
-            Picasso.with(context).load(account.getThumb()).transform(new CircleTransform()).into(profileImage);
-            if (!account.getPicture().isEmpty() && !account.getPicture().equals("null"))
-                Picasso.with(context).load(account.getPicture()).into(backdrop);
+            if (!account.getThumb().isEmpty() && !account.getThumb().equals("null")) {
+                Picasso.with(context).load(account.getThumb()).transform(new CircleTransform()).into(profileImage);
+                if (!account.getPicture().isEmpty() && !account.getPicture().equals("null"))
+                    Picasso.with(context).load(account.getPicture()).into(backdrop);
+                else
+                    Picasso.with(context).load(account.getThumb()).into(backdrop);
+            } else {
+                Picasso.with(context).load(R.drawable.default_profile).transform(new CircleTransform()).into(profileImage);
+                collapsingToolbar.setContentScrimColor(getResources().getColor(R.color.background_window));
+            }
+
+            TextViewCustomFont contacts = (TextViewCustomFont) findViewById(R.id.contacts);
+            TextViewCustomFont mutual = (TextViewCustomFont) findViewById(R.id.mutual);
+
+            if (account.getContacts() == 1)
+                contacts.setText(account.getContacts() + " contact");
             else
-                Picasso.with(context).load(account.getThumb()).into(backdrop);
-        } else {
-            Picasso.with(context).load(R.drawable.default_profile).transform(new CircleTransform()).into(profileImage);
-            collapsingToolbar.setContentScrimColor(getResources().getColor(R.color.background_window));
-        }
+                contacts.setText(account.getContacts() + " contacts");
+            mutual.setText(account.getMutual() + " mutual");
+            contacts.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent i = new Intent(ContactUserProfileActivity.this, ContactActivity.class);
+                    i.putExtra("userId", account.getUserId());
+                    i.putExtra("type", "contacts");
+                    startActivity(i);
+                }
+            });
 
-        TextViewCustomFont contacts = (TextViewCustomFont) findViewById(R.id.contacts);
-        TextViewCustomFont mutual = (TextViewCustomFont) findViewById(R.id.mutual);
+            mutual.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent i = new Intent(ContactUserProfileActivity.this, ContactActivity.class);
+                    i.putExtra("userId", account.getUserId());
+                    i.putExtra("type", "mutual");
+                    startActivity(i);
+                }
+            });
 
-        contacts.setText(account.getContacts() + " contacts");
-        mutual.setText(account.getMutual() + " mutual");
-        contacts.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(ContactUserProfileActivity.this, ContactActivity.class);
-                i.putExtra("userId", account.getUserId());
-                i.putExtra("type", "contacts");
-                startActivity(i);
-            }
-        });
+            TextViewCustomFont text = (TextViewCustomFont) findViewById(R.id.text);
 
-        mutual.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(ContactUserProfileActivity.this, ContactActivity.class);
-                i.putExtra("userId", account.getUserId());
-                i.putExtra("type", "mutual");
-                startActivity(i);
-            }
-        });
+            MainActivity.setContactButtons(context, account,
+                    (ImageView) findViewById(R.id.button_one), (ImageView) findViewById(R.id.button_two), text);
 
-        TextViewCustomFont text = (TextViewCustomFont) findViewById(R.id.text);
+            ImageView notifications = (ImageView) findViewById(R.id.notifications);
+            setNotificationsButton(account, notifications);
 
-        MainActivity.setContactButtons(context, account,
-                (ImageView) findViewById(R.id.button_one), (ImageView) findViewById(R.id.button_two), text);
+            dialog = ProgressDialog.show(this, "", "Loading profile...", true);
+            dialog.setCancelable(true);
+            dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    Toast.makeText(context, "Could not load current profile at this time. Please try again later.", Toast.LENGTH_LONG).show();
+                }
+            });
 
-        ImageView notifications = (ImageView) findViewById(R.id.notifications);
-        setNotificationsButton(account, notifications);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            infoLayout.removeAllViews();
+                            socialLayout.removeAllViews();
+                        }
+                    });
 
-        dialog = ProgressDialog.show(this, "", "Loading profile...", true);
-        dialog.setCancelable(true);
-        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                Toast.makeText(context, "Could not load current profile at this time. Please try again later.", Toast.LENGTH_LONG).show();
-            }
-        });
+                    while (!MainActivity.contactSyncCompleted) {
 
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        infoLayout.removeAllViews();
-                        socialLayout.removeAllViews();
                     }
-                });
 
-                while (!MainActivity.contactSyncCompleted) {
+                    r = Realm.getInstance(context);
 
-                }
+                    final User account = r.where(User.class).equalTo("userId", getIntent().getLongExtra("userId", SessionManager.getID())).findFirst();
+                    final Card card = account.getCards().first();
 
-                r = Realm.getInstance(context);
-
-                final User account = r.where(User.class).equalTo("userId", getIntent().getLongExtra("userId", SessionManager.getID())).findFirst();
-                final Card card = account.getCards().first();
-
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialog.dismiss();
-                        if (card == null) {
-                            Toast.makeText(context, "There was an error. Please try again.", Toast.LENGTH_LONG).show();
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.dismiss();
                         }
+                    });
+
+                    if (card == null) {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(context, "There was an error. Please try again.", Toast.LENGTH_LONG).show();
+                            }
+                        });
+                        return;
                     }
-                });
 
-                for (final Phone phone : card.getPhones()) {
-                    LayoutInflater inflater = (LayoutInflater) context.getApplicationContext()
-                            .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    final View mLinearView = inflater.inflate(R.layout.info_cell, null);
-                    final TextViewCustomFont title = (TextViewCustomFont) mLinearView.findViewById(R.id.title);
-                    final TextViewCustomFont description = (TextViewCustomFont) mLinearView.findViewById(R.id.description);
-                    final ImageView imageView1 = (ImageView) mLinearView.findViewById(R.id.imageView1);
-                    final ImageView imageView2 = (ImageView) mLinearView.findViewById(R.id.imageView2);
-                    final String phoneNumber = phone.getNumber();
-                    final String phoneCountryCode = phone.getCountryCode();
-                    final String phoneLabel = phone.getLabel();
+                    for (final Phone phone : card.getPhones()) {
+                        LayoutInflater inflater = (LayoutInflater) context.getApplicationContext()
+                                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        final View mLinearView = inflater.inflate(R.layout.info_cell, null);
+                        final TextViewCustomFont title = (TextViewCustomFont) mLinearView.findViewById(R.id.title);
+                        final TextViewCustomFont description = (TextViewCustomFont) mLinearView.findViewById(R.id.description);
+                        final ImageView imageView1 = (ImageView) mLinearView.findViewById(R.id.imageView1);
+                        final ImageView imageView2 = (ImageView) mLinearView.findViewById(R.id.imageView2);
+                        final String phoneNumber = phone.getNumber();
+                        final String phoneCountryCode = phone.getCountryCode();
+                        final String phoneLabel = phone.getLabel();
 
 
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            findViewById(R.id.no_info).setVisibility(View.GONE);
-                            findViewById(R.id.divider1).setVisibility(View.VISIBLE);
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                findViewById(R.id.no_info).setVisibility(View.GONE);
+                                findViewById(R.id.divider1).setVisibility(View.VISIBLE);
 
-                            imageView1.setVisibility(View.VISIBLE);
-                            imageView2.setVisibility(View.VISIBLE);
-                            imageView1.setImageDrawable(getResources().getDrawable(R.mipmap.message_button));
-                            imageView2.setImageDrawable(getResources().getDrawable(R.mipmap.call_button));
+                                imageView1.setVisibility(View.VISIBLE);
+                                imageView2.setVisibility(View.VISIBLE);
+                                imageView1.setImageDrawable(getResources().getDrawable(R.mipmap.message_button));
+                                imageView2.setImageDrawable(getResources().getDrawable(R.mipmap.call_button));
 
-                            imageView1.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    Intent sendIntent = new Intent(Intent.ACTION_VIEW);
-                                    sendIntent.setData(Uri.parse("sms:" + phoneNumber));
-                                    startActivity(sendIntent);
+                                imageView1.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        Intent sendIntent = new Intent(Intent.ACTION_VIEW);
+                                        sendIntent.setData(Uri.parse("sms:" + phoneNumber));
+                                        startActivity(sendIntent);
+                                    }
+                                });
+
+                                imageView2.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        String uri = "tel:" + phoneNumber;
+                                        Intent intent = new Intent(Intent.ACTION_CALL);
+                                        intent.setData(Uri.parse(uri));
+                                        startActivity(intent);
+                                    }
+                                });
+
+                                description.setText(phoneLabel);
+                                infoLayout.addView(mLinearView);
+
+                                PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+                                try {
+                                    Phonenumber.PhoneNumber numberObject = phoneUtil.parse(phoneNumber, phoneCountryCode);
+                                    if (phoneUtil.isValidNumber(numberObject))
+                                        title.setText(phoneUtil.format(numberObject, PhoneNumberUtil.PhoneNumberFormat.NATIONAL));
+                                } catch (NumberParseException e) {
+                                    title.setText(phoneNumber);
+                                    e.printStackTrace();
                                 }
-                            });
-
-                            imageView2.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    String uri = "tel:" + phoneNumber;
-                                    Intent intent = new Intent(Intent.ACTION_CALL);
-                                    intent.setData(Uri.parse(uri));
-                                    startActivity(intent);
-                                }
-                            });
-
-                            description.setText(phoneLabel);
-                            infoLayout.addView(mLinearView);
-
-                            PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
-                            try {
-                                Phonenumber.PhoneNumber numberObject = phoneUtil.parse(phoneNumber, phoneCountryCode);
-                                if (phoneUtil.isValidNumber(numberObject))
-                                    title.setText(phoneUtil.format(numberObject, PhoneNumberUtil.PhoneNumberFormat.NATIONAL));
-                            } catch (NumberParseException e) {
-                                title.setText(phoneNumber);
-                                e.printStackTrace();
                             }
-                        }
-                    });
-                }
+                        });
+                    }
 
-                for (final Email email : card.getEmails()) {
-                    LayoutInflater inflater = (LayoutInflater) context.getApplicationContext()
-                            .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    final View mLinearView = inflater.inflate(R.layout.info_cell, null);
-                    final TextViewCustomFont title = (TextViewCustomFont) mLinearView.findViewById(R.id.title);
-                    final TextViewCustomFont description = (TextViewCustomFont) mLinearView.findViewById(R.id.description);
-                    final ImageView imageView1 = (ImageView) mLinearView.findViewById(R.id.imageView1);
-                    final ImageView imageView2 = (ImageView) mLinearView.findViewById(R.id.imageView2);
-                    final String emailAddress = email.getAddress();
-                    final String emailLabel = email.getLabel();
+                    for (final Email email : card.getEmails()) {
+                        LayoutInflater inflater = (LayoutInflater) context.getApplicationContext()
+                                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        final View mLinearView = inflater.inflate(R.layout.info_cell, null);
+                        final TextViewCustomFont title = (TextViewCustomFont) mLinearView.findViewById(R.id.title);
+                        final TextViewCustomFont description = (TextViewCustomFont) mLinearView.findViewById(R.id.description);
+                        final ImageView imageView1 = (ImageView) mLinearView.findViewById(R.id.imageView1);
+                        final ImageView imageView2 = (ImageView) mLinearView.findViewById(R.id.imageView2);
+                        final String emailAddress = email.getAddress();
+                        final String emailLabel = email.getLabel();
 
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            findViewById(R.id.no_info).setVisibility(View.GONE);
-                            imageView1.setVisibility(View.GONE);
-                            imageView2.setVisibility(View.VISIBLE);
-                            imageView2.setImageDrawable(getResources().getDrawable(R.mipmap.email_button));
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                findViewById(R.id.no_info).setVisibility(View.GONE);
+                                imageView1.setVisibility(View.GONE);
+                                imageView2.setVisibility(View.VISIBLE);
+                                imageView2.setImageDrawable(getResources().getDrawable(R.mipmap.email_button));
 
-                            imageView2.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-                                            "mailto", emailAddress, null));
-                                    startActivity(Intent.createChooser(emailIntent, "Send email"));
-                                }
-                            });
-
-                            title.setText(emailAddress);
-                            description.setText(emailLabel);
-                            infoLayout.addView(mLinearView);
-                        }
-                    });
-                }
-
-
-                for (final Address address : card.getAddresses()) {
-                    LayoutInflater inflater = (LayoutInflater) context.getApplicationContext()
-                            .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    final View mLinearView = inflater.inflate(R.layout.info_cell, null);
-                    final TextViewCustomFont title = (TextViewCustomFont) mLinearView.findViewById(R.id.title);
-                    final TextViewCustomFont description = (TextViewCustomFont) mLinearView.findViewById(R.id.description);
-                    final ImageView imageView1 = (ImageView) mLinearView.findViewById(R.id.imageView1);
-                    final ImageView imageView2 = (ImageView) mLinearView.findViewById(R.id.imageView2);
-                    final String addressStreet1 = address.getStreet1();
-                    final String addressStreet2 = address.getStreet2();
-                    final String addressCity = address.getCity();
-                    final String addressState = address.getState();
-                    final String addressZip = address.getZip();
-                    final String addressLabel = address.getLabel();
-
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            findViewById(R.id.no_info).setVisibility(View.GONE);
-                            imageView1.setVisibility(View.GONE);
-                            imageView2.setVisibility(View.VISIBLE);
-                            imageView2.setImageDrawable(getResources().getDrawable(R.mipmap.maps_button));
-
-                            imageView2.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    String address;
-                                    if (addressStreet2.length() != 0)
-                                        address = addressStreet1 + ", " + addressStreet2 + ", " +
-                                                addressCity + ", " + addressState + " " + addressZip;
-                                    else
-                                        address = addressStreet1 + ", " +
-                                                addressCity + ", " + addressState + " " + addressZip;
-
-                                    Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + address);
-                                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                                    mapIntent.setPackage("com.google.android.apps.maps");
-                                    startActivity(mapIntent);
-                                }
-                            });
-
-                            if (addressStreet2.length() != 0)
-                                title.setText(addressStreet1 + "\n" + addressStreet2 + "\n" +
-                                        addressCity + ", " + addressState + " " + addressZip);
-                            else
-                                title.setText(addressStreet1 + "\n" +
-                                        addressCity + ", " + addressState + " " + addressZip);
-
-                            description.setText(addressLabel);
-                            infoLayout.addView(mLinearView);
-                        }
-                    });
-                }
-
-                for (final Social social : card.getSocials()) {
-                    LayoutInflater inflater = (LayoutInflater) context.getApplicationContext()
-                            .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    final View mLinearView = inflater.inflate(R.layout.social_cell, null);
-                    final TextViewCustomFont title = (TextViewCustomFont) mLinearView.findViewById(R.id.title);
-                    final ImageView imageView1 = (ImageView) mLinearView.findViewById(R.id.imageView1);
-                    final String username = social.getUsername();
-                    final String network = social.getNetwork();
-
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            findViewById(R.id.no_info).setVisibility(View.GONE);
-                            findViewById(R.id.divider2).setVisibility(View.VISIBLE);
-
-                            if (network.equals("facebook")) {
-                                imageView1.setImageDrawable(getResources().getDrawable(R.mipmap.facebook_icon));
-                                title.setText("Facebook");
-                                mLinearView.setOnClickListener(new View.OnClickListener() {
+                                imageView2.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        try {
-                                            context.getPackageManager().getPackageInfo("com.facebook.katana", 0);
-                                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("fb://profile/" + username)));
-                                        } catch (Exception e) {
-                                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://facebook.com/" + username)));
-                                        }
+                                        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                                                "mailto", emailAddress, null));
+                                        startActivity(Intent.createChooser(emailIntent, "Send email"));
                                     }
                                 });
-                            } else if (network.equals("twitter")) {
-                                imageView1.setImageDrawable(getResources().getDrawable(R.mipmap.twitter_icon));
-                                title.setText("@" + username);
-                                mLinearView.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        try {
-                                            startActivity(new Intent(Intent.ACTION_VIEW,
-                                                    Uri.parse("twitter://user?screen_name=" + username)));
-                                        } catch (Exception e) {
-                                            startActivity(new Intent(Intent.ACTION_VIEW,
-                                                    Uri.parse("https://twitter.com/#!/" + username)));
-                                        }
-                                    }
-                                });
-                            } else if (network.equals("instagram")) {
-                                imageView1.setImageDrawable(getResources().getDrawable(R.mipmap.instagram_icon));
-                                title.setText("@" + username);
-                                mLinearView.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        Uri uri = Uri.parse("http://instagram.com/_u/" + username + "/");
-                                        Intent likeIng = new Intent(Intent.ACTION_VIEW, uri);
 
-                                        likeIng.setPackage("com.instagram.android");
-
-                                        try {
-                                            startActivity(likeIng);
-                                        } catch (ActivityNotFoundException e) {
-                                            startActivity(new Intent(Intent.ACTION_VIEW,
-                                                    Uri.parse("http://instagram.com/_u/" + username + "/")));
-                                        }
-                                    }
-                                });
-                            } else if (network.equals("snapchat")) {
-                                imageView1.setImageDrawable(getResources().getDrawable(R.mipmap.snapchat_icon));
-                                title.setText(username);
-                                mLinearView.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        Toast.makeText(context,
-                                                "Unable to open Snapchat. Please manually add the user via the Snapchat application.", Toast.LENGTH_LONG).show();
-                                    }
-                                });
+                                title.setText(emailAddress);
+                                description.setText(emailLabel);
+                                infoLayout.addView(mLinearView);
                             }
+                        });
+                    }
 
-                            socialLayout.addView(mLinearView);
-                        }
-                    });
+
+                    for (final Address address : card.getAddresses()) {
+                        LayoutInflater inflater = (LayoutInflater) context.getApplicationContext()
+                                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        final View mLinearView = inflater.inflate(R.layout.info_cell, null);
+                        final TextViewCustomFont title = (TextViewCustomFont) mLinearView.findViewById(R.id.title);
+                        final TextViewCustomFont description = (TextViewCustomFont) mLinearView.findViewById(R.id.description);
+                        final ImageView imageView1 = (ImageView) mLinearView.findViewById(R.id.imageView1);
+                        final ImageView imageView2 = (ImageView) mLinearView.findViewById(R.id.imageView2);
+                        final String addressStreet1 = address.getStreet1();
+                        final String addressStreet2 = address.getStreet2();
+                        final String addressCity = address.getCity();
+                        final String addressState = address.getState();
+                        final String addressZip = address.getZip();
+                        final String addressLabel = address.getLabel();
+
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                findViewById(R.id.no_info).setVisibility(View.GONE);
+                                imageView1.setVisibility(View.GONE);
+                                imageView2.setVisibility(View.VISIBLE);
+                                imageView2.setImageDrawable(getResources().getDrawable(R.mipmap.maps_button));
+
+                                imageView2.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        String address;
+                                        if (addressStreet2.length() != 0)
+                                            address = addressStreet1 + ", " + addressStreet2 + ", " +
+                                                    addressCity + ", " + addressState + " " + addressZip;
+                                        else
+                                            address = addressStreet1 + ", " +
+                                                    addressCity + ", " + addressState + " " + addressZip;
+
+                                        Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + address);
+                                        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                                        mapIntent.setPackage("com.google.android.apps.maps");
+                                        startActivity(mapIntent);
+                                    }
+                                });
+
+                                if (addressStreet2.length() != 0)
+                                    title.setText(addressStreet1 + "\n" + addressStreet2 + "\n" +
+                                            addressCity + ", " + addressState + " " + addressZip);
+                                else
+                                    title.setText(addressStreet1 + "\n" +
+                                            addressCity + ", " + addressState + " " + addressZip);
+
+                                description.setText(addressLabel);
+                                infoLayout.addView(mLinearView);
+                            }
+                        });
+                    }
+
+                    for (final Social social : card.getSocials()) {
+                        LayoutInflater inflater = (LayoutInflater) context.getApplicationContext()
+                                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        final View mLinearView = inflater.inflate(R.layout.social_cell, null);
+                        final TextViewCustomFont title = (TextViewCustomFont) mLinearView.findViewById(R.id.title);
+                        final ImageView imageView1 = (ImageView) mLinearView.findViewById(R.id.imageView1);
+                        final String username = social.getUsername();
+                        final String network = social.getNetwork();
+
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                findViewById(R.id.no_info).setVisibility(View.GONE);
+                                findViewById(R.id.divider2).setVisibility(View.VISIBLE);
+
+                                if (network.equals("facebook")) {
+                                    imageView1.setImageDrawable(getResources().getDrawable(R.mipmap.facebook_icon));
+                                    title.setText("Facebook");
+                                    mLinearView.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            try {
+                                                context.getPackageManager().getPackageInfo("com.facebook.katana", 0);
+                                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("fb://profile/" + username)));
+                                            } catch (Exception e) {
+                                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://facebook.com/" + username)));
+                                            }
+                                        }
+                                    });
+                                } else if (network.equals("twitter")) {
+                                    imageView1.setImageDrawable(getResources().getDrawable(R.mipmap.twitter_icon));
+                                    title.setText("@" + username);
+                                    mLinearView.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            try {
+                                                startActivity(new Intent(Intent.ACTION_VIEW,
+                                                        Uri.parse("twitter://user?screen_name=" + username)));
+                                            } catch (Exception e) {
+                                                startActivity(new Intent(Intent.ACTION_VIEW,
+                                                        Uri.parse("https://twitter.com/#!/" + username)));
+                                            }
+                                        }
+                                    });
+                                } else if (network.equals("instagram")) {
+                                    imageView1.setImageDrawable(getResources().getDrawable(R.mipmap.instagram_icon));
+                                    title.setText("@" + username);
+                                    mLinearView.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            Uri uri = Uri.parse("http://instagram.com/_u/" + username + "/");
+                                            Intent likeIng = new Intent(Intent.ACTION_VIEW, uri);
+
+                                            likeIng.setPackage("com.instagram.android");
+
+                                            try {
+                                                startActivity(likeIng);
+                                            } catch (ActivityNotFoundException e) {
+                                                startActivity(new Intent(Intent.ACTION_VIEW,
+                                                        Uri.parse("http://instagram.com/_u/" + username + "/")));
+                                            }
+                                        }
+                                    });
+                                } else if (network.equals("snapchat")) {
+                                    imageView1.setImageDrawable(getResources().getDrawable(R.mipmap.snapchat_icon));
+                                    title.setText(username);
+                                    mLinearView.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            Toast.makeText(context,
+                                                    "Unable to open Snapchat. Please manually add the user via the Snapchat application.", Toast.LENGTH_LONG).show();
+                                        }
+                                    });
+                                }
+
+                                socialLayout.addView(mLinearView);
+                            }
+                        });
+                    }
+                    r.close();
                 }
-                r.close();
-            }
-        });
+            }).start();
 //        realm.close();
+        }
     }
 
     private void setNotificationsButton(final User account, final ImageView notifications) {
@@ -575,7 +588,9 @@ public class ContactUserProfileActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        fillViews();
+        synchronized (TAG) {
+            fillViews();
+        }
     }
 
     @Override

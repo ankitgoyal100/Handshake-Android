@@ -57,7 +57,7 @@ public class GroupFragment extends Fragment {
                     @Override
                     public void syncCompletedListener() {
                         swipeContainer.setRefreshing(false);
-//                        setIntroVisible();
+                        setIntroVisible();
                     }
                 });
             }

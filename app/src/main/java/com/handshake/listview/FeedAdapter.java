@@ -74,7 +74,10 @@ public class FeedAdapter extends RealmBaseAdapter<FeedItem> implements ListAdapt
                 Picasso.with(context).load(R.drawable.default_profile).transform(new CircleTransform()).into(viewHolder.image);
         } else {
             Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
-            if (account == null) return convertView;
+            if (account == null) {
+                Picasso.with(context).load(R.drawable.default_profile).transform(new CircleTransform()).into(viewHolder.image);
+                return convertView;
+            }
             if (!account.getThumb().isEmpty() && !account.getThumb().equals("null"))
                 Picasso.with(context).load(account.getThumb()).transform(new CircleTransform()).into(viewHolder.image);
             else
