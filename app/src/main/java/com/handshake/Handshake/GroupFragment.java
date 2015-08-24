@@ -116,6 +116,7 @@ public class GroupFragment extends Fragment {
     public void onResume() {
         super.onResume();
         swipeContainer.setRefreshing(false);
+        setIntroVisible();
     }
 
     @Override

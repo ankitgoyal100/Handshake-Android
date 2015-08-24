@@ -30,6 +30,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,7 +55,6 @@ import com.handshake.models.Account;
 import com.handshake.models.Group;
 import com.handshake.models.User;
 import com.handshake.notifications.RegistrationIntentService;
-import com.handshake.views.CircleTransform;
 import com.handshake.views.DelayAutoCompleteTextView;
 import com.handshake.views.TextViewCustomFont;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -261,13 +261,99 @@ public class MainActivity extends AppCompatActivity {
                 LayoutInflater inflater = getLayoutInflater();
                 View dialoglayout = inflater.inflate(R.layout.join_group_dialog, null);
 
-                ImageView groupIcon = (ImageView) dialoglayout.findViewById(R.id.group_icon);
-                Picasso.with(context).load(R.drawable.default_profile).transform(new CircleTransform()).into(groupIcon);
-
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setView(dialoglayout);
                 final AlertDialog alertDialog = builder.create();
                 alertDialog.show();
+
+                try {
+                    ArrayList<String> thumbUrls = new ArrayList<String>();
+
+                    JSONArray members = response.getJSONObject("group").getJSONArray("members");
+                    for(int i = 0; i < members.length(); i++) {
+                        if (!members.getJSONObject(i).isNull("thumb")) {
+                            thumbUrls.add(members.getJSONObject(i).getString("thumb"));
+                        }
+                    }
+
+                    TextViewCustomFont groupCode = (TextViewCustomFont) dialoglayout.findViewById(R.id.group_code);
+                    RelativeLayout groupPhoto1Options = (RelativeLayout) dialoglayout.findViewById(R.id.group_photo_1_options);
+                    RelativeLayout groupPhoto2Options = (RelativeLayout) dialoglayout.findViewById(R.id.group_photo_2_options);
+                    RelativeLayout groupPhoto3Options = (RelativeLayout) dialoglayout.findViewById(R.id.group_photo_3_options);
+                    RelativeLayout groupPhoto4Options = (RelativeLayout) dialoglayout.findViewById(R.id.group_photo_4_options);
+
+                    if (thumbUrls.size() == 0) {
+                        groupCode.setVisibility(View.VISIBLE);
+                        groupPhoto1Options.setVisibility(View.GONE);
+                        groupPhoto2Options.setVisibility(View.GONE);
+                        groupPhoto3Options.setVisibility(View.GONE);
+                        groupPhoto4Options.setVisibility(View.GONE);
+
+                        groupCode.setText(code.substring(0, 2) + "-" + code.substring(2, 4) + "-" + code.substring(4));
+                    } else if (thumbUrls.size() == 1) {
+                        groupCode.setVisibility(View.GONE);
+                        groupPhoto1Options.setVisibility(View.VISIBLE);
+                        groupPhoto2Options.setVisibility(View.GONE);
+                        groupPhoto3Options.setVisibility(View.GONE);
+                        groupPhoto4Options.setVisibility(View.GONE);
+
+                        Picasso.with(context).load(thumbUrls.get(0))
+                                .into((ImageView) groupPhoto1Options.findViewById(R.id.image));
+
+                        groupPhoto1Options.findViewById(R.id.transparent_circle).setVisibility(View.GONE);
+                        groupPhoto1Options.findViewById(R.id.transparent_circle_dialog).setVisibility(View.VISIBLE);
+                    } else if (thumbUrls.size() == 2) {
+                        groupCode.setVisibility(View.GONE);
+                        groupPhoto1Options.setVisibility(View.GONE);
+                        groupPhoto2Options.setVisibility(View.VISIBLE);
+                        groupPhoto3Options.setVisibility(View.GONE);
+                        groupPhoto4Options.setVisibility(View.GONE);
+
+                        Picasso.with(context).load(thumbUrls.get(0))
+                                .into((ImageView) groupPhoto2Options.findViewById(R.id.left_image));
+                        Picasso.with(context).load(thumbUrls.get(1))
+                                .into((ImageView) groupPhoto2Options.findViewById(R.id.right_image));
+
+                        groupPhoto2Options.findViewById(R.id.transparent_circle).setVisibility(View.GONE);
+                        groupPhoto2Options.findViewById(R.id.transparent_circle_dialog).setVisibility(View.VISIBLE);
+                    } else if (thumbUrls.size() == 3) {
+                        groupCode.setVisibility(View.GONE);
+                        groupPhoto1Options.setVisibility(View.GONE);
+                        groupPhoto2Options.setVisibility(View.GONE);
+                        groupPhoto3Options.setVisibility(View.VISIBLE);
+                        groupPhoto4Options.setVisibility(View.GONE);
+
+                        Picasso.with(context).load(thumbUrls.get(0))
+                                .into((ImageView) groupPhoto3Options.findViewById(R.id.top_left_image));
+                        Picasso.with(context).load(thumbUrls.get(1))
+                                .into((ImageView) groupPhoto3Options.findViewById(R.id.bottom_left_image));
+                        Picasso.with(context).load(thumbUrls.get(2))
+                                .into((ImageView) groupPhoto3Options.findViewById(R.id.right_image));
+
+                        groupPhoto3Options.findViewById(R.id.transparent_circle).setVisibility(View.GONE);
+                        groupPhoto3Options.findViewById(R.id.transparent_circle_dialog).setVisibility(View.VISIBLE);
+                    } else {
+                        groupCode.setVisibility(View.GONE);
+                        groupPhoto1Options.setVisibility(View.GONE);
+                        groupPhoto2Options.setVisibility(View.GONE);
+                        groupPhoto3Options.setVisibility(View.GONE);
+                        groupPhoto4Options.setVisibility(View.VISIBLE);
+
+                        Picasso.with(context).load(thumbUrls.get(0))
+                                .into((ImageView) groupPhoto4Options.findViewById(R.id.top_left_image));
+                        Picasso.with(context).load(thumbUrls.get(1))
+                                .into((ImageView) groupPhoto4Options.findViewById(R.id.bottom_left_image));
+                        Picasso.with(context).load(thumbUrls.get(2))
+                                .into((ImageView) groupPhoto4Options.findViewById(R.id.top_right_image));
+                        Picasso.with(context).load(thumbUrls.get(3))
+                                .into((ImageView) groupPhoto4Options.findViewById(R.id.bottom_right_image));
+
+                        groupPhoto4Options.findViewById(R.id.transparent_circle).setVisibility(View.GONE);
+                        groupPhoto4Options.findViewById(R.id.transparent_circle_dialog).setVisibility(View.VISIBLE);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
                 TextView text = (TextView) dialoglayout.findViewById(R.id.text);
                 try {
@@ -316,12 +402,18 @@ public class MainActivity extends AppCompatActivity {
                                     GroupServerSync.cacheGroup(jsonArray, new GroupArraySyncCompleted() {
                                         @Override
                                         public void syncCompletedListener(ArrayList<Group> groups) {
-                                            Group group = groups.get(0);
+                                            final Group group = groups.get(0);
                                             GroupServerSync.loadGroupMembers(group);
                                             FeedItemServerSync.performSync(context, new SyncCompleted() {
                                                 @Override
                                                 public void syncCompletedListener() {
+                                                    if(groupFragment != null) {
+                                                        groupFragment.setIntroVisible();
+                                                    }
 
+                                                    if(feedFragment != null) {
+                                                        feedFragment.setIntroVisible();
+                                                    }
                                                 }
                                             });
                                         }

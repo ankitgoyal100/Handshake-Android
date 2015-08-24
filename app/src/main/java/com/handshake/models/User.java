@@ -257,14 +257,14 @@ public class User extends RealmObject {
             user.setNotifications(json.getBoolean("notifications"));
 
             // if no thumb or thumb is different - update
-            if (json.isNull("thumb") || (user.getThumb() != null && (!user.getThumb().equals("") ||
+            if (!json.isNull("thumb") || (user.getThumb() != null && (!user.getThumb().equals("") ||
                     !json.getString("thumb").equals(user.getThumb())))) {
                 user.setThumb(json.getString("thumb"));
                 user.setThumbData(new byte[0]);
             }
 
             // if no picture or picture is different - update
-            if (json.isNull("picture") || (user.getPicture() != null && (!user.getPicture().equals("") ||
+            if (!json.isNull("picture") || (user.getPicture() != null && (!user.getPicture().equals("") ||
                     !json.getString("picture").equals(user.getPicture())))) {
                 user.setPicture(json.getString("picture"));
                 user.setPictureData(new byte[0]);

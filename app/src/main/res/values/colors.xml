@@ -10,5 +10,7 @@
     <color name="dark_gray">#ff979797</color>
     <color name="light_gray">#ffe0e0e0</color>
     <color name="translucent">#81626262</color>
+    <color name="dialog_background">#eeeeee</color>
+    <color name="backdrop_gray">#aaaaaa</color>
 
 </resources>

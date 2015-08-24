@@ -122,6 +122,8 @@ public class RequestFragment extends ListFragment {
     public void onResume() {
         super.onResume();
         swipeContainer.setRefreshing(false);
+        setSuggestionText();
+        setIntroVisible();
     }
 
     @Override

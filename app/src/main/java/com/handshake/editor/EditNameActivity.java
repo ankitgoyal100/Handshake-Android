@@ -47,10 +47,14 @@ public class EditNameActivity extends AppCompatActivity {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Realm realm = Realm.getInstance(EditNameActivity.this);
+                final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+
                 realm.beginTransaction();
                 account.setFirstName(firstName.getText().toString());
                 account.setLastName(lastName.getText().toString());
                 realm.commitTransaction();
+                realm.close();
 
                 Intent returnIntent = new Intent();
                 setResult(RESULT_OK, returnIntent);

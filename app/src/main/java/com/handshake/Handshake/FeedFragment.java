@@ -127,6 +127,8 @@ public class FeedFragment extends ListFragment {
     public void onResume() {
         super.onResume();
         swipeContainer.setRefreshing(false);
+        setSuggestionText();
+        setIntroVisible();
     }
 
     @Override
@@ -141,7 +143,6 @@ public class FeedFragment extends ListFragment {
         Utils.setDynamicHeight(suggestionListView);
 
         final Realm r = Realm.getInstance(getActivity());
-        System.out.println("Feed Suggestion size: " + r.where(Suggestion.class).findAll().size());
         if (r.where(Suggestion.class).findAll().size() > 0) {
             suggestionText.setVisibility(View.VISIBLE);
         } else {

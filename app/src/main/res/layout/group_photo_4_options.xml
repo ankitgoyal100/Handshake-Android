@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="80dp"
+    android:layout_height="80dp">
+
+    <LinearLayout
+        android:id="@+id/left_container"
+        android:layout_width="40dp"
+        android:layout_height="80dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/top_left_image"
+            android:layout_width="40dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+
+        <ImageView
+            android:id="@+id/bottom_left_image"
+            android:layout_width="40dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/right_container"
+        android:layout_width="40dp"
+        android:layout_height="80dp"
+        android:layout_toRightOf="@+id/left_container"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/top_right_image"
+            android:layout_width="40dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+
+        <ImageView
+            android:id="@+id/bottom_right_image"
+            android:layout_width="40dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+    </LinearLayout>
+
+    <com.handshake.views.TransparentCircle
+        android:id="@+id/transparent_circle"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <com.handshake.views.TransparentCircleDialog
+        android:id="@+id/transparent_circle_dialog"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+</RelativeLayout>
