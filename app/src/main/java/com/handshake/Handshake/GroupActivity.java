@@ -181,7 +181,7 @@ public class GroupActivity extends AppCompatActivity {
                         .show();
             }
         });
-//        realm.close();
+        realm.close();
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

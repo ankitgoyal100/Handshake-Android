@@ -49,12 +49,12 @@ public class Utils {
     }
 
     public static int labelToType(String label, boolean isPhone) {
-        if(label.equals("Home")) return 1;
-        else if(label.equals("Mobile") && isPhone) return 2;
-        else if(label.equals("Mobile") && !isPhone) return 4;
-        else if(label.equals("Work") && isPhone) return 3;
-        else if(label.equals("Work") && !isPhone) return 2;
-        else if(label.equals("Other") && isPhone) return 7;
+        if (label.equals("Home")) return 1;
+        else if (label.equals("Mobile") && isPhone) return 2;
+        else if (label.equals("Mobile") && !isPhone) return 4;
+        else if (label.equals("Work") && isPhone) return 3;
+        else if (label.equals("Work") && !isPhone) return 2;
+        else if (label.equals("Other") && isPhone) return 7;
         else return 3;
     }
 
@@ -156,7 +156,7 @@ public class Utils {
 
         for (int i = 0; i < strings.size(); i++) {
             String[] stringSplitByDashes = strings.get(i).split("-");
-            if(stringSplitByDashes.length == 3 && stringSplitByDashes[0].length() == 2
+            if (stringSplitByDashes.length == 3 && stringSplitByDashes[0].length() == 2
                     && stringSplitByDashes[1].length() == 2 && stringSplitByDashes[2].length() == 2)
                 return strings.get(i).replaceAll("-", "").toLowerCase();
         }
@@ -165,22 +165,26 @@ public class Utils {
     }
 
     public static void setDynamicHeight(ListView mListView) {
-        ListAdapter mListAdapter = mListView.getAdapter();
-        if (mListAdapter == null) {
-            // when adapter is null
-            return;
+        try {
+            ListAdapter mListAdapter = mListView.getAdapter();
+            if (mListAdapter == null) {
+                // when adapter is null
+                return;
+            }
+            int height = 0;
+            int desiredWidth = View.MeasureSpec.makeMeasureSpec(mListView.getWidth(), View.MeasureSpec.UNSPECIFIED);
+            for (int i = 0; i < mListAdapter.getCount(); i++) {
+                View listItem = mListAdapter.getView(i, null, mListView);
+                listItem.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
+                height += listItem.getMeasuredHeight();
+            }
+            ViewGroup.LayoutParams params = mListView.getLayoutParams();
+            params.height = height + (mListView.getDividerHeight() * (mListAdapter.getCount() - 1));
+            mListView.setLayoutParams(params);
+            mListView.requestLayout();
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
         }
-        int height = 0;
-        int desiredWidth = View.MeasureSpec.makeMeasureSpec(mListView.getWidth(), View.MeasureSpec.UNSPECIFIED);
-        for (int i = 0; i < mListAdapter.getCount(); i++) {
-            View listItem = mListAdapter.getView(i, null, mListView);
-            listItem.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
-            height += listItem.getMeasuredHeight();
-        }
-        ViewGroup.LayoutParams params = mListView.getLayoutParams();
-        params.height = height + (mListView.getDividerHeight() * (mListAdapter.getCount() - 1));
-        mListView.setLayoutParams(params);
-        mListView.requestLayout();
     }
 
     public static int dpToPx(Context context, int dp) {

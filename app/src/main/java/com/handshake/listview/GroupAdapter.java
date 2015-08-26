@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.RelativeLayout;
@@ -13,7 +12,6 @@ import com.handshake.Handshake.GroupActivity;
 import com.handshake.Handshake.R;
 import com.handshake.models.Group;
 import com.handshake.views.TextViewCustomFont;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -61,61 +59,61 @@ public class GroupAdapter extends RealmBaseAdapter<Group> implements ListAdapter
             }
         }
 
-        if (thumbUrls.size() == 0) {
+//        if (thumbUrls.size() == 0) {
             viewHolder.groupCode.setVisibility(View.VISIBLE);
             viewHolder.groupPhoto1Options.setVisibility(View.GONE);
             viewHolder.groupPhoto2Options.setVisibility(View.GONE);
             viewHolder.groupPhoto3Options.setVisibility(View.GONE);
             viewHolder.groupPhoto4Options.setVisibility(View.GONE);
-        } else if (thumbUrls.size() == 1) {
-            viewHolder.groupCode.setVisibility(View.GONE);
-            viewHolder.groupPhoto1Options.setVisibility(View.VISIBLE);
-            viewHolder.groupPhoto2Options.setVisibility(View.GONE);
-            viewHolder.groupPhoto3Options.setVisibility(View.GONE);
-            viewHolder.groupPhoto4Options.setVisibility(View.GONE);
-
-            Picasso.with(context).load(thumbUrls.get(0))
-                    .into((ImageView) viewHolder.groupPhoto1Options.findViewById(R.id.image));
-        } else if (thumbUrls.size() == 2) {
-            viewHolder.groupCode.setVisibility(View.GONE);
-            viewHolder.groupPhoto1Options.setVisibility(View.GONE);
-            viewHolder.groupPhoto2Options.setVisibility(View.VISIBLE);
-            viewHolder.groupPhoto3Options.setVisibility(View.GONE);
-            viewHolder.groupPhoto4Options.setVisibility(View.GONE);
-
-            Picasso.with(context).load(thumbUrls.get(0))
-                    .into((ImageView) viewHolder.groupPhoto2Options.findViewById(R.id.left_image));
-            Picasso.with(context).load(thumbUrls.get(1))
-                    .into((ImageView) viewHolder.groupPhoto2Options.findViewById(R.id.right_image));
-        } else if (thumbUrls.size() == 3) {
-            viewHolder.groupCode.setVisibility(View.GONE);
-            viewHolder.groupPhoto1Options.setVisibility(View.GONE);
-            viewHolder.groupPhoto2Options.setVisibility(View.GONE);
-            viewHolder.groupPhoto3Options.setVisibility(View.VISIBLE);
-            viewHolder.groupPhoto4Options.setVisibility(View.GONE);
-
-            Picasso.with(context).load(thumbUrls.get(0))
-                    .into((ImageView) viewHolder.groupPhoto3Options.findViewById(R.id.top_left_image));
-            Picasso.with(context).load(thumbUrls.get(1))
-                    .into((ImageView) viewHolder.groupPhoto3Options.findViewById(R.id.bottom_left_image));
-            Picasso.with(context).load(thumbUrls.get(2))
-                    .into((ImageView) viewHolder.groupPhoto3Options.findViewById(R.id.right_image));
-        } else {
-            viewHolder.groupCode.setVisibility(View.GONE);
-            viewHolder.groupPhoto1Options.setVisibility(View.GONE);
-            viewHolder.groupPhoto2Options.setVisibility(View.GONE);
-            viewHolder.groupPhoto3Options.setVisibility(View.GONE);
-            viewHolder.groupPhoto4Options.setVisibility(View.VISIBLE);
-
-            Picasso.with(context).load(thumbUrls.get(0))
-                    .into((ImageView) viewHolder.groupPhoto4Options.findViewById(R.id.top_left_image));
-            Picasso.with(context).load(thumbUrls.get(1))
-                    .into((ImageView) viewHolder.groupPhoto4Options.findViewById(R.id.bottom_left_image));
-            Picasso.with(context).load(thumbUrls.get(2))
-                    .into((ImageView) viewHolder.groupPhoto4Options.findViewById(R.id.top_right_image));
-            Picasso.with(context).load(thumbUrls.get(3))
-                    .into((ImageView) viewHolder.groupPhoto4Options.findViewById(R.id.bottom_right_image));
-        }
+//        } else if (thumbUrls.size() == 1) {
+//            viewHolder.groupCode.setVisibility(View.GONE);
+//            viewHolder.groupPhoto1Options.setVisibility(View.VISIBLE);
+//            viewHolder.groupPhoto2Options.setVisibility(View.GONE);
+//            viewHolder.groupPhoto3Options.setVisibility(View.GONE);
+//            viewHolder.groupPhoto4Options.setVisibility(View.GONE);
+//
+//            Picasso.with(context).load(thumbUrls.get(0))
+//                    .into((ImageView) viewHolder.groupPhoto1Options.findViewById(R.id.image));
+//        } else if (thumbUrls.size() == 2) {
+//            viewHolder.groupCode.setVisibility(View.GONE);
+//            viewHolder.groupPhoto1Options.setVisibility(View.GONE);
+//            viewHolder.groupPhoto2Options.setVisibility(View.VISIBLE);
+//            viewHolder.groupPhoto3Options.setVisibility(View.GONE);
+//            viewHolder.groupPhoto4Options.setVisibility(View.GONE);
+//
+//            Picasso.with(context).load(thumbUrls.get(0))
+//                    .into((ImageView) viewHolder.groupPhoto2Options.findViewById(R.id.left_image));
+//            Picasso.with(context).load(thumbUrls.get(1))
+//                    .into((ImageView) viewHolder.groupPhoto2Options.findViewById(R.id.right_image));
+//        } else if (thumbUrls.size() == 3) {
+//            viewHolder.groupCode.setVisibility(View.GONE);
+//            viewHolder.groupPhoto1Options.setVisibility(View.GONE);
+//            viewHolder.groupPhoto2Options.setVisibility(View.GONE);
+//            viewHolder.groupPhoto3Options.setVisibility(View.VISIBLE);
+//            viewHolder.groupPhoto4Options.setVisibility(View.GONE);
+//
+//            Picasso.with(context).load(thumbUrls.get(0))
+//                    .into((ImageView) viewHolder.groupPhoto3Options.findViewById(R.id.top_left_image));
+//            Picasso.with(context).load(thumbUrls.get(1))
+//                    .into((ImageView) viewHolder.groupPhoto3Options.findViewById(R.id.bottom_left_image));
+//            Picasso.with(context).load(thumbUrls.get(2))
+//                    .into((ImageView) viewHolder.groupPhoto3Options.findViewById(R.id.right_image));
+//        } else {
+//            viewHolder.groupCode.setVisibility(View.GONE);
+//            viewHolder.groupPhoto1Options.setVisibility(View.GONE);
+//            viewHolder.groupPhoto2Options.setVisibility(View.GONE);
+//            viewHolder.groupPhoto3Options.setVisibility(View.GONE);
+//            viewHolder.groupPhoto4Options.setVisibility(View.VISIBLE);
+//
+//            Picasso.with(context).load(thumbUrls.get(0))
+//                    .into((ImageView) viewHolder.groupPhoto4Options.findViewById(R.id.top_left_image));
+//            Picasso.with(context).load(thumbUrls.get(1))
+//                    .into((ImageView) viewHolder.groupPhoto4Options.findViewById(R.id.bottom_left_image));
+//            Picasso.with(context).load(thumbUrls.get(2))
+//                    .into((ImageView) viewHolder.groupPhoto4Options.findViewById(R.id.top_right_image));
+//            Picasso.with(context).load(thumbUrls.get(3))
+//                    .into((ImageView) viewHolder.groupPhoto4Options.findViewById(R.id.bottom_right_image));
+//        }
 
         String code = item.getCode().toUpperCase();
 
