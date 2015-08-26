@@ -128,8 +128,8 @@ public class FeedFragment extends ListFragment {
     public void onResume() {
         super.onResume();
         swipeContainer.setRefreshing(false);
-        setSuggestionText();
-        setIntroVisible();
+//        setSuggestionText();
+//        setIntroVisible();
     }
 
     @Override

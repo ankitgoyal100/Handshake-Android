@@ -130,7 +130,7 @@ public class GroupActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(GroupActivity.this, GroupMemberActivity.class);
-                intent.putExtra("groupId", group.getGroupId());
+                intent.putExtra("groupId", id);
                 startActivity(intent);
             }
         });
@@ -141,7 +141,7 @@ public class GroupActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(GroupActivity.this, CreateEditGroupActivity.class);
                 intent.putExtra("isEdit", true);
-                intent.putExtra("groupId", group.getGroupId());
+                intent.putExtra("groupId", id);
                 startActivityForResult(intent, 1);
             }
         });
@@ -181,7 +181,7 @@ public class GroupActivity extends AppCompatActivity {
                         .show();
             }
         });
-        realm.close();
+//        realm.close();
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
