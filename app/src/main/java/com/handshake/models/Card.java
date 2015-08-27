@@ -1,5 +1,7 @@
 package com.handshake.models;
 
+import android.content.Context;
+
 import com.handshake.Handshake.SessionManager;
 import com.handshake.Handshake.Utils;
 import com.loopj.android.http.RequestParams;
@@ -261,7 +263,7 @@ public class Card extends RealmObject {
         return params;
     }
 
-    public static JSONObject cardToJSONObject(Card card) {
+    public static JSONObject cardToJSONObject(Context context, Card card) {
         JSONObject params = new JSONObject();
         if (!card.getName().isEmpty()) try {
             params.put("name", card.getName());
@@ -340,8 +342,9 @@ public class Card extends RealmObject {
             }
             params.put("socials_attributes", socials);
 
-            params.put("auth_token", SessionManager.getToken());
-            params.put("user_id", SessionManager.getID());
+            SessionManager sessionManager = new SessionManager(context);
+            params.put("auth_token", sessionManager.getToken());
+            params.put("user_id", sessionManager.getID());
         } catch (JSONException e) {
             e.printStackTrace();
         }

@@ -28,7 +28,8 @@ public class ContactUploader {
 
     public static void performSync(final Context c, final SyncCompleted l) {
         Date currentDate = new Date(System.currentTimeMillis());
-        Long lastUpdatedAtString = SessionManager.getLastContactSynced();
+        SessionManager sessionManager = new SessionManager(c);
+        Long lastUpdatedAtString = sessionManager.getLastContactSynced();
         Calendar calendar = Calendar.getInstance();
         if (lastUpdatedAtString != 0) {
             calendar.setTimeInMillis(lastUpdatedAtString);
@@ -110,7 +111,8 @@ public class ContactUploader {
                         RestClientSync.post(c, "/upload/emails", emailParams, "application/json", new JsonHttpResponseHandler() {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                                SessionManager.setLastContactSynced(System.currentTimeMillis());
+                                SessionManager sessionManager = new SessionManager(c);
+                                sessionManager.setLastContactSynced(System.currentTimeMillis());
                                 l.syncCompletedListener();
                             }
 

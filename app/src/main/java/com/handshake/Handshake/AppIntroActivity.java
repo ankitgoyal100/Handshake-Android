@@ -28,7 +28,8 @@ public class AppIntroActivity extends AppIntro2 {
 
     @Override
     public void onDonePressed() {
-        SessionManager.setIntroScreenDisplayed(true);
+        SessionManager sessionManager = new SessionManager(getApplicationContext());
+        sessionManager.setIntroScreenDisplayed(true);
 
         Intent i = new Intent(getApplicationContext(), IntroActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

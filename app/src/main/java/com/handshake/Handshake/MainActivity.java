@@ -220,7 +220,8 @@ public class MainActivity extends AppCompatActivity {
 
                     ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
                     String code = Utils.getCodes(context, clipboard.getPrimaryClip());
-                    if (!code.equals("") && !code.equals(SessionManager.getLastCopiedGroup())) {
+                    SessionManager sessionManager = new SessionManager(context);
+                    if (!code.equals("") && !code.equals(sessionManager.getLastCopiedGroup())) {
                         checkCode(code);
                     }
                 }
@@ -259,7 +260,8 @@ public class MainActivity extends AppCompatActivity {
         RestClientAsync.get(context, "/groups/find/" + code, new RequestParams(), new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                SessionManager.setLastCopiedGroup(code);
+                SessionManager sessionManager = new SessionManager(context);
+                sessionManager.setLastCopiedGroup(code);
 
                 LayoutInflater inflater = getLayoutInflater();
                 View dialoglayout = inflater.inflate(R.layout.join_group_dialog, null);
@@ -380,7 +382,8 @@ public class MainActivity extends AppCompatActivity {
                         final ProgressDialog dialog = ProgressDialog.show(context, "", "Joining group...", true);
 
                         Realm realm = Realm.getInstance(context);
-                        Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+                        SessionManager sessionManager = new SessionManager(context);
+                        Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
 
                         JSONArray cardIds = new JSONArray();
                         cardIds.put(account.getCards().first().getCardId());
@@ -591,7 +594,8 @@ public class MainActivity extends AppCompatActivity {
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         if (requestCode == QR_CODE && resultCode == Activity.RESULT_OK) {
             String code = data.getStringExtra(ScanActivity.RESULT_EXTRA_STR);
-            if (!code.equals("") && !code.equals(SessionManager.getLastCopiedGroup())) {
+            SessionManager sessionManager = new SessionManager(context);
+            if (!code.equals("") && !code.equals(sessionManager.getLastCopiedGroup())) {
                 checkCode(code);
             }
         } else {
@@ -729,7 +733,7 @@ public class MainActivity extends AppCompatActivity {
 
                     Toast.makeText(context, "Request declined", Toast.LENGTH_SHORT).show();
 
-                    RequestServerSync.declineRequest(account, new UserSyncCompleted() {
+                    RequestServerSync.declineRequest(context, account, new UserSyncCompleted() {
                         @Override
                         public void syncCompletedListener(User users) {
                             setContactButtons(context, account, buttonOne, buttonTwo, text);
@@ -773,7 +777,7 @@ public class MainActivity extends AppCompatActivity {
 
                     Toast.makeText(context, "Request accepted", Toast.LENGTH_SHORT).show();
 
-                    RequestServerSync.acceptRequest(account, new UserSyncCompleted() {
+                    RequestServerSync.acceptRequest(context, account, new UserSyncCompleted() {
                         @Override
                         public void syncCompletedListener(User users) {
                             if (text == null) {
@@ -797,7 +801,7 @@ public class MainActivity extends AppCompatActivity {
                             .setMessage("Are you sure you want to delete this request?")
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
-                                    RequestServerSync.deleteRequest(account, new UserSyncCompleted() {
+                                    RequestServerSync.deleteRequest(context, account, new UserSyncCompleted() {
                                         @Override
                                         public void syncCompletedListener(User users) {
                                             setContactButtons(context, account, buttonOne, buttonTwo, text);
@@ -818,7 +822,7 @@ public class MainActivity extends AppCompatActivity {
                             })
                             .show();
                 } else {
-                    RequestServerSync.sendRequest(account, new UserSyncCompleted() {
+                    RequestServerSync.sendRequest(context, account, new UserSyncCompleted() {
                         @Override
                         public void syncCompletedListener(User users) {
                             buttonOne.setVisibility(View.GONE);

@@ -70,12 +70,15 @@ public class ProfileFragment extends Fragment {
     }
 
     public void fillViews() {
+        if(getActivity() == null) return;
+
         SessionManager session = new SessionManager(getActivity());
         if (!session.isLoggedIn()) return;
 
         synchronized (TAG) {
             final Realm realm = Realm.getInstance(getActivity());
-            final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+            SessionManager sessionManager = new SessionManager(getActivity());
+            final Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
 
             if (account == null) return;
 
@@ -148,7 +151,8 @@ public class ProfileFragment extends Fragment {
 
                     r = Realm.getInstance(getActivity());
 
-                    final Account account = r.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+                    SessionManager sessionManager = new SessionManager(getActivity());
+                    final Account account = r.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
                     final Card card = account.getCards().first();
                     if (card == null) return;
 

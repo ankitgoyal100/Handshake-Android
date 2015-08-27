@@ -1,6 +1,7 @@
 package com.handshake.helpers;
 
 import android.content.Context;
+import android.os.Looper;
 
 import com.handshake.Handshake.Utils;
 import com.handshake.models.User;
@@ -83,12 +84,13 @@ public class UserServerSync {
                         map.put(user.getUserId(), user);
                 }
 
-                ArrayList<User> orderedArray = new ArrayList<User>();
+                final ArrayList<User> orderedArray = new ArrayList<User>();
                 for (Long id : allIDs) {
                     orderedArray.add(map.get(id));
                 }
 
                 listener.syncCompletedListener(orderedArray);
+
                 realm.close();
             }
         });

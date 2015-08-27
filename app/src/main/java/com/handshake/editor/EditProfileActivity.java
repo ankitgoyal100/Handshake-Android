@@ -103,7 +103,8 @@ public class EditProfileActivity extends AppCompatActivity {
         initialSetup();
 
         final Realm realm = Realm.getInstance(this);
-        final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+        SessionManager sessionManager = new SessionManager(context);
+        final Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
         final Card card = account.getCards().first();
 
         setName(account);
@@ -179,7 +180,8 @@ public class EditProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final Realm realm = Realm.getInstance(context);
-                final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+                SessionManager sessionManager = new SessionManager(context);
+                final Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
                 final Card card = account.getCards().first();
 
                 realm.beginTransaction();
@@ -663,7 +665,8 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private void addFacebookToCard(String id) {
         Realm realm = Realm.getInstance(context);
-        final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+        SessionManager sessionManager = new SessionManager(context);
+        final Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
         final Card card = account.getCards().first();
 
         realm.beginTransaction();
@@ -762,7 +765,8 @@ public class EditProfileActivity extends AppCompatActivity {
             Bitmap photo = (Bitmap) data.getExtras().get("data");
 
             Realm realm = Realm.getInstance(context);
-            final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+            SessionManager sessionManager = new SessionManager(context);
+            final Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
             realm.beginTransaction();
             account.setPictureData(getBytesFromBitmap(photo));
             account.setPicture("");
@@ -780,7 +784,8 @@ public class EditProfileActivity extends AppCompatActivity {
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
                 Realm realm = Realm.getInstance(context);
-                final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+                SessionManager sessionManager = new SessionManager(context);
+                final Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
                 realm.beginTransaction();
                 account.setPictureData(getBytesFromBitmap(bitmap));
                 account.setPicture("");

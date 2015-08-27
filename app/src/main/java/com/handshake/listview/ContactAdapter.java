@@ -13,9 +13,9 @@ import android.widget.ImageView;
 import android.widget.ListAdapter;
 
 import com.handshake.Handshake.ContactUserProfileActivity;
+import com.handshake.Handshake.GenericUserProfileActivity;
 import com.handshake.Handshake.MainActivity;
 import com.handshake.Handshake.R;
-import com.handshake.Handshake.GenericUserProfileActivity;
 import com.handshake.models.User;
 import com.handshake.views.CircleTransform;
 import com.handshake.views.TextViewCustomFont;
@@ -26,28 +26,12 @@ import io.realm.RealmBaseAdapter;
 import io.realm.RealmResults;
 
 public class ContactAdapter extends RealmBaseAdapter<User> implements ListAdapter, AdapterView.OnItemClickListener {
-//    private static final int TYPE_ITEM = 0;
-//    private static final int TYPE_SEPARATOR = 1;
-//
-//    private RealmResults<User> mData;
-//    private TreeSet<Integer> sectionHeader = new TreeSet<Integer>();
 
     public ContactAdapter(Context context,
                           RealmResults<User> realmResults,
                           boolean automaticUpdate) {
         super(context, realmResults, automaticUpdate);
-//        mData = realmResults;
     }
-
-//    @Override
-//    public int getItemViewType(int position) {
-//        return sectionHeader.contains(position) ? TYPE_SEPARATOR : TYPE_ITEM;
-//    }
-//
-//    @Override
-//    public int getViewTypeCount() {
-//        return 2;
-//    }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -66,6 +50,7 @@ public class ContactAdapter extends RealmBaseAdapter<User> implements ListAdapte
         }
 
         final User item = realmResults.get(position);
+        final long id = item.getUserId();
         viewHolder.image.setVisibility(View.VISIBLE);
         viewHolder.personName.setText(item.getFirstName() + " " + item.getLastName());
 
@@ -84,7 +69,7 @@ public class ContactAdapter extends RealmBaseAdapter<User> implements ListAdapte
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Long userId = item.getUserId();
+                Long userId = id;
                 Realm realm = Realm.getInstance(context);
                 User user = realm.where(User.class).equalTo("userId", userId).findFirst();
 

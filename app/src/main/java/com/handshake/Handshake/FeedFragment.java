@@ -140,32 +140,40 @@ public class FeedFragment extends ListFragment {
     }
 
     public void setSuggestionText() {
-        if(getListView() == null || suggestionListView == null) return;
+        try {
+            if (getListView() == null || suggestionListView == null) return;
 
-        Utils.setDynamicHeight(getListView());
-        Utils.setDynamicHeight(suggestionListView);
+            Utils.setDynamicHeight(getListView());
+            Utils.setDynamicHeight(suggestionListView);
 
-        final Realm r = Realm.getInstance(getActivity());
-        if (r.where(Suggestion.class).findAll().size() > 0) {
-            suggestionText.setVisibility(View.VISIBLE);
-        } else {
-            suggestionText.setVisibility(View.GONE);
+            final Realm r = Realm.getInstance(getActivity());
+            if (r.where(Suggestion.class).findAll().size() > 0) {
+                suggestionText.setVisibility(View.VISIBLE);
+            } else {
+                suggestionText.setVisibility(View.GONE);
+            }
+            r.close();
+        } catch (IllegalStateException e) {
+
         }
-        r.close();
     }
 
     public void setIntroVisible() {
-        if(getListView() == null || suggestionListView == null) return;
+        if (getListView() == null || suggestionListView == null) return;
 
-        Utils.setDynamicHeight(getListView());
-        Utils.setDynamicHeight(suggestionListView);
+        try {
+            Utils.setDynamicHeight(getListView());
+            Utils.setDynamicHeight(suggestionListView);
 
-        final Realm r = Realm.getInstance(getActivity());
-        if (r.where(FeedItem.class).findAll().size() > 0) {
-            introView.setVisibility(View.GONE);
-        } else {
-            introView.setVisibility(View.VISIBLE);
+            final Realm r = Realm.getInstance(getActivity());
+            if (r.where(FeedItem.class).findAll().size() > 0) {
+                introView.setVisibility(View.GONE);
+            } else {
+                introView.setVisibility(View.VISIBLE);
+            }
+            r.close();
+        } catch (IllegalStateException e) {
+
         }
-        r.close();
     }
 }

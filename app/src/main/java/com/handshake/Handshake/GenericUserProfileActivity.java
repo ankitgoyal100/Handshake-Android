@@ -50,11 +50,12 @@ public class GenericUserProfileActivity extends AppCompatActivity {
 
     private void fillViews() {
         final Realm realm = Realm.getInstance(context);
-        final User account = realm.where(User.class).equalTo("userId", getIntent().getLongExtra("userId", SessionManager.getID())).findFirst();
+        SessionManager sessionManager = new SessionManager(context);
+        final User account = realm.where(User.class).equalTo("userId", getIntent().getLongExtra("userId", sessionManager.getID())).findFirst();
 
         if (account.isContact()) {
             Intent i = new Intent(this, ContactUserProfileActivity.class);
-            i.putExtra("userId", getIntent().getLongExtra("userId", SessionManager.getID()));
+            i.putExtra("userId", getIntent().getLongExtra("userId", sessionManager.getID()));
             startActivity(i);
             finish();
         }
@@ -93,7 +94,8 @@ public class GenericUserProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(GenericUserProfileActivity.this, ContactActivity.class);
-                i.putExtra("userId", account.getUserId());
+                SessionManager sessionManager = new SessionManager(context);
+                i.putExtra("userId", getIntent().getLongExtra("userId", sessionManager.getID()));
                 i.putExtra("type", "contacts");
                 startActivity(i);
             }
@@ -103,7 +105,8 @@ public class GenericUserProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(GenericUserProfileActivity.this, ContactActivity.class);
-                i.putExtra("userId", account.getUserId());
+                SessionManager sessionManager = new SessionManager(context);
+                i.putExtra("userId", getIntent().getLongExtra("userId", sessionManager.getID()));
                 i.putExtra("type", "mutual");
                 startActivity(i);
             }

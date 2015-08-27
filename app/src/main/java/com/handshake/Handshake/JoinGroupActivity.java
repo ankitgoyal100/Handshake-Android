@@ -71,7 +71,8 @@ public class JoinGroupActivity extends AppCompatActivity {
 
         ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         String code = Utils.getCodes(context, clipboard.getPrimaryClip());
-        if (code != "" && code != SessionManager.getLastCopiedGroup()) {
+        SessionManager sessionManager = new SessionManager(context);
+        if (code != "" && code != sessionManager.getLastCopiedGroup()) {
             checkCode(code);
         }
 
@@ -96,7 +97,8 @@ public class JoinGroupActivity extends AppCompatActivity {
                         (et5.getText().toString().charAt(0) + "") + (et6.getText().toString().charAt(0) + "");
 
                 Realm realm = Realm.getInstance(context);
-                Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+                SessionManager sessionManager = new SessionManager(context);
+                Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
 
                 JSONArray cardIds = new JSONArray();
                 cardIds.put(account.getCards().first().getCardId());
@@ -349,7 +351,8 @@ public class JoinGroupActivity extends AppCompatActivity {
         RestClientAsync.get(context, "/groups/find/" + code, new RequestParams(), new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                SessionManager.setLastCopiedGroup(code);
+                SessionManager sessionManager = new SessionManager(context);
+                sessionManager.setLastCopiedGroup(code);
                 new AlertDialogWrapper.Builder(context)
                         .setTitle("Paste code?")
                         .setMessage("Would you like to paste the copied group code?")

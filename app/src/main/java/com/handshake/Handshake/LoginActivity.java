@@ -142,7 +142,8 @@ public class LoginActivity extends AppCompatActivity {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Toast.makeText(context, "Instructions sent to your email.", Toast.LENGTH_LONG).show();
 
-                if (!email.equals(SessionManager.getEmail()))
+                SessionManager sessionManager = new SessionManager(context);
+                if (!email.equals(sessionManager.getEmail()))
                     ((Activity) context).finish();
             }
 

@@ -86,7 +86,8 @@ public class ContactUserProfileActivity extends AppCompatActivity {
             autoSyncDivider.setVisibility(View.VISIBLE);
 
             final Realm realm = Realm.getInstance(context);
-            final User account = realm.where(User.class).equalTo("userId", getIntent().getLongExtra("userId", SessionManager.getID())).findFirst();
+            SessionManager sessionManager = new SessionManager(context);
+            final User account = realm.where(User.class).equalTo("userId", getIntent().getLongExtra("userId", sessionManager.getID())).findFirst();
             autoSyncToggle.setChecked(account.isSavesToPhone());
 
             autoSyncToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -118,11 +119,12 @@ public class ContactUserProfileActivity extends AppCompatActivity {
 
     private void fillViews() {
         final Realm realm = Realm.getInstance(context);
-        final User account = realm.where(User.class).equalTo("userId", getIntent().getLongExtra("userId", SessionManager.getID())).findFirst();
+        SessionManager sessionManager = new SessionManager(context);
+        final User account = realm.where(User.class).equalTo("userId", getIntent().getLongExtra("userId", sessionManager.getID())).findFirst();
 
         if (!account.isContact()) {
             Intent i = new Intent(this, GenericUserProfileActivity.class);
-            i.putExtra("userId", getIntent().getLongExtra("userId", SessionManager.getID()));
+            i.putExtra("userId", getIntent().getLongExtra("userId", sessionManager.getID()));
             startActivity(i);
             finish();
         }
@@ -211,7 +213,8 @@ public class ContactUserProfileActivity extends AppCompatActivity {
 
                     r = Realm.getInstance(context);
 
-                    final User account = r.where(User.class).equalTo("userId", getIntent().getLongExtra("userId", SessionManager.getID())).findFirst();
+                    SessionManager sessionManager = new SessionManager(context);
+                    final User account = r.where(User.class).equalTo("userId", getIntent().getLongExtra("userId", sessionManager.getID())).findFirst();
                     final Card card = account.getCards().first();
 
                     handler.post(new Runnable() {

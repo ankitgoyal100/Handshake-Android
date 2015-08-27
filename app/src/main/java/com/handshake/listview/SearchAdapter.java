@@ -108,27 +108,32 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
                 if (constraint != null) {
                     RestClientAsync.get(mContext, "/search/?q=" + Uri.encode(constraint.toString()), new RequestParams(), new JsonHttpResponseHandler() {
                         @Override
-                        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                            try {
-                                UserServerSync.cacheUser(mContext, response.getJSONArray("results"), new UserArraySyncCompleted() {
-                                    @Override
-                                    public void syncCompletedListener(final ArrayList<User> users) {
-                                        ArrayList<Long> array = new ArrayList<Long>();
-                                        for (User u : users)
-                                            array.add(u.getUserId());
-                                        filterResults.values = array;
-                                        filterResults.count = array.size();
-                                        handler.post(new Runnable() {
+                        public void onSuccess(int statusCode, Header[] headers, final JSONObject response) {
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        UserServerSync.cacheUser(mContext, response.getJSONArray("results"), new UserArraySyncCompleted() {
                                             @Override
-                                            public void run() {
-                                                publishResults(constraint, filterResults);
+                                            public void syncCompletedListener(final ArrayList<User> users) {
+                                                ArrayList<Long> array = new ArrayList<Long>();
+                                                for (User u : users)
+                                                    array.add(u.getUserId());
+                                                filterResults.values = array;
+                                                filterResults.count = array.size();
+                                                handler.post(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        publishResults(constraint, filterResults);
+                                                    }
+                                                });
                                             }
                                         });
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
                                     }
-                                });
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
+                                }
+                            });
                         }
 
                         @Override

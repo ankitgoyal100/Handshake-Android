@@ -159,6 +159,7 @@ public class GroupMemberActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        realm.close();
+        if (realm != null)
+            realm.close();
     }
 }

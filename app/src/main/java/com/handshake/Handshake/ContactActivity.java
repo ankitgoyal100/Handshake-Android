@@ -44,6 +44,7 @@ public class ContactActivity extends AppCompatActivity {
     private SwipeRefreshLayout swipeContainer;
 
     RealmResults<User> users;
+    private Realm realm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,51 +70,56 @@ public class ContactActivity extends AppCompatActivity {
             }
         });
 
-        if (getIntent().hasExtra("userId") && getIntent().getLongExtra("userId", -1) != SessionManager.getID()) {
-            final long userId = getIntent().getLongExtra("userId", SessionManager.getID());
+        SessionManager sessionManager = new SessionManager(context);
+        if (getIntent().hasExtra("userId") && getIntent().getLongExtra("userId", -1) != sessionManager.getID()) {
+            final long userId = getIntent().getLongExtra("userId", sessionManager.getID());
 
             RestClientAsync.get(context, "/users/" + userId + "/" + getIntent().getStringExtra("type"), new RequestParams(), new JsonHttpResponseHandler() {
                 @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                    try {
-                        UserServerSync.cacheUser(context, response.getJSONArray(getIntent().getStringExtra("type")), new UserArraySyncCompleted() {
-                            @Override
-                            public void syncCompletedListener(final ArrayList<User> u) {
-                                final ArrayList<Long> userIds = new ArrayList<Long>();
-                                for (int i = 0; i < u.size(); i++)
-                                    userIds.add(u.get(i).getUserId());
-
-                                handler.post(new Runnable() {
+                public void onSuccess(int statusCode, Header[] headers, final JSONObject response) {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                UserServerSync.cacheUser(context, response.getJSONArray(getIntent().getStringExtra("type")), new UserArraySyncCompleted() {
                                     @Override
-                                    public void run() {
-                                        Realm realm = Realm.getInstance(context);
-                                        RealmQuery<User> query = realm.where(User.class);
-                                        query.equalTo("userId", -1);
+                                    public void syncCompletedListener(final ArrayList<User> u) {
+                                        final ArrayList<Long> userIds = new ArrayList<Long>();
+                                        for (int i = 0; i < u.size(); i++)
+                                            userIds.add(u.get(i).getUserId());
 
-                                        for (int i = 0; i < userIds.size(); i++) {
-                                            query.or().equalTo("userId", userIds.get(i));
-                                        }
+                                        handler.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                realm = Realm.getInstance(context);
+                                                RealmQuery<User> query = realm.where(User.class);
+                                                query.equalTo("userId", -1);
 
-                                        users = query.findAll();
+                                                for (int i = 0; i < userIds.size(); i++) {
+                                                    query.or().equalTo("userId", userIds.get(i));
+                                                }
 
-                                        users.sort("firstName", true);
+                                                users = query.findAll();
 
-                                        ContactAdapter myAdapter = new ContactAdapter(context, users, true);
-                                        list.setAdapter(myAdapter);
+                                                users.sort("firstName", true);
 
-                                        View empty = getLayoutInflater().inflate(R.layout.empty_list_view, null, false);
-                                        TextViewCustomFont text = (TextViewCustomFont) empty.findViewById(R.id.empty_list_item);
-                                        text.setText("No contacts");
-                                        addContentView(empty, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-                                        list.setEmptyView(empty);
-                                        realm.close();
+                                                ContactAdapter myAdapter = new ContactAdapter(context, users, true);
+                                                list.setAdapter(myAdapter);
+
+                                                View empty = getLayoutInflater().inflate(R.layout.empty_list_view, null, false);
+                                                TextViewCustomFont text = (TextViewCustomFont) empty.findViewById(R.id.empty_list_item);
+                                                text.setText("No contacts");
+                                                addContentView(empty, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                                                list.setEmptyView(empty);
+                                            }
+                                        });
                                     }
                                 });
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
-                        });
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                        }
+                    });
                 }
 
                 @Override
@@ -122,7 +128,7 @@ public class ContactActivity extends AppCompatActivity {
                 }
             });
         } else {
-            Realm realm = Realm.getInstance(this);
+            realm = Realm.getInstance(this);
             users = realm.where(User.class).equalTo("isContact", true).findAll();
             users.sort("firstName", true);
 
@@ -134,7 +140,6 @@ public class ContactActivity extends AppCompatActivity {
             text.setText("No contacts");
             addContentView(empty, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             list.setEmptyView(empty);
-            realm.close();
         }
     }
 
@@ -196,5 +201,12 @@ public class ContactActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
         swipeContainer.setRefreshing(false);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (realm != null)
+            realm.close();
     }
 }

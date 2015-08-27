@@ -49,14 +49,16 @@ public class EditSocialActivity extends AppCompatActivity {
         }
 
         final Realm realm = Realm.getInstance(this);
-        final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+        SessionManager sessionManager = new SessionManager(EditSocialActivity.this);
+        final Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
 
         ButtonCustomFont saveButton = (ButtonCustomFont) findViewById(R.id.save);
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Realm realm = Realm.getInstance(EditSocialActivity.this);
-                final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+                SessionManager sessionManager = new SessionManager(EditSocialActivity.this);
+                final Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
                 final Card card = account.getCards().first();
 
                 realm.beginTransaction();
