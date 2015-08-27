@@ -135,6 +135,8 @@ public class RequestFragment extends ListFragment {
     }
 
     public void setSuggestionText() {
+        if(getListView() == null || suggestionListView == null) return;
+
         Utils.setDynamicHeight(getListView());
         Utils.setDynamicHeight(suggestionListView);
 
@@ -148,6 +150,8 @@ public class RequestFragment extends ListFragment {
     }
 
     public void setIntroVisible() {
+        if(getListView() == null || suggestionListView == null) return;
+
         Utils.setDynamicHeight(getListView());
         Utils.setDynamicHeight(suggestionListView);
 

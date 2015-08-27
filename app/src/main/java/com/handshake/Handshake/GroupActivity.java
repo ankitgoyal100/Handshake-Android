@@ -80,7 +80,6 @@ public class GroupActivity extends AppCompatActivity {
                     group.setSavesToPhone(isChecked);
                     RealmResults<GroupMember> groupMembers = realm.where(GroupMember.class).equalTo("group.groupId", id).findAll();
                     for (int i = 0; i < groupMembers.size(); i++) {
-                        System.out.println("Group Member: " + groupMembers.get(i));
                         groupMembers.get(i).getUser().setSavesToPhone(isChecked);
                     }
                     realm.commitTransaction();

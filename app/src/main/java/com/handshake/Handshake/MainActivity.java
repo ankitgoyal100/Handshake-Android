@@ -92,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
     private RequestFragment requestFragment;
     private GroupFragment groupFragment;
     private DelayAutoCompleteTextView searchView;
+    private static boolean isFirstRun = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -197,11 +198,13 @@ public class MainActivity extends AppCompatActivity {
 
         changeColor(getResources().getColor(R.color.orange));
 
-        if (isConnected(context)) {
+        if (isConnected(context) && isFirstRun) {
             performSyncs(new SyncCompleted() {
                 @Override
                 public void syncCompletedListener() {
 //                    System.out.println("All syncs completed");
+                    isFirstRun = false;
+
                     if (profileFragment != null)
                         profileFragment.fillViews();
                     if (feedFragment != null) {
@@ -222,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             });
-        } else {
+        } else if (!isConnected(context)) {
             new AlertDialogWrapper.Builder(context)
                     .setTitle("No internet connection")
                     .setMessage("Please refresh the page after you have connected to the internet.")
@@ -270,7 +273,7 @@ public class MainActivity extends AppCompatActivity {
                     ArrayList<String> thumbUrls = new ArrayList<String>();
 
                     JSONArray members = response.getJSONObject("group").getJSONArray("members");
-                    for(int i = 0; i < members.length(); i++) {
+                    for (int i = 0; i < members.length(); i++) {
                         if (!members.getJSONObject(i).isNull("thumb")) {
                             thumbUrls.add(members.getJSONObject(i).getString("thumb"));
                         }
@@ -407,11 +410,11 @@ public class MainActivity extends AppCompatActivity {
                                             FeedItemServerSync.performSync(context, new SyncCompleted() {
                                                 @Override
                                                 public void syncCompletedListener() {
-                                                    if(groupFragment != null) {
+                                                    if (groupFragment != null) {
                                                         groupFragment.setIntroVisible();
                                                     }
 
-                                                    if(feedFragment != null) {
+                                                    if (feedFragment != null) {
                                                         feedFragment.setIntroVisible();
                                                     }
                                                 }
