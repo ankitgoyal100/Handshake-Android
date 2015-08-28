@@ -1,14 +1,18 @@
 package com.handshake.listview;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
+import com.handshake.Handshake.ContactUserProfileActivity;
+import com.handshake.Handshake.GenericUserProfileActivity;
 import com.handshake.Handshake.MainActivity;
 import com.handshake.Handshake.R;
+import com.handshake.Handshake.Utils;
 import com.handshake.models.User;
 import com.handshake.views.CircleTransform;
 import com.handshake.views.TextViewCustomFont;
@@ -31,7 +35,7 @@ public class StockContactAdapter extends ArrayAdapter<Long> {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         final ViewHolder viewHolder;
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.user_list_item, parent, false);
@@ -52,9 +56,11 @@ public class StockContactAdapter extends ArrayAdapter<Long> {
         viewHolder.personName.setText(item.getFirstName() + " " + item.getLastName());
 
         if (!item.getThumb().isEmpty() && !item.getThumb().equals("null"))
-            Picasso.with(context).load(item.getThumb()).transform(new CircleTransform()).into(viewHolder.image);
+            Picasso.with(context).load(item.getThumb())
+                    .resize(Utils.dpToPx(context, 60), Utils.dpToPx(context, 60)).transform(new CircleTransform()).into(viewHolder.image);
         else
-            Picasso.with(context).load(R.drawable.default_profile).transform(new CircleTransform()).into(viewHolder.image);
+            Picasso.with(context).load(R.drawable.default_profile)
+                    .resize(Utils.dpToPx(context, 60), Utils.dpToPx(context, 60)).transform(new CircleTransform()).into(viewHolder.image);
 
         if (item.getMutual() == 1)
             viewHolder.description.setText(item.getMutual() + " mutual contact");
@@ -62,6 +68,26 @@ public class StockContactAdapter extends ArrayAdapter<Long> {
             viewHolder.description.setText(item.getMutual() + " mutual contacts");
 
         MainActivity.setContactButtons(context, item.getUserId(), viewHolder.buttonOne, viewHolder.buttonTwo, null);
+
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Long userId = getItem(position);
+                Realm realm = Realm.getInstance(context);
+                User user = realm.where(User.class).equalTo("userId", userId).findFirst();
+
+                Intent i;
+                if (user.isContact()) {
+                    i = new Intent(context, ContactUserProfileActivity.class);
+                } else {
+                    i = new Intent(context, GenericUserProfileActivity.class);
+                }
+                i.putExtra("userId", userId);
+                realm.close();
+                context.startActivity(i);
+            }
+        });
+
         realm.close();
 
         return convertView;

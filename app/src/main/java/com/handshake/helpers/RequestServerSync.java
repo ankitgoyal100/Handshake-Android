@@ -49,40 +49,35 @@ public class RequestServerSync {
         RestClientSync.get(context, "/requests", new RequestParams(), new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, final JSONObject response) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            final JSONArray requestsJSONArray = response.getJSONArray("requests");
-                            UserServerSync.cacheUser(context, requestsJSONArray, new UserArraySyncCompleted() {
-                                @Override
-                                public void syncCompletedListener(ArrayList<User> users) {
-                                    ArrayList<Long> requestUserIds = new ArrayList<Long>();
-                                    for (int i = 0; i < requestsJSONArray.length(); i++) {
-                                        try {
-                                            requestUserIds.add(requestsJSONArray.getJSONObject(i).getLong("id"));
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-
-                                    Realm realm = Realm.getInstance(context);
-                                    RealmResults<User> requestReceivedUsers = realm.where(User.class).equalTo("requestReceived", true).findAll();
-                                    for (int i = 0; i < requestReceivedUsers.size(); i++) {
-                                        if (!requestUserIds.contains(requestReceivedUsers.get(i).getUserId())) {
-                                            realm.beginTransaction();
-                                            requestReceivedUsers.get(i).setRequestReceived(false);
-                                            realm.commitTransaction();
-                                        }
-                                    }
-                                    realm.close();
+                try {
+                    final JSONArray requestsJSONArray = response.getJSONArray("requests");
+                    UserServerSync.cacheUser(context, requestsJSONArray, new UserArraySyncCompleted() {
+                        @Override
+                        public void syncCompletedListener(ArrayList<User> users) {
+                            ArrayList<Long> requestUserIds = new ArrayList<Long>();
+                            for (int i = 0; i < requestsJSONArray.length(); i++) {
+                                try {
+                                    requestUserIds.add(requestsJSONArray.getJSONObject(i).getLong("id"));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
                                 }
-                            });
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                            }
+
+                            Realm realm = Realm.getInstance(context);
+                            RealmResults<User> requestReceivedUsers = realm.where(User.class).equalTo("requestReceived", true).findAll();
+                            for (int i = 0; i < requestReceivedUsers.size(); i++) {
+                                if (!requestUserIds.contains(requestReceivedUsers.get(i).getUserId())) {
+                                    realm.beginTransaction();
+                                    requestReceivedUsers.get(i).setRequestReceived(false);
+                                    realm.commitTransaction();
+                                }
+                            }
+                            realm.close();
                         }
-                    }
-                });
+                    });
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
                 handler.post(new Runnable() {
                     @Override

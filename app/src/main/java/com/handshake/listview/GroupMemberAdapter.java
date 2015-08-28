@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 
 import com.handshake.Handshake.R;
+import com.handshake.Handshake.Utils;
 import com.handshake.models.GroupMember;
 import com.handshake.views.CircleTransform;
 import com.handshake.views.TextViewCustomFont;
@@ -44,9 +45,11 @@ public class GroupMemberAdapter extends RealmBaseAdapter<GroupMember> implements
         viewHolder.personName.setText(item.getName());
 
         if (!item.getUser().getThumb().isEmpty() && !item.getUser().getThumb().equals("null"))
-            Picasso.with(context).load(item.getUser().getThumb()).transform(new CircleTransform()).into(viewHolder.image);
+            Picasso.with(context).load(item.getUser().getThumb())
+                    .resize(Utils.dpToPx(context, 40), Utils.dpToPx(context, 40)).transform(new CircleTransform()).into(viewHolder.image);
         else
-            Picasso.with(context).load(R.drawable.default_profile).transform(new CircleTransform()).into(viewHolder.image);
+            Picasso.with(context).load(R.drawable.default_profile)
+                    .resize(Utils.dpToPx(context, 40), Utils.dpToPx(context, 40)).transform(new CircleTransform()).into(viewHolder.image);
 
         return convertView;
     }

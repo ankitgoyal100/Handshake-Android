@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import com.handshake.Handshake.MainActivity;
 import com.handshake.Handshake.R;
 import com.handshake.Handshake.RestClientAsync;
+import com.handshake.Handshake.Utils;
 import com.handshake.helpers.UserArraySyncCompleted;
 import com.handshake.helpers.UserServerSync;
 import com.handshake.models.User;
@@ -84,9 +85,11 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
         viewHolder.personName.setText(item.getFirstName() + " " + item.getLastName());
 
         if (!item.getThumb().isEmpty() && !item.getThumb().equals("null"))
-            Picasso.with(mContext).load(item.getThumb()).transform(new CircleTransform()).into(viewHolder.image);
+            Picasso.with(mContext).load(item.getThumb())
+                    .resize(Utils.dpToPx(mContext, 60), Utils.dpToPx(mContext, 60)).transform(new CircleTransform()).into(viewHolder.image);
         else
-            Picasso.with(mContext).load(R.drawable.default_profile).transform(new CircleTransform()).into(viewHolder.image);
+            Picasso.with(mContext).load(R.drawable.default_profile)
+                    .resize(Utils.dpToPx(mContext, 60), Utils.dpToPx(mContext, 60)).transform(new CircleTransform()).into(viewHolder.image);
 
         if (item.getMutual() == 1)
             viewHolder.description.setText(item.getMutual() + " mutual contact");
@@ -109,31 +112,26 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
                     RestClientAsync.get(mContext, "/search/?q=" + Uri.encode(constraint.toString()), new RequestParams(), new JsonHttpResponseHandler() {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, final JSONObject response) {
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        UserServerSync.cacheUser(mContext, response.getJSONArray("results"), new UserArraySyncCompleted() {
+                            try {
+                                UserServerSync.cacheUser(mContext, response.getJSONArray("results"), new UserArraySyncCompleted() {
+                                    @Override
+                                    public void syncCompletedListener(final ArrayList<User> users) {
+                                        ArrayList<Long> array = new ArrayList<Long>();
+                                        for (User u : users)
+                                            array.add(u.getUserId());
+                                        filterResults.values = array;
+                                        filterResults.count = array.size();
+                                        handler.post(new Runnable() {
                                             @Override
-                                            public void syncCompletedListener(final ArrayList<User> users) {
-                                                ArrayList<Long> array = new ArrayList<Long>();
-                                                for (User u : users)
-                                                    array.add(u.getUserId());
-                                                filterResults.values = array;
-                                                filterResults.count = array.size();
-                                                handler.post(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        publishResults(constraint, filterResults);
-                                                    }
-                                                });
+                                            public void run() {
+                                                publishResults(constraint, filterResults);
                                             }
                                         });
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
                                     }
-                                }
-                            });
+                                });
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                         }
 
                         @Override

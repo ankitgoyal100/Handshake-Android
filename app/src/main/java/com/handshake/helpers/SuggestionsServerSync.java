@@ -52,67 +52,62 @@ public class SuggestionsServerSync {
         RestClientSync.get(context, "/suggestions", new RequestParams(), new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, final JSONObject response) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            final JSONArray suggestionsArray = response.getJSONArray("suggestions");
-                            UserServerSync.cacheUser(context, suggestionsArray, new UserArraySyncCompleted() {
+                try {
+                    final JSONArray suggestionsArray = response.getJSONArray("suggestions");
+                    UserServerSync.cacheUser(context, suggestionsArray, new UserArraySyncCompleted() {
+                        @Override
+                        public void syncCompletedListener(ArrayList<User> users) {
+                            executor.execute(new Runnable() {
                                 @Override
-                                public void syncCompletedListener(ArrayList<User> users) {
-                                    executor.execute(new Runnable() {
+                                public void run() {
+                                    ArrayList<Long> userIds = new ArrayList<Long>();
+                                    for (int i = 0; i < suggestionsArray.length(); i++) {
+                                        try {
+                                            userIds.add(suggestionsArray.getJSONObject(i).getLong("id"));
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+
+                                    Realm realm = Realm.getInstance(context);
+                                    RealmResults<User> userRealmResults = realm.where(User.class).findAll();
+
+                                    for (int i = 0; i < userRealmResults.size(); i++) {
+                                        if (userIds.contains(userRealmResults.get(i).getUserId())) {
+                                            if (userRealmResults.get(i).getSuggestion() != null)
+                                                continue;
+
+                                            realm.beginTransaction();
+                                            Suggestion suggestion = realm.createObject(Suggestion.class);
+                                            suggestion.setUser(userRealmResults.get(i));
+                                            userRealmResults.get(i).setSuggestion(suggestion);
+                                            realm.commitTransaction();
+                                        }
+                                    }
+
+                                    RealmResults<Suggestion> suggestionRealmResults = realm.where(Suggestion.class).findAll();
+                                    for (int i = 0; i < suggestionRealmResults.size(); i++) {
+                                        if (!userIds.contains(suggestionRealmResults.get(i).getUser().getUserId())) {
+                                            realm.beginTransaction();
+                                            suggestionRealmResults.get(i).removeFromRealm();
+                                            realm.commitTransaction();
+                                        }
+                                    }
+
+                                    realm.close();
+                                    handler.post(new Runnable() {
                                         @Override
                                         public void run() {
-                                            ArrayList<Long> userIds = new ArrayList<Long>();
-                                            for (int i = 0; i < suggestionsArray.length(); i++) {
-                                                try {
-                                                    userIds.add(suggestionsArray.getJSONObject(i).getLong("id"));
-                                                } catch (JSONException e) {
-                                                    e.printStackTrace();
-                                                }
-                                            }
-
-                                            Realm realm = Realm.getInstance(context);
-                                            RealmResults<User> userRealmResults = realm.where(User.class).findAll();
-
-                                            for (int i = 0; i < userRealmResults.size(); i++) {
-                                                if (userIds.contains(userRealmResults.get(i).getUserId())) {
-                                                    if (userRealmResults.get(i).getSuggestion() != null)
-                                                        continue;
-
-                                                    realm.beginTransaction();
-                                                    Suggestion suggestion = realm.createObject(Suggestion.class);
-                                                    suggestion.setUser(userRealmResults.get(i));
-                                                    userRealmResults.get(i).setSuggestion(suggestion);
-                                                    realm.commitTransaction();
-                                                }
-                                            }
-
-                                            RealmResults<Suggestion> suggestionRealmResults = realm.where(Suggestion.class).findAll();
-                                            for (int i = 0; i < suggestionRealmResults.size(); i++) {
-                                                if (!userIds.contains(suggestionRealmResults.get(i).getUser().getUserId())) {
-                                                    realm.beginTransaction();
-                                                    suggestionRealmResults.get(i).removeFromRealm();
-                                                    realm.commitTransaction();
-                                                }
-                                            }
-
-                                            realm.close();
-                                            handler.post(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    listener.syncCompletedListener();
-                                                }
-                                            });
+                                            listener.syncCompletedListener();
                                         }
                                     });
                                 }
                             });
-                        } catch (JSONException e) {
-                            e.printStackTrace();
                         }
-                    }
-                });
+                    });
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override

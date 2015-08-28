@@ -78,49 +78,44 @@ public class ContactActivity extends AppCompatActivity {
             RestClientAsync.get(context, "/users/" + userId + "/" + getIntent().getStringExtra("type"), new RequestParams(), new JsonHttpResponseHandler() {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, final JSONObject response) {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                UserServerSync.cacheUser(context, response.getJSONArray(getIntent().getStringExtra("type")), new UserArraySyncCompleted() {
+                    try {
+                        UserServerSync.cacheUser(context, response.getJSONArray(getIntent().getStringExtra("type")), new UserArraySyncCompleted() {
+                            @Override
+                            public void syncCompletedListener(final ArrayList<User> u) {
+                                final ArrayList<Long> userIds = new ArrayList<Long>();
+                                for (int i = 0; i < u.size(); i++)
+                                    userIds.add(u.get(i).getUserId());
+
+                                handler.post(new Runnable() {
                                     @Override
-                                    public void syncCompletedListener(final ArrayList<User> u) {
-                                        final ArrayList<Long> userIds = new ArrayList<Long>();
-                                        for (int i = 0; i < u.size(); i++)
-                                            userIds.add(u.get(i).getUserId());
+                                    public void run() {
+                                        realm = Realm.getInstance(context);
+                                        RealmQuery<User> query = realm.where(User.class);
+                                        query.equalTo("userId", -1);
 
-                                        handler.post(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                realm = Realm.getInstance(context);
-                                                RealmQuery<User> query = realm.where(User.class);
-                                                query.equalTo("userId", -1);
+                                        for (int i = 0; i < userIds.size(); i++) {
+                                            query.or().equalTo("userId", userIds.get(i));
+                                        }
 
-                                                for (int i = 0; i < userIds.size(); i++) {
-                                                    query.or().equalTo("userId", userIds.get(i));
-                                                }
+                                        users = query.findAll();
 
-                                                users = query.findAll();
+                                        users.sort("firstName", true);
 
-                                                users.sort("firstName", true);
+                                        ContactAdapter myAdapter = new ContactAdapter(context, users, true);
+                                        list.setAdapter(myAdapter);
 
-                                                ContactAdapter myAdapter = new ContactAdapter(context, users, true);
-                                                list.setAdapter(myAdapter);
-
-                                                View empty = getLayoutInflater().inflate(R.layout.empty_list_view, null, false);
-                                                TextViewCustomFont text = (TextViewCustomFont) empty.findViewById(R.id.empty_list_item);
-                                                text.setText("No contacts");
-                                                addContentView(empty, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-                                                list.setEmptyView(empty);
-                                            }
-                                        });
+                                        View empty = getLayoutInflater().inflate(R.layout.empty_list_view, null, false);
+                                        TextViewCustomFont text = (TextViewCustomFont) empty.findViewById(R.id.empty_list_item);
+                                        text.setText("No contacts");
+                                        addContentView(empty, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                                        list.setEmptyView(empty);
                                     }
                                 });
-                            } catch (JSONException e) {
-                                e.printStackTrace();
                             }
-                        }
-                    });
+                        });
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 @Override

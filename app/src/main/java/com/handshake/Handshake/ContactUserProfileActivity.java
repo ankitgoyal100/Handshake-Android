@@ -141,13 +141,17 @@ public class ContactUserProfileActivity extends AppCompatActivity {
             CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
 
             if (!account.getThumb().isEmpty() && !account.getThumb().equals("null")) {
-                Picasso.with(context).load(account.getThumb()).transform(new CircleTransform()).into(profileImage);
+                Picasso.with(context).load(account.getThumb())
+                        .resize(Utils.dpToPx(context, 80), Utils.dpToPx(context, 80)).transform(new CircleTransform()).into(profileImage);
                 if (!account.getPicture().isEmpty() && !account.getPicture().equals("null"))
-                    Picasso.with(context).load(account.getPicture()).into(backdrop);
+                    Picasso.with(context).load(account.getPicture())
+                            .resize(Utils.dpToPx(context, 40), Utils.dpToPx(context, 40)).into(backdrop);
                 else
-                    Picasso.with(context).load(account.getThumb()).into(backdrop);
+                    Picasso.with(context).load(account.getThumb())
+                            .into(backdrop);
             } else {
-                Picasso.with(context).load(R.drawable.default_profile).transform(new CircleTransform()).into(profileImage);
+                Picasso.with(context).load(R.drawable.default_profile)
+                        .resize(Utils.dpToPx(context, 80), Utils.dpToPx(context, 80)).transform(new CircleTransform()).into(profileImage);
                 collapsingToolbar.setContentScrimColor(getResources().getColor(R.color.background_window));
             }
 

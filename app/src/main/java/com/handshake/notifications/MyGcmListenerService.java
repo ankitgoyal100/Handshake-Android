@@ -23,7 +23,6 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
 
 import com.google.android.gms.gcm.GcmListenerService;
@@ -83,37 +82,31 @@ public class MyGcmListenerService extends GcmListenerService {
             if (!data.containsKey("user")) return;
             final JSONObject user = new JSONObject(data.getString("user"));
             users.put(user);
-            final Handler handler = new Handler();
-            handler.post(new Runnable() {
+            UserServerSync.cacheUser(getApplicationContext(), users, new UserArraySyncCompleted() {
                 @Override
-                public void run() {
-                    UserServerSync.cacheUser(getApplicationContext(), users, new UserArraySyncCompleted() {
+                public void syncCompletedListener(final ArrayList<User> users) {
+                    if (users.size() == 0) {
+                        sendNotification(data, 0, false);
+                        return;
+                    }
+
+                    final long userId = users.get(0).getUserId();
+                    final boolean isContact = users.get(0).isContact();
+
+                    FeedItemServerSync.performSync(getApplicationContext(), new SyncCompleted() {
                         @Override
-                        public void syncCompletedListener(final ArrayList<User> users) {
-                            if (users.size() == 0) {
-                                sendNotification(data, 0, false);
-                                return;
-                            }
-
-                            final long userId = users.get(0).getUserId();
-                            final boolean isContact = users.get(0).isContact();
-
-                            FeedItemServerSync.performSync(getApplicationContext(), new SyncCompleted() {
+                        public void syncCompletedListener() {
+                            ContactSync.performSync(getApplicationContext(), new SyncCompleted() {
                                 @Override
                                 public void syncCompletedListener() {
-                                    ContactSync.performSync(getApplicationContext(), new SyncCompleted() {
-                                        @Override
-                                        public void syncCompletedListener() {
-                                            if (data.containsKey("group_id")) {
-                                                Realm realm = Realm.getInstance(getApplicationContext());
-                                                Group group = realm.where(Group.class).equalTo("groupId", Long.parseLong(data.getString("group_id"))).findFirst();
-                                                GroupServerSync.loadGroupMembers(group);
-                                                realm.close();
-                                            }
+                                    if (data.containsKey("group_id")) {
+                                        Realm realm = Realm.getInstance(getApplicationContext());
+                                        Group group = realm.where(Group.class).equalTo("groupId", Long.parseLong(data.getString("group_id"))).findFirst();
+                                        GroupServerSync.loadGroupMembers(group);
+                                        realm.close();
+                                    }
 
-                                            sendNotification(data, userId, isContact);
-                                        }
-                                    });
+                                    sendNotification(data, userId, isContact);
                                 }
                             });
                         }

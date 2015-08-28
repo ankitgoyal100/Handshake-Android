@@ -683,10 +683,12 @@ public class EditProfileActivity extends AppCompatActivity {
         TextViewCustomFont profileImageText = (TextViewCustomFont) findViewById(R.id.picture_text);
 
         if (!account.getThumb().isEmpty() && !account.getThumb().equals("null")) {
-            Picasso.with(this).load(account.getThumb()).transform(new CircleTransform()).into(profileImage);
+            Picasso.with(this).load(account.getThumb())
+                    .resize(Utils.dpToPx(context, 40), Utils.dpToPx(context, 40)).transform(new CircleTransform()).into(profileImage);
             profileImageText.setText("Change picture");
         } else if (!account.getPicture().isEmpty() && !account.getPicture().equals("null")) {
-            Picasso.with(this).load(account.getPicture()).transform(new CircleTransform()).into(profileImage);
+            Picasso.with(this).load(account.getPicture())
+                    .resize(Utils.dpToPx(context, 40), Utils.dpToPx(context, 40)).transform(new CircleTransform()).into(profileImage);
             profileImageText.setText("Change picture");
         } else if (account.getPictureData() != null && account.getPictureData().length > 0) {
             photo = BitmapFactory.decodeByteArray(account.getPictureData(), 0, account.getPictureData().length);
@@ -695,7 +697,8 @@ public class EditProfileActivity extends AppCompatActivity {
             profileImage.setImageBitmap(circle);
             profileImageText.setText("Change picture");
         } else {
-            Picasso.with(this).load(R.drawable.default_profile).transform(new CircleTransform()).into(profileImage);
+            Picasso.with(this).load(R.drawable.default_profile)
+                    .resize(Utils.dpToPx(context, 40), Utils.dpToPx(context, 40)).transform(new CircleTransform()).into(profileImage);
             profileImageText.setText("Add picture");
         }
 
@@ -796,7 +799,8 @@ public class EditProfileActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            Picasso.with(this).load(selectedImage).transform(new CircleTransform()).into(profileImage);
+            Picasso.with(this).load(selectedImage)
+                    .resize(Utils.dpToPx(context, 40), Utils.dpToPx(context, 40)).transform(new CircleTransform()).into(profileImage);
         }
     }
 

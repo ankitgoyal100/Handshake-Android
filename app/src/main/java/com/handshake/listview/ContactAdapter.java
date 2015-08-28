@@ -16,6 +16,7 @@ import com.handshake.Handshake.ContactUserProfileActivity;
 import com.handshake.Handshake.GenericUserProfileActivity;
 import com.handshake.Handshake.MainActivity;
 import com.handshake.Handshake.R;
+import com.handshake.Handshake.Utils;
 import com.handshake.models.User;
 import com.handshake.views.CircleTransform;
 import com.handshake.views.TextViewCustomFont;
@@ -55,9 +56,12 @@ public class ContactAdapter extends RealmBaseAdapter<User> implements ListAdapte
         viewHolder.personName.setText(item.getFirstName() + " " + item.getLastName());
 
         if (!item.getThumb().isEmpty() && !item.getThumb().equals("null"))
-            Picasso.with(context).load(item.getThumb()).transform(new CircleTransform()).into(viewHolder.image);
+            Picasso.with(context).load(item.getThumb())
+                    .resize(Utils.dpToPx(context, 60), Utils.dpToPx(context, 60))
+                    .transform(new CircleTransform()).into(viewHolder.image);
         else
-            Picasso.with(context).load(R.drawable.default_profile).transform(new CircleTransform()).into(viewHolder.image);
+            Picasso.with(context).load(R.drawable.default_profile)
+                    .resize(Utils.dpToPx(context, 60), Utils.dpToPx(context, 60)).transform(new CircleTransform()).into(viewHolder.image);
 
         if (item.getMutual() == 1)
             viewHolder.description.setText(item.getMutual() + " mutual contact");
@@ -74,7 +78,7 @@ public class ContactAdapter extends RealmBaseAdapter<User> implements ListAdapte
                 User user = realm.where(User.class).equalTo("userId", userId).findFirst();
 
                 Intent i;
-                if(user.isContact()) {
+                if (user.isContact()) {
                     i = new Intent(context, ContactUserProfileActivity.class);
                 } else {
                     i = new Intent(context, GenericUserProfileActivity.class);
@@ -84,27 +88,6 @@ public class ContactAdapter extends RealmBaseAdapter<User> implements ListAdapte
                 context.startActivity(i);
             }
         });
-
-//        viewHolder.contactsButtonLayout.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                new AlertDialogWrapper.Builder(context)
-//                        .setTitle("Delete contact")
-//                        .setMessage("Are you sure you want to delete this contact?")
-//                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-//                            public void onClick(DialogInterface dialog, int which) {
-//                                ContactServerSync.deleteContact(item);
-//                                dialog.cancel();
-//                            }
-//                        })
-//                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-//                            public void onClick(DialogInterface dialog, int which) {
-//                                dialog.cancel();
-//                            }
-//                        })
-//                        .show();
-//            }
-//        });
 
         return convertView;
     }

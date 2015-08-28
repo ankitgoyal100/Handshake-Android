@@ -5,12 +5,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,7 +72,7 @@ public class ProfileFragment extends Fragment {
     }
 
     public void fillViews() {
-        if(getActivity() == null) return;
+        if (getActivity() == null) return;
 
         SessionManager session = new SessionManager(getActivity());
         if (!session.isLoggedIn()) return;
@@ -93,14 +95,19 @@ public class ProfileFragment extends Fragment {
             CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) getView().findViewById(R.id.collapsing_toolbar);
 
             if (!account.getThumb().isEmpty() && !account.getThumb().equals("null")) {
-                Picasso.with(getActivity()).load(account.getThumb()).transform(new CircleTransform()).into(profileImage);
+                Picasso.with(getActivity()).load(account.getThumb())
+                        .resize(Utils.dpToPx(getActivity(), 80), Utils.dpToPx(getActivity(), 80)).transform(new CircleTransform()).into(profileImage);
                 if (!account.getPicture().isEmpty() && !account.getPicture().equals("null"))
-                    Picasso.with(getActivity()).load(account.getPicture()).into(backdrop);
+                    Picasso.with(getActivity()).load(account.getPicture())
+                            .into(backdrop);
                 else
-                    Picasso.with(getActivity()).load(account.getThumb()).into(backdrop);
+                    Picasso.with(getActivity()).load(account.getThumb())
+                            .into(backdrop);
             } else if (!account.getPicture().isEmpty() && !account.getPicture().equals("null")) {
-                Picasso.with(getActivity()).load(account.getPicture()).transform(new CircleTransform()).into(profileImage);
-                Picasso.with(getActivity()).load(account.getPicture()).into(backdrop);
+                Picasso.with(getActivity()).load(account.getPicture())
+                        .resize(Utils.dpToPx(getActivity(), 80), Utils.dpToPx(getActivity(), 80)).transform(new CircleTransform()).into(profileImage);
+                Picasso.with(getActivity()).load(account.getPicture())
+                        .into(backdrop);
             } else if (account.getPictureData() != null && account.getPictureData().length > 0) {
                 Bitmap photo = BitmapFactory.decodeByteArray(account.getPictureData(), 0, account.getPictureData().length);
                 CircleTransform transform = new CircleTransform();
@@ -108,7 +115,8 @@ public class ProfileFragment extends Fragment {
                 profileImage.setImageBitmap(circle);
                 backdrop.setImageBitmap(BitmapFactory.decodeByteArray(account.getPictureData(), 0, account.getPictureData().length));
             } else {
-                Picasso.with(getActivity()).load(R.drawable.default_profile).transform(new CircleTransform()).into(profileImage);
+                Picasso.with(getActivity()).load(R.drawable.default_profile)
+                        .resize(Utils.dpToPx(getActivity(), 80), Utils.dpToPx(getActivity(), 80)).transform(new CircleTransform()).into(profileImage);
                 collapsingToolbar.setContentScrimColor(getResources().getColor(R.color.background_window));
             }
 

@@ -281,72 +281,67 @@ public class GroupServerSync {
         RestClientSync.get(context, "/groups/" + groupId + "/members", new RequestParams(), new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, final JSONObject response) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            final JSONArray membersJSON = response.getJSONArray("members");
-                            UserServerSync.cacheUser(context, membersJSON, new UserArraySyncCompleted() {
-                                @Override
-                                public void syncCompletedListener(ArrayList<User> users) {
-                                    Realm realm = Realm.getInstance(context);
-                                    Group group = realm.where(Group.class).equalTo("groupId", groupId).findFirst();
+                try {
+                    final JSONArray membersJSON = response.getJSONArray("members");
+                    UserServerSync.cacheUser(context, membersJSON, new UserArraySyncCompleted() {
+                        @Override
+                        public void syncCompletedListener(ArrayList<User> users) {
+                            Realm realm = Realm.getInstance(context);
+                            Group group = realm.where(Group.class).equalTo("groupId", groupId).findFirst();
 
-                                    if (group == null) return;
+                            if (group == null) return;
 
-                                    realm.beginTransaction();
-                                    RealmResults<GroupMember> members = realm.where(GroupMember.class).equalTo("group.groupId", groupId).findAll();
-                                    members.clear();
-                                    for (int i = 0; i < group.getMembers().size(); i++)
-                                        group.getMembers().get(i).removeFromRealm();
-                                    realm.commitTransaction();
+                            realm.beginTransaction();
+                            RealmResults<GroupMember> members = realm.where(GroupMember.class).equalTo("group.groupId", groupId).findAll();
+                            members.clear();
+                            for (int i = 0; i < group.getMembers().size(); i++)
+                                group.getMembers().get(i).removeFromRealm();
+                            realm.commitTransaction();
 
-                                    ArrayList<Long> allIDs = new ArrayList<Long>();
-                                    for (int i = 0; i < membersJSON.length(); i++) {
-                                        try {
-                                            allIDs.add(membersJSON.getJSONObject(i).getLong("id"));
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-
-                                    final HashMap<Long, User> map = new HashMap<Long, User>();
-
-                                    // map ids to User objects
-                                    RealmResults<User> allUsers = realm.allObjects(User.class);
-                                    for (User user : allUsers) {
-                                        if (allIDs.contains(user.getUserId()))
-                                            map.put(user.getUserId(), user);
-                                    }
-
-                                    realm.beginTransaction();
-                                    RealmList<GroupMember> groupMembers = new RealmList<>();
-                                    for (int i = 0; i < membersJSON.length(); i++) {
-                                        try {
-                                            User user = map.get(membersJSON.getJSONObject(i).getLong("id"));
-
-                                            if (user == null) return;
-
-                                            GroupMember member = realm.createObject(GroupMember.class);
-                                            member.setUser(user);
-                                            member.setName(user.getFirstName() + " " + user.getLastName());
-                                            member.setGroup(group);
-
-                                            groupMembers.add(member);
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                    group.setMembers(groupMembers);
-                                    realm.commitTransaction();
-                                    realm.close();
+                            ArrayList<Long> allIDs = new ArrayList<Long>();
+                            for (int i = 0; i < membersJSON.length(); i++) {
+                                try {
+                                    allIDs.add(membersJSON.getJSONObject(i).getLong("id"));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
                                 }
-                            });
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                            }
+
+                            final HashMap<Long, User> map = new HashMap<Long, User>();
+
+                            // map ids to User objects
+                            RealmResults<User> allUsers = realm.allObjects(User.class);
+                            for (User user : allUsers) {
+                                if (allIDs.contains(user.getUserId()))
+                                    map.put(user.getUserId(), user);
+                            }
+
+                            realm.beginTransaction();
+                            RealmList<GroupMember> groupMembers = new RealmList<>();
+                            for (int i = 0; i < membersJSON.length(); i++) {
+                                try {
+                                    User user = map.get(membersJSON.getJSONObject(i).getLong("id"));
+
+                                    if (user == null) return;
+
+                                    GroupMember member = realm.createObject(GroupMember.class);
+                                    member.setUser(user);
+                                    member.setName(user.getFirstName() + " " + user.getLastName());
+                                    member.setGroup(group);
+
+                                    groupMembers.add(member);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            group.setMembers(groupMembers);
+                            realm.commitTransaction();
+                            realm.close();
                         }
-                    }
-                });
+                    });
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override

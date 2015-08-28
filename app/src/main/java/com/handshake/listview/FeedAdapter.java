@@ -69,20 +69,25 @@ public class FeedAdapter extends RealmBaseAdapter<FeedItem> implements ListAdapt
 
         if (item.getUser() != null) {
             if (!item.getUser().getThumb().isEmpty() && !item.getUser().getThumb().equals("null"))
-                Picasso.with(context).load(item.getUser().getThumb()).transform(new CircleTransform()).into(viewHolder.image);
+                Picasso.with(context).load(item.getUser().getThumb())
+                        .resize(Utils.dpToPx(context, 60), Utils.dpToPx(context, 60)).transform(new CircleTransform()).into(viewHolder.image);
             else
-                Picasso.with(context).load(R.drawable.default_profile).transform(new CircleTransform()).into(viewHolder.image);
+                Picasso.with(context).load(R.drawable.default_profile)
+                        .resize(Utils.dpToPx(context, 60), Utils.dpToPx(context, 60)).transform(new CircleTransform()).into(viewHolder.image);
         } else {
             SessionManager sessionManager = new SessionManager(context);
             Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
             if (account == null) {
-                Picasso.with(context).load(R.drawable.default_profile).transform(new CircleTransform()).into(viewHolder.image);
+                Picasso.with(context).load(R.drawable.default_profile)
+                        .resize(Utils.dpToPx(context, 60), Utils.dpToPx(context, 60)).transform(new CircleTransform()).into(viewHolder.image);
                 return convertView;
             }
             if (!account.getThumb().isEmpty() && !account.getThumb().equals("null"))
-                Picasso.with(context).load(account.getThumb()).transform(new CircleTransform()).into(viewHolder.image);
+                Picasso.with(context).load(account.getThumb())
+                        .resize(Utils.dpToPx(context, 60), Utils.dpToPx(context, 60)).transform(new CircleTransform()).into(viewHolder.image);
             else
-                Picasso.with(context).load(R.drawable.default_profile).transform(new CircleTransform()).into(viewHolder.image);
+                Picasso.with(context).load(R.drawable.default_profile)
+                        .resize(Utils.dpToPx(context, 60), Utils.dpToPx(context, 60)).transform(new CircleTransform()).into(viewHolder.image);
         }
 
         viewHolder.description.setText(Utils.getTimeSince(item.getCreatedAt()));

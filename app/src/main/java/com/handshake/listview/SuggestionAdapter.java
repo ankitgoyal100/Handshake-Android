@@ -16,6 +16,7 @@ import com.handshake.Handshake.ContactUserProfileActivity;
 import com.handshake.Handshake.GenericUserProfileActivity;
 import com.handshake.Handshake.MainActivity;
 import com.handshake.Handshake.R;
+import com.handshake.Handshake.Utils;
 import com.handshake.models.Suggestion;
 import com.handshake.models.User;
 import com.handshake.views.CircleTransform;
@@ -34,8 +35,8 @@ public class SuggestionAdapter extends RealmBaseAdapter<Suggestion> implements L
 //    private TreeSet<Integer> sectionHeader = new TreeSet<Integer>();
 
     public SuggestionAdapter(Context context,
-                          RealmResults<Suggestion> realmResults,
-                          boolean automaticUpdate) {
+                             RealmResults<Suggestion> realmResults,
+                             boolean automaticUpdate) {
         super(context, realmResults, automaticUpdate);
 //        mData = realmResults;
     }
@@ -72,9 +73,11 @@ public class SuggestionAdapter extends RealmBaseAdapter<Suggestion> implements L
         viewHolder.personName.setText(item.getFirstName() + " " + item.getLastName());
 
         if (!item.getThumb().isEmpty() && !item.getThumb().equals("null"))
-            Picasso.with(context).load(item.getThumb()).transform(new CircleTransform()).into(viewHolder.image);
+            Picasso.with(context).load(item.getThumb())
+                    .resize(Utils.dpToPx(context, 60), Utils.dpToPx(context, 60)).transform(new CircleTransform()).into(viewHolder.image);
         else
-            Picasso.with(context).load(R.drawable.default_profile).transform(new CircleTransform()).into(viewHolder.image);
+            Picasso.with(context).load(R.drawable.default_profile)
+                    .resize(Utils.dpToPx(context, 60), Utils.dpToPx(context, 60)).transform(new CircleTransform()).into(viewHolder.image);
 
         if (item.getMutual() == 1)
             viewHolder.description.setText(item.getMutual() + " mutual contact");
@@ -91,7 +94,7 @@ public class SuggestionAdapter extends RealmBaseAdapter<Suggestion> implements L
                 User user = realm.where(User.class).equalTo("userId", userId).findFirst();
 
                 Intent i;
-                if(user.isContact()) {
+                if (user.isContact()) {
                     i = new Intent(context, ContactUserProfileActivity.class);
                 } else {
                     i = new Intent(context, GenericUserProfileActivity.class);

@@ -126,33 +126,28 @@ public class ContactServerSync {
                         map.put(contacts.getJSONObject(i).getLong("id"), contacts.getJSONObject(i));
                     }
 
-                    handler.post(new Runnable() {
+                    UserServerSync.cacheUser(context, contacts, new UserArraySyncCompleted() {
                         @Override
-                        public void run() {
-                            UserServerSync.cacheUser(context, contacts, new UserArraySyncCompleted() {
-                                @Override
-                                public void syncCompletedListener(ArrayList<User> users) {
-                                    Realm realm = Realm.getInstance(context);
-                                    RealmResults<User> areContacts = realm.where(User.class).equalTo("isContact", true).findAll();
+                        public void syncCompletedListener(ArrayList<User> users) {
+                            Realm realm = Realm.getInstance(context);
+                            RealmResults<User> areContacts = realm.where(User.class).equalTo("isContact", true).findAll();
 
-                                    for (int i = 0; i < areContacts.size(); i++) {
-                                        if (!map.keySet().contains(areContacts.get(i).getUserId())) {
-                                            realm.beginTransaction();
-                                            try {
-                                                if (map.containsKey(areContacts.get(i).getUserId()) && map.get(areContacts.get(i).getUserId()).has("contact_updated"))
-                                                    areContacts.get(i).setContactUpdated(Utils.formatDate(
-                                                            map.get(areContacts.get(i).getUserId()).getString("contact_updated")));
-                                            } catch (JSONException e) {
-
-                                            }
-                                            realm.commitTransaction();
-                                        }
+                            for (int i = 0; i < areContacts.size(); i++) {
+                                if (!map.keySet().contains(areContacts.get(i).getUserId())) {
+                                    realm.beginTransaction();
+                                    try {
+                                        if (map.containsKey(areContacts.get(i).getUserId()) && map.get(areContacts.get(i).getUserId()).has("contact_updated"))
+                                            areContacts.get(i).setContactUpdated(Utils.formatDate(
+                                                    map.get(areContacts.get(i).getUserId()).getString("contact_updated")));
+                                    } catch (JSONException e) {
 
                                     }
-
-                                    realm.close();
+                                    realm.commitTransaction();
                                 }
-                            });
+
+                            }
+
+                            realm.close();
                         }
                     });
 

@@ -7,6 +7,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
@@ -16,6 +17,7 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -92,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
     private RequestFragment requestFragment;
     private GroupFragment groupFragment;
     private DelayAutoCompleteTextView searchView;
-    private static boolean isFirstRun = true;
+    private SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -198,12 +200,16 @@ public class MainActivity extends AppCompatActivity {
 
         changeColor(getResources().getColor(R.color.orange));
 
-        if (isConnected(context) && isFirstRun) {
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        if (isConnected(context) && prefs.getBoolean("isFirstRun", true)) {
+            prefs.edit().putBoolean("isFirstRun", false).apply();
+
             performSyncs(new SyncCompleted() {
                 @Override
                 public void syncCompletedListener() {
+                    prefs.edit().putBoolean("isFirstRun", false).apply();
 //                    System.out.println("All syncs completed");
-                    isFirstRun = false;
 
                     if (profileFragment != null)
                         profileFragment.fillViews();
@@ -455,7 +461,7 @@ public class MainActivity extends AppCompatActivity {
             public void syncCompletedListener() {
                 syncsCompleted++;
                 contactSyncCompleted = true;
-//                System.out.println("Contact sync completed " + syncsCompleted);
+                System.out.println("Contact sync completed " + syncsCompleted);
             }
         });
 
@@ -465,7 +471,7 @@ public class MainActivity extends AppCompatActivity {
                 syncsCompleted++;
                 if (profileFragment != null)
                     profileFragment.fillViews();
-//                System.out.println("Account sync completed " + syncsCompleted);
+                System.out.println("Account sync completed " + syncsCompleted);
             }
         });
 
@@ -475,7 +481,7 @@ public class MainActivity extends AppCompatActivity {
                 syncsCompleted++;
                 if (profileFragment != null)
                     profileFragment.fillViews();
-//                System.out.println("Card sync completed " + syncsCompleted);
+                System.out.println("Card sync completed " + syncsCompleted);
             }
         });
 
@@ -485,7 +491,7 @@ public class MainActivity extends AppCompatActivity {
                 syncsCompleted++;
                 if (feedFragment != null)
                     feedFragment.setIntroVisible();
-//                System.out.println("FeedItem sync completed " + syncsCompleted);
+                System.out.println("FeedItem sync completed " + syncsCompleted);
             }
         });
 
@@ -495,7 +501,7 @@ public class MainActivity extends AppCompatActivity {
                 syncsCompleted++;
                 if (groupFragment != null)
                     groupFragment.setIntroVisible();
-//                System.out.println("Group sync completed " + syncsCompleted);
+                System.out.println("Group sync completed " + syncsCompleted);
             }
         });
 
@@ -505,7 +511,7 @@ public class MainActivity extends AppCompatActivity {
                 syncsCompleted++;
                 if (requestFragment != null)
                     requestFragment.setIntroVisible();
-//                System.out.println("Request sync completed " + syncsCompleted);
+                System.out.println("Request sync completed " + syncsCompleted);
             }
         });
 
@@ -514,7 +520,7 @@ public class MainActivity extends AppCompatActivity {
         ContactUploader.performSync(context, new SyncCompleted() {
             @Override
             public void syncCompletedListener() {
-//                System.out.println("Contact sync completed");
+                System.out.println("Contact upload sync completed");
                 SuggestionsServerSync.performSync(context, new SyncCompleted() {
                     @Override
                     public void syncCompletedListener() {
@@ -523,7 +529,7 @@ public class MainActivity extends AppCompatActivity {
                             feedFragment.setSuggestionText();
                         if (requestFragment != null)
                             requestFragment.setSuggestionText();
-//                        System.out.println("Suggestion sync completed " + syncsCompleted);
+                        System.out.println("Suggestion sync completed " + syncsCompleted);
                     }
                 });
             }
@@ -690,7 +696,6 @@ public class MainActivity extends AppCompatActivity {
 
     public static void setContactButtons(final Context context, final Long id,
                                          final ImageView buttonOne, final ImageView buttonTwo, final TextViewCustomFont text) {
-
         Realm realm = Realm.getInstance(context);
         final User account = realm.where(User.class).equalTo("userId", id).findFirst();
 
