@@ -93,7 +93,7 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
         else
             viewHolder.description.setText(item.getMutual() + " mutual contacts");
 
-        MainActivity.setContactButtons(mContext, item, viewHolder.buttonOne, viewHolder.buttonTwo, null);
+        MainActivity.setContactButtons(mContext, item.getUserId(), viewHolder.buttonOne, viewHolder.buttonTwo, null);
         realm.close();
 
         return convertView;

@@ -19,6 +19,7 @@ import com.handshake.helpers.SyncCompleted;
 import com.handshake.helpers.UserArraySyncCompleted;
 import com.handshake.helpers.UserServerSync;
 import com.handshake.listview.ContactAdapter;
+import com.handshake.listview.StockContactAdapter;
 import com.handshake.models.User;
 import com.handshake.views.TextViewCustomFont;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -128,11 +129,16 @@ public class ContactActivity extends AppCompatActivity {
                 }
             });
         } else {
-            realm = Realm.getInstance(this);
+            realm = Realm.getInstance(context);
             users = realm.where(User.class).equalTo("isContact", true).findAll();
             users.sort("firstName", true);
 
-            ContactAdapter myAdapter = new ContactAdapter(this, users, true);
+            ArrayList<Long> ids = new ArrayList<Long>();
+            for (int i = 0; i < users.size(); i++) {
+                ids.add(users.get(i).getUserId());
+            }
+
+            StockContactAdapter myAdapter = new StockContactAdapter(context, R.layout.user_list_item, ids);
             list.setAdapter(myAdapter);
 
             View empty = getLayoutInflater().inflate(R.layout.empty_list_view, null, false);

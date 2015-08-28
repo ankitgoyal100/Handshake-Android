@@ -688,8 +688,12 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    public static void setContactButtons(final Context context, final User account,
+    public static void setContactButtons(final Context context, final Long id,
                                          final ImageView buttonOne, final ImageView buttonTwo, final TextViewCustomFont text) {
+
+        Realm realm = Realm.getInstance(context);
+        final User account = realm.where(User.class).equalTo("userId", id).findFirst();
+
         String lastName = "";
         if (!account.getLastName().equals("null"))
             lastName = account.getLastName();
@@ -736,7 +740,7 @@ public class MainActivity extends AppCompatActivity {
                     RequestServerSync.declineRequest(context, account, new UserSyncCompleted() {
                         @Override
                         public void syncCompletedListener(User users) {
-                            setContactButtons(context, account, buttonOne, buttonTwo, text);
+                            setContactButtons(context, id, buttonOne, buttonTwo, text);
                         }
 
                         @Override
@@ -746,7 +750,7 @@ public class MainActivity extends AppCompatActivity {
                     });
                 }
 
-                setContactButtons(context, account, buttonOne, buttonTwo, text);
+                setContactButtons(context, id, buttonOne, buttonTwo, text);
             }
         });
 
@@ -760,7 +764,7 @@ public class MainActivity extends AppCompatActivity {
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     ContactServerSync.deleteContact(account);
-                                    setContactButtons(context, account, buttonOne, buttonTwo, text);
+                                    setContactButtons(context, id, buttonOne, buttonTwo, text);
                                     dialog.cancel();
                                 }
                             })
@@ -781,7 +785,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void syncCompletedListener(User users) {
                             if (text == null) {
-                                setContactButtons(context, account, buttonOne, buttonTwo, text);
+                                setContactButtons(context, id, buttonOne, buttonTwo, text);
                             } else {
                                 Intent i = new Intent(context, ContactUserProfileActivity.class);
                                 i.putExtra("userId", account.getUserId());
@@ -804,7 +808,7 @@ public class MainActivity extends AppCompatActivity {
                                     RequestServerSync.deleteRequest(context, account, new UserSyncCompleted() {
                                         @Override
                                         public void syncCompletedListener(User users) {
-                                            setContactButtons(context, account, buttonOne, buttonTwo, text);
+                                            setContactButtons(context, id, buttonOne, buttonTwo, text);
                                         }
 
                                         @Override
@@ -828,7 +832,7 @@ public class MainActivity extends AppCompatActivity {
                             buttonOne.setVisibility(View.GONE);
                             buttonTwo.setVisibility(View.VISIBLE);
                             buttonTwo.setImageDrawable(context.getResources().getDrawable(R.drawable.requested_button));
-                            setContactButtons(context, account, buttonOne, buttonTwo, text);
+                            setContactButtons(context, id, buttonOne, buttonTwo, text);
                         }
 
                         @Override

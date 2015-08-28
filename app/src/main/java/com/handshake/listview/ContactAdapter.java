@@ -64,7 +64,7 @@ public class ContactAdapter extends RealmBaseAdapter<User> implements ListAdapte
         else
             viewHolder.description.setText(item.getMutual() + " mutual contacts");
 
-        MainActivity.setContactButtons(context, item, viewHolder.buttonOne, viewHolder.buttonTwo, null);
+        MainActivity.setContactButtons(context, item.getUserId(), viewHolder.buttonOne, viewHolder.buttonTwo, null);
 
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override

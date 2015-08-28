@@ -181,7 +181,7 @@ public class ContactUserProfileActivity extends AppCompatActivity {
 
             TextViewCustomFont text = (TextViewCustomFont) findViewById(R.id.text);
 
-            MainActivity.setContactButtons(context, account,
+            MainActivity.setContactButtons(context, account.getUserId(),
                     (ImageView) findViewById(R.id.button_one), (ImageView) findViewById(R.id.button_two), text);
 
             ImageView notifications = (ImageView) findViewById(R.id.notifications);
