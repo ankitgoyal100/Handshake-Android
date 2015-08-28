@@ -85,6 +85,8 @@ public class EditProfileActivity extends AppCompatActivity {
     private CallbackManager callbackManager;
     private Bitmap circle;
     private Bitmap photo;
+    private Realm realm;
+    private Realm realm2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,7 +104,7 @@ public class EditProfileActivity extends AppCompatActivity {
         isIntialSetup = getIntent().hasExtra("is_initial_setup") && getIntent().getBooleanExtra("is_initial_setup", false);
         initialSetup();
 
-        final Realm realm = Realm.getInstance(this);
+        realm = Realm.getInstance(this);
         SessionManager sessionManager = new SessionManager(context);
         final Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
         final Card card = account.getCards().first();
@@ -123,7 +125,6 @@ public class EditProfileActivity extends AppCompatActivity {
                 startActivityForResult(i, 0);
             }
         });
-        realm.close();
     }
 
     private void initialSetup() {
@@ -483,7 +484,7 @@ public class EditProfileActivity extends AppCompatActivity {
             ((TextView) snapchatView.findViewById(R.id.title)).setText("Add Snapchat");
         }
 
-        final Realm realm = Realm.getInstance(context);
+        final Realm realm2 = Realm.getInstance(context);
 
         facebookView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -497,9 +498,9 @@ public class EditProfileActivity extends AppCompatActivity {
                                     ((TextView) facebookView.findViewById(R.id.title)).setText("Add Facebook");
                                     for (int i = 0; i < card.getSocials().size(); i++) {
                                         if (card.getSocials().get(i).getNetwork().equals("facebook")) {
-                                            realm.beginTransaction();
+                                            realm2.beginTransaction();
                                             card.getSocials().get(i).removeFromRealm();
-                                            realm.commitTransaction();
+                                            realm2.commitTransaction();
                                         }
                                     }
                                 }
@@ -573,9 +574,9 @@ public class EditProfileActivity extends AppCompatActivity {
                                     ((TextView) twitterView.findViewById(R.id.title)).setText("Add Twitter");
                                     for (int i = 0; i < card.getSocials().size(); i++) {
                                         if (card.getSocials().get(i).getNetwork().equals("twitter")) {
-                                            realm.beginTransaction();
+                                            realm2.beginTransaction();
                                             card.getSocials().get(i).removeFromRealm();
-                                            realm.commitTransaction();
+                                            realm2.commitTransaction();
                                         }
                                     }
                                 }
@@ -606,9 +607,9 @@ public class EditProfileActivity extends AppCompatActivity {
                                     ((TextView) instagramView.findViewById(R.id.title)).setText("Add Instagram");
                                     for (int i = 0; i < card.getSocials().size(); i++) {
                                         if (card.getSocials().get(i).getNetwork().equals("instagram")) {
-                                            realm.beginTransaction();
+                                            realm2.beginTransaction();
                                             card.getSocials().get(i).removeFromRealm();
-                                            realm.commitTransaction();
+                                            realm2.commitTransaction();
                                         }
                                     }
                                 }
@@ -639,9 +640,9 @@ public class EditProfileActivity extends AppCompatActivity {
                                     ((TextView) snapchatView.findViewById(R.id.title)).setText("Add Snapchat");
                                     for (int i = 0; i < card.getSocials().size(); i++) {
                                         if (card.getSocials().get(i).getNetwork().equals("snapchat")) {
-                                            realm.beginTransaction();
+                                            realm2.beginTransaction();
                                             card.getSocials().get(i).removeFromRealm();
-                                            realm.commitTransaction();
+                                            realm2.commitTransaction();
                                         }
                                     }
                                 }
@@ -659,8 +660,6 @@ public class EditProfileActivity extends AppCompatActivity {
                 }
             }
         });
-
-        realm.close();
     }
 
     private void addFacebookToCard(String id) {
@@ -870,5 +869,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
         if (circle != null) circle.recycle();
         if (photo != null) photo.recycle();
+        if (realm != null) realm.close();
+        if (realm2 != null) realm2.close();
     }
 }
