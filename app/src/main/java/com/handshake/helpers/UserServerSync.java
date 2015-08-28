@@ -1,6 +1,7 @@
 package com.handshake.helpers;
 
 import android.content.Context;
+import android.os.Handler;
 import android.os.Looper;
 
 import com.handshake.Handshake.Utils;
@@ -24,74 +25,84 @@ public class UserServerSync {
     private static Executor executor = Executors.newSingleThreadExecutor();
 
     public static void cacheUser(final Context context, final JSONArray contacts, final UserArraySyncCompleted listener) {
+        final Handler handler = new Handler();
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                Realm realm = Realm.getInstance(context);
+                if (Looper.myLooper() == null) {
+                    Looper.prepare();
+                }
 
-                ArrayList<Long> allIDs = new ArrayList<Long>();
-                for (int i = 0; i < contacts.length(); i++) {
-                    try {
-                        allIDs.add(contacts.getJSONObject(i).getLong("id"));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Realm realm = Realm.getInstance(context);
+
+                        ArrayList<Long> allIDs = new ArrayList<Long>();
+                        for (int i = 0; i < contacts.length(); i++) {
+                            try {
+                                allIDs.add(contacts.getJSONObject(i).getLong("id"));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        final HashMap<Long, User> map = new HashMap<Long, User>();
+
+                        // map ids to User objects
+                        RealmResults<User> users = realm.where(User.class).findAll();
+                        for (User user : users) {
+                            if (allIDs.contains(user.getUserId()))
+                                map.put(user.getUserId(), user);
+                        }
+                        allIDs.clear();
+
+                        // update/create users
+                        for (int i = 0; i < contacts.length(); i++) {
+                            try {
+                                User user;
+                                if (!map.containsKey(contacts.getJSONObject(i).getLong("id"))) {
+                                    realm.beginTransaction();
+                                    user = realm.createObject(User.class);
+                                    user.setSyncStatus(Utils.UserSynced);
+                                    realm.commitTransaction();
+                                } else {
+                                    user = map.get(contacts.getJSONObject(i).getLong("id"));
+                                }
+
+                                if (user.getSyncStatus() == Utils.UserSynced) {
+                                    realm.beginTransaction();
+                                    user = User.updateContact(user, realm, contacts.getJSONObject(i));
+                                    realm.commitTransaction();
+                                }
+
+                                if (user != null) {
+                                    map.put(user.getUserId(), user);
+                                    allIDs.add(user.getUserId());
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        map.clear();
+
+                        users = realm.where(User.class).findAll();
+                        for (User user : users) {
+                            if (allIDs.contains(user.getUserId()))
+                                map.put(user.getUserId(), user);
+                        }
+
+                        final ArrayList<User> orderedArray = new ArrayList<User>();
+                        for (Long id : allIDs) {
+                            orderedArray.add(map.get(id));
+                        }
+
+                        listener.syncCompletedListener(orderedArray);
+
+                        realm.close();
                     }
-                }
-
-                final HashMap<Long, User> map = new HashMap<Long, User>();
-
-                // map ids to User objects
-                RealmResults<User> users = realm.where(User.class).findAll();
-                for (User user : users) {
-                    if (allIDs.contains(user.getUserId()))
-                        map.put(user.getUserId(), user);
-                }
-                allIDs.clear();
-
-                // update/create users
-                for (int i = 0; i < contacts.length(); i++) {
-                    try {
-                        User user;
-                        if (!map.containsKey(contacts.getJSONObject(i).getLong("id"))) {
-                            realm.beginTransaction();
-                            user = realm.createObject(User.class);
-                            user.setSyncStatus(Utils.UserSynced);
-                            realm.commitTransaction();
-                        } else {
-                            user = map.get(contacts.getJSONObject(i).getLong("id"));
-                        }
-
-                        if (user.getSyncStatus() == Utils.UserSynced) {
-                            realm.beginTransaction();
-                            user = User.updateContact(user, realm, contacts.getJSONObject(i));
-                            realm.commitTransaction();
-                        }
-
-                        if (user != null) {
-                            map.put(user.getUserId(), user);
-                            allIDs.add(user.getUserId());
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                map.clear();
-
-                users = realm.where(User.class).findAll();
-                for (User user : users) {
-                    if (allIDs.contains(user.getUserId()))
-                        map.put(user.getUserId(), user);
-                }
-
-                final ArrayList<User> orderedArray = new ArrayList<User>();
-                for (Long id : allIDs) {
-                    orderedArray.add(map.get(id));
-                }
-
-                listener.syncCompletedListener(orderedArray);
-
-                realm.close();
+                });
             }
         });
     }

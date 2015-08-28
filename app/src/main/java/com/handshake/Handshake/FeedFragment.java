@@ -159,9 +159,8 @@ public class FeedFragment extends ListFragment {
     }
 
     public void setIntroVisible() {
-        if (getListView() == null || suggestionListView == null) return;
-
         try {
+            if (getListView() == null || suggestionListView == null) return;
             Utils.setDynamicHeight(getListView());
             Utils.setDynamicHeight(suggestionListView);
 
