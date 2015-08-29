@@ -100,10 +100,6 @@ public class RestClientAsync {
         };
         params.put("auth_token", sessionManager.getToken());
         params.put("user_id", sessionManager.getID());
-        System.out.println(params);
-        for (int i = 0; i < headers.length; i++) {
-            System.out.println(headers[i].getName() + ": " + headers[i].getValue());
-        }
 
         client.delete(context, getAbsoluteUrl(url), headers, params, responseHandler);
     }

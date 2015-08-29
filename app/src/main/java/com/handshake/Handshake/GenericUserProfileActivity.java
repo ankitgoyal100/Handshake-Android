@@ -38,8 +38,6 @@ public class GenericUserProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_generic_user_profile);
 
-//        changeColor(getResources().getColor(R.color.orange));
-
         CircleImageView profileImage = (CircleImageView) findViewById(R.id.profile_image);
         CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) profileImage.getLayoutParams();
         params.setMargins(Utils.dpToPx(context, 16), Utils.getStatusBarHeight(context) + Utils.dpToPx(context, 16),

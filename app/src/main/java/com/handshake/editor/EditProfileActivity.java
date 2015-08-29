@@ -54,12 +54,14 @@ import com.handshake.models.Phone;
 import com.handshake.models.Social;
 import com.handshake.views.CircleTransform;
 import com.handshake.views.TextViewCustomFont;
+import com.soundcloud.android.crop.Crop;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -174,7 +176,7 @@ public class EditProfileActivity extends AppCompatActivity {
             View nameDivider = findViewById(R.id.name_divider);
             nameLayout.setVisibility(View.VISIBLE);
             nameDivider.setVisibility(View.VISIBLE);
-            saveButton.setText("Save");
+            saveButton.setText("Done");
         }
 
         saveButton.setOnClickListener(new View.OnClickListener() {
@@ -512,13 +514,6 @@ public class EditProfileActivity extends AppCompatActivity {
                             })
                             .show();
                 } else if (facebookView.getTag() == VIEW_ADD) {
-//                    if(!SessionManager.getFBID().equals("Not Connected") && !SessionManager.getFBID().isEmpty()) {
-//                        addFacebookToCard(SessionManager.getFBID());
-//                        facebookView.setTag(VIEW_REMOVE);
-//                        fillViews();
-//                        return;
-//                    }
-
                     callbackManager = CallbackManager.Factory.create();
                     LoginManager.getInstance().logInWithReadPermissions(EditProfileActivity.this,
                             Arrays.asList("email"));
@@ -750,6 +745,8 @@ public class EditProfileActivity extends AppCompatActivity {
         if (callbackManager != null)
             callbackManager.onActivityResult(requestCode, resultCode, data);
 
+        Uri outputUri = Uri.fromFile(new File(getCacheDir(), System.currentTimeMillis() + ""));
+
         if (requestCode == 0 && resultCode == RESULT_OK) {
             fillViews();
         } else if (requestCode == 1 && resultCode == RESULT_OK) {
@@ -762,29 +759,16 @@ public class EditProfileActivity extends AppCompatActivity {
             snapchatView.setTag(VIEW_REMOVE);
             fillViews();
         } else if (requestCode == 4 && resultCode == RESULT_OK) {
-            fillViews();
-
             Bitmap photo = (Bitmap) data.getExtras().get("data");
-
-            Realm realm = Realm.getInstance(context);
-            SessionManager sessionManager = new SessionManager(context);
-            final Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
-            realm.beginTransaction();
-            account.setPictureData(getBytesFromBitmap(photo));
-            account.setPicture("");
-            account.setThumb("");
-            realm.commitTransaction();
-            realm.close();
-
-            CircleTransform transform = new CircleTransform();
-            Bitmap circle = transform.transform(photo);
-            profileImage.setImageBitmap(circle);
+            Crop.of(Utils.getImageUri(context, photo), outputUri)
+                    .asSquare().start(EditProfileActivity.this);
         } else if (requestCode == 5 && resultCode == RESULT_OK) {
-            fillViews();
-
             Uri selectedImage = data.getData();
+            Crop.of(selectedImage, outputUri)
+                    .asSquare().start(EditProfileActivity.this);
+        } else if (requestCode == Crop.REQUEST_CROP && resultCode == RESULT_OK) {
             try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), Crop.getOutput(data));
                 Realm realm = Realm.getInstance(context);
                 SessionManager sessionManager = new SessionManager(context);
                 final Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
@@ -798,8 +782,9 @@ public class EditProfileActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            Picasso.with(this).load(selectedImage)
-                    .resize(Utils.dpToPx(context, 40), Utils.dpToPx(context, 40)).transform(new CircleTransform()).into(profileImage);
+            Picasso.with(this).load(Crop.getOutput(data))
+                    .resize(Utils.dpToPx(context, 40), Utils.dpToPx(context, 40))
+                    .transform(new CircleTransform()).into(profileImage);
         }
     }
 

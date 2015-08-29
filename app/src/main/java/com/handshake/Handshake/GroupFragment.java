@@ -127,13 +127,17 @@ public class GroupFragment extends Fragment {
     }
 
     public void setIntroVisible() {
-        final Realm r = Realm.getInstance(getActivity());
-        if (r.where(Group.class).notEqualTo("syncStatus", Utils.GroupDeleted).findAll().size() > 0) {
-            introView.setVisibility(View.GONE);
-        } else {
-            introView.setVisibility(View.VISIBLE);
+        try {
+            final Realm r = Realm.getInstance(getActivity());
+            if (r.where(Group.class).notEqualTo("syncStatus", Utils.GroupDeleted).findAll().size() > 0) {
+                introView.setVisibility(View.GONE);
+            } else {
+                introView.setVisibility(View.VISIBLE);
+            }
+            r.close();
+        } catch(NullPointerException e) {
+            e.printStackTrace();
         }
-        r.close();
     }
 }
 

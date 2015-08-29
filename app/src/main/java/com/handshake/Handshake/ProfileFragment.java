@@ -5,14 +5,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -250,6 +248,8 @@ public class ProfileFragment extends Fragment {
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
+                                getView().findViewById(R.id.divider1).setVisibility(View.VISIBLE);
+
                                 imageView1.setVisibility(View.GONE);
                                 imageView2.setVisibility(View.VISIBLE);
                                 imageView2.setImageDrawable(getResources().getDrawable(R.mipmap.email_button));
@@ -289,6 +289,8 @@ public class ProfileFragment extends Fragment {
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
+                                getView().findViewById(R.id.divider1).setVisibility(View.VISIBLE);
+
                                 imageView1.setVisibility(View.GONE);
                                 imageView2.setVisibility(View.VISIBLE);
                                 imageView2.setImageDrawable(getResources().getDrawable(R.mipmap.maps_button));

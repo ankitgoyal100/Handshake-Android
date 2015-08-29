@@ -461,7 +461,7 @@ public class MainActivity extends AppCompatActivity {
             public void syncCompletedListener() {
                 syncsCompleted++;
                 contactSyncCompleted = true;
-                System.out.println("Contact sync completed " + syncsCompleted);
+//                System.out.println("Contact sync completed " + syncsCompleted);
             }
         });
 
@@ -471,7 +471,7 @@ public class MainActivity extends AppCompatActivity {
                 syncsCompleted++;
                 if (profileFragment != null)
                     profileFragment.fillViews();
-                System.out.println("Account sync completed " + syncsCompleted);
+//                System.out.println("Account sync completed " + syncsCompleted);
             }
         });
 
@@ -481,7 +481,7 @@ public class MainActivity extends AppCompatActivity {
                 syncsCompleted++;
                 if (profileFragment != null)
                     profileFragment.fillViews();
-                System.out.println("Card sync completed " + syncsCompleted);
+//                System.out.println("Card sync completed " + syncsCompleted);
             }
         });
 
@@ -491,7 +491,7 @@ public class MainActivity extends AppCompatActivity {
                 syncsCompleted++;
                 if (feedFragment != null)
                     feedFragment.setIntroVisible();
-                System.out.println("FeedItem sync completed " + syncsCompleted);
+//                System.out.println("FeedItem sync completed " + syncsCompleted);
             }
         });
 
@@ -501,7 +501,7 @@ public class MainActivity extends AppCompatActivity {
                 syncsCompleted++;
                 if (groupFragment != null)
                     groupFragment.setIntroVisible();
-                System.out.println("Group sync completed " + syncsCompleted);
+//                System.out.println("Group sync completed " + syncsCompleted);
             }
         });
 
@@ -511,7 +511,7 @@ public class MainActivity extends AppCompatActivity {
                 syncsCompleted++;
                 if (requestFragment != null)
                     requestFragment.setIntroVisible();
-                System.out.println("Request sync completed " + syncsCompleted);
+//                System.out.println("Request sync completed " + syncsCompleted);
             }
         });
 
@@ -520,7 +520,7 @@ public class MainActivity extends AppCompatActivity {
         ContactUploader.performSync(context, new SyncCompleted() {
             @Override
             public void syncCompletedListener() {
-                System.out.println("Contact upload sync completed");
+//                System.out.println("Contact upload sync completed");
                 SuggestionsServerSync.performSync(context, new SyncCompleted() {
                     @Override
                     public void syncCompletedListener() {
@@ -529,7 +529,7 @@ public class MainActivity extends AppCompatActivity {
                             feedFragment.setSuggestionText();
                         if (requestFragment != null)
                             requestFragment.setSuggestionText();
-                        System.out.println("Suggestion sync completed " + syncsCompleted);
+//                        System.out.println("Suggestion sync completed " + syncsCompleted);
                     }
                 });
             }

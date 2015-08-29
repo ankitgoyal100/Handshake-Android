@@ -77,6 +77,7 @@ public class ContactServerSync {
                         }
                     });
                 }
+
                 for (final User user : toDelete) {
                     counter++;
                     RestClientAsync.delete(context, "/users/" + user.getUserId(), new RequestParams(), new JsonHttpResponseHandler() {

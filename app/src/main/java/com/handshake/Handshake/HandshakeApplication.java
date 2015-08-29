@@ -12,7 +12,6 @@ public class HandshakeApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        System.out.println("===Setting isFirstRun===");
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         prefs.edit().putBoolean("isFirstRun", true).apply();
     }

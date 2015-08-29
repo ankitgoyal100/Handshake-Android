@@ -191,20 +191,15 @@ public class ContactSync {
             updateAddressBookContact(user, card, contactId);
         }
 
-//        java.lang.IllegalStateException: Nested transactions are not allowed. Use commitTransaction() after each beginTransaction().
-//                at io.realm.internal.ImplicitTransaction.promoteToWrite(ImplicitTransaction.java:39)
-//        at io.realm.Realm.beginTransaction(Realm.java:1301)
-//        at com.handshake.helpers.ContactSync.syncContactToAddressBook(ContactSync.java:195)
-//        at com.handshake.helpers.ContactSync.performSyncHelper(ContactSync.java:102)
-//        at com.handshake.helpers.ContactSync.access$300(ContactSync.java:50)
-//        at com.handshake.helpers.ContactSync$1.run(ContactSync.java:65)
-//        at java.lang.Thread.run(Thread.java:818)
-
-        Realm realm = Realm.getInstance(context);
-        realm.beginTransaction();
-        user.setSaved(true);
-        realm.commitTransaction();
-        realm.close();
+        try {
+            Realm realm = Realm.getInstance(context);
+            realm.beginTransaction();
+            user.setSaved(true);
+            realm.commitTransaction();
+            realm.close();
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
     }
 
     private static void updateAddressBookContact(User user, Card card, String contactId) {
