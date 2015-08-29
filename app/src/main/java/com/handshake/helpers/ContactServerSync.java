@@ -103,6 +103,31 @@ public class ContactServerSync {
                                 });
                             }
                         }
+
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                            if(statusCode == 401) {
+                                final Realm realm = Realm.getInstance(context);
+                                realm.beginTransaction();
+                                user.setSyncStatus(Utils.UserSynced);
+                                realm.commitTransaction();
+
+                                counter--;
+                                if (counter == 0) {
+                                    ContactSync.performSync(context, new SyncCompleted() {
+                                        @Override
+                                        public void syncCompletedListener() {
+                                            handler.post(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    listener.syncCompletedListener();
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                            }
+                        }
                     });
                 }
 
