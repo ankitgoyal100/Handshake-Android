@@ -29,6 +29,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -168,6 +169,16 @@ public class MainActivity extends AppCompatActivity {
                 searchView.clearFocus();
             }
         });
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            searchView.setOnDismissListener(new AutoCompleteTextView.OnDismissListener() {
+                @Override
+                public void onDismiss() {
+                    searchView.setText("");
+                    searchView.clearFocus();
+                }
+            });
+        }
 
         tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
         sPager = (ViewPager) findViewById(R.id.pager);
