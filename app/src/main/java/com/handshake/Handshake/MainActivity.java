@@ -311,7 +311,7 @@ public class MainActivity extends AppCompatActivity {
                         groupPhoto3Options.setVisibility(View.GONE);
                         groupPhoto4Options.setVisibility(View.GONE);
 
-                        groupCode.setText(code.substring(0, 2) + "-" + code.substring(2, 4) + "-" + code.substring(4));
+                        groupCode.setText((code.substring(0, 2) + "-" + code.substring(2, 4) + "-" + code.substring(4)).toUpperCase());
                     } else if (thumbUrls.size() == 1) {
                         groupCode.setVisibility(View.GONE);
                         groupPhoto1Options.setVisibility(View.VISIBLE);
