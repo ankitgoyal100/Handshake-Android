@@ -611,8 +611,7 @@ public class MainActivity extends AppCompatActivity {
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         if (requestCode == QR_CODE && resultCode == Activity.RESULT_OK) {
             String code = data.getStringExtra(ScanActivity.RESULT_EXTRA_STR);
-            SessionManager sessionManager = new SessionManager(context);
-            if (!code.equals("") && !code.equals(sessionManager.getLastCopiedGroup())) {
+            if (!code.equals("")) {
                 checkCode(code);
             }
         } else {
