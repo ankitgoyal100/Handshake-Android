@@ -59,6 +59,7 @@ import com.handshake.models.Group;
 import com.handshake.models.User;
 import com.handshake.notifications.RegistrationIntentService;
 import com.handshake.views.DelayAutoCompleteTextView;
+import com.handshake.views.SlidingTabLayout;
 import com.handshake.views.TextViewCustomFont;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -86,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
     SessionManager session;
     int syncsCompleted = 0;
     private Drawable oldBackground = null;
-    private PagerSlidingTabStrip tabs;
+    private SlidingTabLayout tabs;
     private TabAdapter tabAdapter;
     private int TAG_CONTACTS = 0;
     private int TAG_ADD = 1;
@@ -180,16 +181,20 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
-        tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+        tabs = (SlidingTabLayout) findViewById(R.id.tabs);
         sPager = (ViewPager) findViewById(R.id.pager);
         tabAdapter = new TabAdapter(getSupportFragmentManager());
 
         sPager.setOffscreenPageLimit(4);
         sPager.setAdapter(tabAdapter);
 
-        tabs.setIndicatorColor(getResources().getColor(R.color.orange));
-        tabs.setTabPaddingLeftRight(16);
-        tabs.setShouldExpand(true);
+        tabs.setDistributeEvenly(true);
+        tabs.setCustomTabColorizer(new SlidingTabLayout.TabColorizer() {
+            @Override
+            public int getIndicatorColor(int position) {
+                return getResources().getColor(android.R.color.white);
+            }
+        });
         tabs.setViewPager(sPager);
 
         tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -650,10 +655,10 @@ public class MainActivity extends AppCompatActivity {
     public class TabAdapter extends FragmentPagerAdapter implements PagerSlidingTabStrip.IconTabProvider {
 
         private final int[] ICONS = {
-                R.mipmap.home_tab,
-                R.mipmap.inbox_tab,
-                R.mipmap.groups_tab,
-                R.mipmap.profile_tab};
+                R.drawable.home_tab,
+                R.drawable.inbox_tab,
+                R.drawable.groups_tab,
+                R.drawable.profile_tab};
 
         public TabAdapter(FragmentManager fm) {
             super(fm);
@@ -684,6 +689,11 @@ public class MainActivity extends AppCompatActivity {
                 profileFragment = ProfileFragment.newInstance();
                 return profileFragment;
             }
+        }
+
+
+        public int getDrawableId(int position) {
+            return ICONS[position];
         }
     }
 

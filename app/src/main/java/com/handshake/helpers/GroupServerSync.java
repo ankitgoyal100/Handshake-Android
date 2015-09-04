@@ -56,15 +56,15 @@ public class GroupServerSync {
     }
 
     private static void performSyncHelper() {
-        String date = "";
-        Realm realm = Realm.getInstance(context);
-        RealmResults<Group> result = realm.where(Group.class).findAll();
-        result.sort("updatedAt", RealmResults.SORT_ORDER_DESCENDING);
-
-        if (result.size() > 0) date = Utils.toGmtString(result.first().getUpdatedAt());
-
+//        String date = "";
+//        Realm realm = Realm.getInstance(context);
+//        RealmResults<Group> result = realm.where(Group.class).findAll();
+//        result.sort("updatedAt", RealmResults.SORT_ORDER_DESCENDING);
+//
+//        if (result.size() > 0) date = Utils.toGmtString(result.first().getUpdatedAt());
+//
         RequestParams params = new RequestParams();
-        if (!date.equals("")) params.put("since_date", date);
+//        if (!date.equals("")) params.put("since_date", date);
 
         RestClientSync.get(context, "/groups", params, new JsonHttpResponseHandler() {
             @Override
