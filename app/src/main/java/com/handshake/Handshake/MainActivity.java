@@ -38,7 +38,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.AlertDialogWrapper;
-import com.astuetz.PagerSlidingTabStrip;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.handshake.helpers.AccountServerSync;
@@ -597,7 +596,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public class TabAdapter extends FragmentPagerAdapter implements PagerSlidingTabStrip.IconTabProvider {
+    public class TabAdapter extends FragmentPagerAdapter {
 
         private final int[] ICONS = {
                 R.drawable.home_tab,
@@ -612,11 +611,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public int getCount() {
             return ICONS.length;
-        }
-
-        @Override
-        public int getPageIconResId(int position) {
-            return ICONS[position];
         }
 
         @Override
