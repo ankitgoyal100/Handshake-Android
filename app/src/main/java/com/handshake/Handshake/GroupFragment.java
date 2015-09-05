@@ -11,11 +11,13 @@ import android.widget.AbsListView;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.handshake.helpers.GroupServerSync;
 import com.handshake.helpers.SyncCompleted;
 import com.handshake.listview.GroupAdapter;
 import com.handshake.models.Group;
 import com.handshake.views.ButtonCustomFont;
+import com.melnykov.fab.FloatingActionButton;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -27,6 +29,9 @@ public class GroupFragment extends Fragment {
     private SwipeRefreshLayout swipeContainer;
     private Realm realm;
     private LinearLayout introView;
+
+    private FloatingActionButton fab;
+    private int mPreviousVisibleItem;
 
     public GroupFragment() {
         // Required empty public constructor
@@ -91,6 +96,40 @@ public class GroupFragment extends Fragment {
                         (gridView == null || gridView.getChildCount() == 0) ?
                                 0 : gridView.getChildAt(0).getTop();
                 swipeContainer.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
+
+                if (firstVisibleItem > mPreviousVisibleItem) {
+                    fab.hide(true);
+                } else if (firstVisibleItem < mPreviousVisibleItem) {
+                    fab.show(true);
+                }
+                mPreviousVisibleItem = firstVisibleItem;
+            }
+        });
+
+        fab = (FloatingActionButton) getView().findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CharSequence[] items = {"Join Group", "Create Group", "Scan a QR Code"};
+                new MaterialDialog.Builder(getActivity())
+                        .items(items)
+                        .itemsCallback(new MaterialDialog.ListCallback() {
+                            @Override
+                            public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+                                if (which == 0) {
+                                    Intent intent = new Intent(getActivity(), JoinGroupActivity.class);
+                                    startActivity(intent);
+                                } else if (which == 1) {
+                                    Intent intent = new Intent(getActivity(), CreateEditGroupActivity.class);
+                                    intent.putExtra("isEdit", false);
+                                    startActivity(intent);
+                                } else {
+                                    getActivity().startActivityForResult(
+                                            new Intent(getActivity(), ScanActivity.class), MainActivity.QR_CODE);
+                                }
+                            }
+                        })
+                        .show();
             }
         });
 
@@ -135,7 +174,7 @@ public class GroupFragment extends Fragment {
                 introView.setVisibility(View.VISIBLE);
             }
             r.close();
-        } catch(NullPointerException e) {
+        } catch (NullPointerException e) {
             e.printStackTrace();
         }
     }

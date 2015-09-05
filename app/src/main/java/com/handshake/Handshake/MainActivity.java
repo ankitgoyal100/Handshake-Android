@@ -38,7 +38,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.AlertDialogWrapper;
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.astuetz.PagerSlidingTabStrip;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -79,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private static final String TAG = "MainActivity";
-    private static final int QR_CODE = 1;
+    public static final int QR_CODE = 1;
     public static boolean contactSyncCompleted = false;
     private static ViewPager sPager;
     private final Handler handler = new Handler();
@@ -89,8 +88,6 @@ public class MainActivity extends AppCompatActivity {
     private Drawable oldBackground = null;
     private SlidingTabLayout tabs;
     private TabAdapter tabAdapter;
-    private int TAG_CONTACTS = 0;
-    private int TAG_ADD = 1;
     private ProfileFragment profileFragment;
     private FeedFragment feedFragment;
     private RequestFragment requestFragment;
@@ -112,36 +109,11 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(v);
 
         final ImageButton contactButton = (ImageButton) v.findViewById(R.id.action_contacts);
-        contactButton.setTag(TAG_CONTACTS);
         contactButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (contactButton.getTag() == TAG_CONTACTS) {
-                    Intent intent = new Intent(MainActivity.this, ContactActivity.class);
-                    startActivity(intent);
-                } else {
-                    CharSequence[] items = {"Join Group", "Create Group", "Scan a QR Code"};
-                    new MaterialDialog.Builder(context)
-                            .items(items)
-                            .itemsCallback(new MaterialDialog.ListCallback() {
-                                @Override
-                                public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
-                                    if (which == 0) {
-                                        Intent intent = new Intent(context, JoinGroupActivity.class);
-                                        startActivity(intent);
-//                                        dialog.cancel();
-                                    } else if (which == 1) {
-                                        Intent intent = new Intent(context, CreateEditGroupActivity.class);
-                                        intent.putExtra("isEdit", false);
-                                        startActivity(intent);
-//                                        dialog.cancel();
-                                    } else {
-                                        startActivityForResult(new Intent(context, ScanActivity.class), QR_CODE);
-                                    }
-                                }
-                            })
-                            .show();
-                }
+                Intent intent = new Intent(MainActivity.this, ContactActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -197,23 +169,6 @@ public class MainActivity extends AppCompatActivity {
         });
         tabs.setViewPager(sPager);
 
-        tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                pageChanged(position, contactButton);
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                pageChanged(position, contactButton);
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
-
         changeColor(getResources().getColor(R.color.orange));
 
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -258,16 +213,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                     })
                     .show();
-        }
-    }
-
-    private void pageChanged(int position, ImageButton contactButton) {
-        if (position == 0 || position == 1 || position == 3) {
-            contactButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_contacts_icon));
-            contactButton.setTag(TAG_CONTACTS);
-        } else {
-            contactButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_add));
-            contactButton.setTag(TAG_ADD);
         }
     }
 
