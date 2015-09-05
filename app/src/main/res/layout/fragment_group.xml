@@ -18,7 +18,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <GridView
+                <com.handshake.views.GridViewScrollListener
                     android:id="@+id/grid"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"

@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.GridView;
 import android.widget.LinearLayout;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -17,6 +16,8 @@ import com.handshake.helpers.SyncCompleted;
 import com.handshake.listview.GroupAdapter;
 import com.handshake.models.Group;
 import com.handshake.views.ButtonCustomFont;
+import com.handshake.views.GridViewScrollListener;
+import com.handshake.views.OnDetectScrollListener;
 import com.melnykov.fab.FloatingActionButton;
 
 import io.realm.Realm;
@@ -81,7 +82,7 @@ public class GroupFragment extends Fragment {
         groups.sort("createdAt", false);
         GroupAdapter adapter = new GroupAdapter(getActivity(), groups, true);
 
-        final GridView gridView = (GridView) getView().findViewById(R.id.grid);
+        final GridViewScrollListener gridView = (GridViewScrollListener) getView().findViewById(R.id.grid);
         gridView.setAdapter(adapter);
 
         gridView.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -96,13 +97,18 @@ public class GroupFragment extends Fragment {
                         (gridView == null || gridView.getChildCount() == 0) ?
                                 0 : gridView.getChildAt(0).getTop();
                 swipeContainer.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
+            }
+        });
 
-                if (firstVisibleItem > mPreviousVisibleItem) {
-                    fab.hide(true);
-                } else if (firstVisibleItem < mPreviousVisibleItem) {
-                    fab.show(true);
-                }
-                mPreviousVisibleItem = firstVisibleItem;
+        gridView.setOnDetectScrollListener(new OnDetectScrollListener() {
+            @Override
+            public void onUpScrolling() {
+                fab.show(true);
+            }
+
+            @Override
+            public void onDownScrolling() {
+                fab.hide(true);
             }
         });
 
@@ -161,8 +167,8 @@ public class GroupFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (realm != null)
-            realm.close();
+//        if (realm != null)
+//            realm.close();
     }
 
     public void setIntroVisible() {
