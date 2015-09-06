@@ -20,7 +20,7 @@ public class DelayAutoCompleteTextView extends AutoCompleteTextView {
     private static final int DEFAULT_AUTOCOMPLETE_DELAY = 750;
 
     private int mAutoCompleteDelay = DEFAULT_AUTOCOMPLETE_DELAY;
-    private ProgressBar mLoadingIndicator;
+    public ProgressBar mLoadingIndicator;
 
 //    private boolean mIsKeyboardVisible;
 
@@ -54,9 +54,6 @@ public class DelayAutoCompleteTextView extends AutoCompleteTextView {
 
     @Override
     public void onFilterComplete(int count) {
-        if (mLoadingIndicator != null) {
-            mLoadingIndicator.setVisibility(View.GONE);
-        }
         super.onFilterComplete(count);
     }
 

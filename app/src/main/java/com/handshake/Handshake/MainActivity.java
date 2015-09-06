@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         searchView = (DelayAutoCompleteTextView) v.findViewById(R.id.search);
-        searchView.setAdapter(new SearchAdapter(this)); // 'this' is Activity instance
+        searchView.setAdapter(new SearchAdapter(this, searchView)); // 'this' is Activity instance
         searchView.setLoadingIndicator(
                 (android.widget.ProgressBar) findViewById(R.id.pb_loading_indicator));
         searchView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -146,6 +146,12 @@ public class MainActivity extends AppCompatActivity {
             searchView.setOnDismissListener(new AutoCompleteTextView.OnDismissListener() {
                 @Override
                 public void onDismiss() {
+                    View view = MainActivity.this.getCurrentFocus();
+                    if (view != null) {
+                        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    }
+
                     searchView.setText("");
                     searchView.clearFocus();
                 }

@@ -19,6 +19,7 @@ import com.handshake.helpers.UserArraySyncCompleted;
 import com.handshake.helpers.UserServerSync;
 import com.handshake.models.User;
 import com.handshake.views.CircleTransform;
+import com.handshake.views.DelayAutoCompleteTextView;
 import com.handshake.views.TextViewCustomFont;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -42,9 +43,11 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
     private Context mContext;
     private List<Long> resultList = new ArrayList<Long>();
     private Handler handler = new Handler();
+    private DelayAutoCompleteTextView searchView;
 
-    public SearchAdapter(Context context) {
-        mContext = context;
+    public SearchAdapter(Context context, DelayAutoCompleteTextView searchView) {
+        this.mContext = context;
+        this.searchView = searchView;
     }
 
     @Override
@@ -124,6 +127,9 @@ public class SearchAdapter extends BaseAdapter implements Filterable {
                                         handler.post(new Runnable() {
                                             @Override
                                             public void run() {
+                                                if (searchView.mLoadingIndicator != null) {
+                                                    searchView.mLoadingIndicator.setVisibility(View.GONE);
+                                                }
                                                 publishResults(constraint, filterResults);
                                             }
                                         });
