@@ -456,8 +456,14 @@ public class ContactUserProfileActivity extends AppCompatActivity {
                                     mLinearView.setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
-                                            Toast.makeText(context,
-                                                    "Unable to open Snapchat. Please manually add the user via the Snapchat application.", Toast.LENGTH_LONG).show();
+                                            String pack = "com.snapchat.android";
+                                            try {
+                                                Intent intent = context.getPackageManager().getLaunchIntentForPackage(pack);
+                                                startActivity(intent);
+                                            } catch (Exception e) {
+                                                Toast.makeText(context,
+                                                        "Unable to open Snapchat. Please manually add the user via the Snapchat application.", Toast.LENGTH_LONG).show();
+                                            }
                                         }
                                     });
                                 }

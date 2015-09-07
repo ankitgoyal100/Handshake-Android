@@ -349,8 +349,14 @@ public class ProfileFragment extends Fragment {
                 mLinearView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Toast.makeText(getActivity(),
-                                "Unable to open Snapchat. Please manually add the user via the Snapchat application.", Toast.LENGTH_LONG).show();
+                        String pack = "com.snapchat.android";
+                        try {
+                            Intent intent = getActivity().getPackageManager().getLaunchIntentForPackage(pack);
+                            startActivity(intent);
+                        } catch (Exception e) {
+                            Toast.makeText(getActivity(),
+                                    "Unable to open Snapchat. Please manually add the user via the Snapchat application.", Toast.LENGTH_LONG).show();
+                        }
                     }
                 });
             }
