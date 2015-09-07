@@ -130,33 +130,33 @@ public class SessionManager {
         sContext.startActivity(i);
     }
 
-    public static String getToken() {
+    public String getToken() {
         return pref.getString(KEY_TOKEN, null);
     }
 
-    public static long getID() {
+    public long getID() {
         return pref.getLong(KEY_ID, 0);
     }
 
-    public static String getEmail() {
+    public String getEmail() {
         return pref.getString(KEY_EMAIL, "");
     }
 
-    public static Long getLastContactSynced() {
+    public Long getLastContactSynced() {
         return pref.getLong(KEY_CONTACT_SYNCED, 0);
     }
 
-    public static void setLastContactSynced(Long time) {
+    public void setLastContactSynced(Long time) {
         editor.putLong(KEY_CONTACT_SYNCED, time);
         editor.apply();
     }
 
-    public static void setIntroScreenDisplayed(boolean displayed) {
+    public void setIntroScreenDisplayed(boolean displayed) {
         editor.putBoolean(KEY_INTRO_SCREEN_DISPLAYED, displayed);
         editor.apply();
     }
 
-    public static boolean getIntroScreenDisplayed() {
+    public boolean getIntroScreenDisplayed() {
         return pref.getBoolean(KEY_INTRO_SCREEN_DISPLAYED, false);
     }
 
@@ -169,12 +169,12 @@ public class SessionManager {
         return pref.getBoolean(sIsLogin, false);
     }
 
-    public static void setLastCopiedGroup(String code) {
+    public void setLastCopiedGroup(String code) {
         editor.putString(KEY_LAST_COPIED_GROUP, code);
         editor.commit();
     }
 
-    public static String getLastCopiedGroup() {
+    public String getLastCopiedGroup() {
         return pref.getString(KEY_LAST_COPIED_GROUP, "");
     }
 }

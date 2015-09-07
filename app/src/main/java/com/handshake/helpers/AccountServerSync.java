@@ -45,7 +45,8 @@ public class AccountServerSync {
 
     private static void performSyncHelper() {
         final Realm realm = Realm.getInstance(context);
-        final Account[] account = {realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst()};
+        SessionManager sessionManager = new SessionManager(context);
+        final Account[] account = {realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst()};
 
         if (account[0] == null) return;
 
@@ -130,5 +131,7 @@ public class AccountServerSync {
 
             }
         });
+
+        gpsTracker.stopUsingGPS();
     }
 }

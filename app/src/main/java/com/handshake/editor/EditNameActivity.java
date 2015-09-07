@@ -34,7 +34,8 @@ public class EditNameActivity extends AppCompatActivity {
         changeColor(getResources().getColor(R.color.orange));
 
         final Realm realm = Realm.getInstance(this);
-        final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+        SessionManager sessionManager = new SessionManager(this);
+        final Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
 
         final EditTextCustomFont firstName = (EditTextCustomFont) findViewById(R.id.first_name);
         final EditTextCustomFont lastName = (EditTextCustomFont) findViewById(R.id.last_name);
@@ -47,10 +48,15 @@ public class EditNameActivity extends AppCompatActivity {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Realm realm = Realm.getInstance(EditNameActivity.this);
+                SessionManager sessionManager = new SessionManager(EditNameActivity.this);
+                final Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
+
                 realm.beginTransaction();
                 account.setFirstName(firstName.getText().toString());
                 account.setLastName(lastName.getText().toString());
                 realm.commitTransaction();
+                realm.close();
 
                 Intent returnIntent = new Intent();
                 setResult(RESULT_OK, returnIntent);

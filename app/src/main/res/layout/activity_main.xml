@@ -6,16 +6,27 @@
     android:fitsSystemWindows="true"
     android:orientation="vertical">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/actionBar"
+    <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"
-        app:contentInsetEnd="0dp"
-        app:contentInsetStart="0dp">
+        android:layout_height="wrap_content">
 
-        <include layout="@layout/actionbar" />
-    </android.support.v7.widget.Toolbar>
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/actionBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="true"
+            app:contentInsetEnd="0dp"
+            app:contentInsetStart="0dp">
+
+            <include layout="@layout/actionbar" />
+        </android.support.v7.widget.Toolbar>
+
+        <com.handshake.views.SlidingTabLayout
+            android:id="@+id/tabs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/orange" />
+    </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.view.ViewPager
         android:id="@+id/pager"
@@ -29,9 +40,9 @@
         android:layout_height="1dip"
         android:background="@color/divider" />
 
-    <com.astuetz.PagerSlidingTabStrip
-        android:id="@+id/tabs"
-        android:layout_width="match_parent"
-        android:layout_height="56dip" />
+    <!--<com.astuetz.PagerSlidingTabStrip-->
+    <!--android:id="@+id/tabs"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="56dip" />-->
 
 </LinearLayout>

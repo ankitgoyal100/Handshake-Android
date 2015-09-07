@@ -62,6 +62,7 @@ public class RequestFragment extends ListFragment {
                     public void syncCompletedListener() {
                         swipeContainer.setRefreshing(false);
                         setIntroVisible();
+                        setSuggestionText();
                     }
                 });
             }
@@ -122,6 +123,8 @@ public class RequestFragment extends ListFragment {
     public void onResume() {
         super.onResume();
         swipeContainer.setRefreshing(false);
+//        setSuggestionText();
+//        setIntroVisible();
     }
 
     @Override
@@ -132,28 +135,40 @@ public class RequestFragment extends ListFragment {
     }
 
     public void setSuggestionText() {
-        Utils.setDynamicHeight(getListView());
-        Utils.setDynamicHeight(suggestionListView);
+        try {
+            if (getListView() == null || suggestionListView == null) return;
 
-        final Realm r = Realm.getInstance(getActivity());
-        if (r.where(Suggestion.class).findAll().size() > 0) {
-            suggestionText.setVisibility(View.VISIBLE);
-        } else {
-            suggestionText.setVisibility(View.GONE);
+            Utils.setDynamicHeight(getListView());
+            Utils.setDynamicHeight(suggestionListView);
+
+            final Realm r = Realm.getInstance(getActivity());
+            if (r.where(Suggestion.class).findAll().size() > 0) {
+                suggestionText.setVisibility(View.VISIBLE);
+            } else {
+                suggestionText.setVisibility(View.GONE);
+            }
+            r.close();
+        } catch (IllegalStateException e) {
+
         }
-        r.close();
     }
 
     public void setIntroVisible() {
-        Utils.setDynamicHeight(getListView());
-        Utils.setDynamicHeight(suggestionListView);
+        try {
+            if (getListView() == null || suggestionListView == null) return;
 
-        final Realm r = Realm.getInstance(getActivity());
-        if (r.where(User.class).equalTo("requestReceived", true).findAll().size() > 0) {
-            introView.setVisibility(View.GONE);
-        } else {
-            introView.setVisibility(View.VISIBLE);
+            Utils.setDynamicHeight(getListView());
+            Utils.setDynamicHeight(suggestionListView);
+
+            final Realm r = Realm.getInstance(getActivity());
+            if (r.where(User.class).equalTo("requestReceived", true).findAll().size() > 0) {
+                introView.setVisibility(View.GONE);
+            } else {
+                introView.setVisibility(View.VISIBLE);
+            }
+            r.close();
+        } catch (IllegalStateException e) {
+
         }
-        r.close();
     }
 }

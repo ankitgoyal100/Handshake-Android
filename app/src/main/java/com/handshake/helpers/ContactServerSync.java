@@ -77,6 +77,7 @@ public class ContactServerSync {
                         }
                     });
                 }
+
                 for (final User user : toDelete) {
                     counter++;
                     RestClientAsync.delete(context, "/users/" + user.getUserId(), new RequestParams(), new JsonHttpResponseHandler() {
@@ -102,6 +103,31 @@ public class ContactServerSync {
                                 });
                             }
                         }
+
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                            if(statusCode == 401) {
+                                final Realm realm = Realm.getInstance(context);
+                                realm.beginTransaction();
+                                user.setSyncStatus(Utils.UserSynced);
+                                realm.commitTransaction();
+
+                                counter--;
+                                if (counter == 0) {
+                                    ContactSync.performSync(context, new SyncCompleted() {
+                                        @Override
+                                        public void syncCompletedListener() {
+                                            handler.post(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    listener.syncCompletedListener();
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                            }
+                        }
                     });
                 }
 
@@ -119,7 +145,7 @@ public class ContactServerSync {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
-                    JSONArray contacts = response.getJSONArray("contacts");
+                    final JSONArray contacts = response.getJSONArray("contacts");
 
                     final HashMap<Long, JSONObject> map = new HashMap<Long, JSONObject>();
                     for (int i = 0; i < contacts.length(); i++) {
@@ -136,8 +162,9 @@ public class ContactServerSync {
                                 if (!map.keySet().contains(areContacts.get(i).getUserId())) {
                                     realm.beginTransaction();
                                     try {
-                                        areContacts.get(i).setContactUpdated(Utils.formatDate(
-                                                map.get(areContacts.get(i).getUserId()).getString("contact_updated")));
+                                        if (map.containsKey(areContacts.get(i).getUserId()) && map.get(areContacts.get(i).getUserId()).has("contact_updated"))
+                                            areContacts.get(i).setContactUpdated(Utils.formatDate(
+                                                    map.get(areContacts.get(i).getUserId()).getString("contact_updated")));
                                     } catch (JSONException e) {
 
                                     }

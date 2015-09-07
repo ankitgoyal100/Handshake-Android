@@ -33,8 +33,9 @@ public class MainPreferenceFragment extends android.preference.PreferenceFragmen
         addPreferencesFromResource(R.xml.settings_main);
 
         final MaterialEditTextPreference emailPreference = (MaterialEditTextPreference) getPreferenceManager().findPreference("email_preference");
-        emailPreference.setSummary(SessionManager.getEmail());
-        emailPreference.setText(SessionManager.getEmail());
+        SessionManager sessionManager = new SessionManager(getActivity());
+        emailPreference.setSummary(sessionManager.getEmail());
+        emailPreference.setText(sessionManager.getEmail());
         emailPreference.getEditText().setInputType(InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS);
         emailPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
@@ -48,8 +49,9 @@ public class MainPreferenceFragment extends android.preference.PreferenceFragmen
                         SessionManager session = new SessionManager(getActivity());
                         try {
                             session.updateEmail(response.getJSONObject("user").getString("email"));
-                            emailPreference.setSummary(SessionManager.getEmail());
-                            emailPreference.setText(SessionManager.getEmail());
+                            SessionManager sessionManager = new SessionManager(getActivity());
+                            emailPreference.setSummary(sessionManager.getEmail());
+                            emailPreference.setText(sessionManager.getEmail());
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -57,7 +59,8 @@ public class MainPreferenceFragment extends android.preference.PreferenceFragmen
 
                     @Override
                     public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                        emailPreference.setText(SessionManager.getEmail());
+                        SessionManager sessionManager = new SessionManager(getActivity());
+                        emailPreference.setText(sessionManager.getEmail());
 
                         if (statusCode == 422) {
                             try {
@@ -84,7 +87,8 @@ public class MainPreferenceFragment extends android.preference.PreferenceFragmen
                         .setMessage("You will be sent an email with reset instructions.")
                         .setPositiveButton("Reset", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                LoginActivity.forgotPassword(getActivity(), SessionManager.getEmail());
+                                SessionManager sessionManager = new SessionManager(getActivity());
+                                LoginActivity.forgotPassword(getActivity(), sessionManager.getEmail());
                             }
                         })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

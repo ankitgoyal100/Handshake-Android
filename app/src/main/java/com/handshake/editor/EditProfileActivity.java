@@ -54,12 +54,14 @@ import com.handshake.models.Phone;
 import com.handshake.models.Social;
 import com.handshake.views.CircleTransform;
 import com.handshake.views.TextViewCustomFont;
+import com.soundcloud.android.crop.Crop;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -85,6 +87,8 @@ public class EditProfileActivity extends AppCompatActivity {
     private CallbackManager callbackManager;
     private Bitmap circle;
     private Bitmap photo;
+    private Realm realm;
+    private Realm realm2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,8 +106,9 @@ public class EditProfileActivity extends AppCompatActivity {
         isIntialSetup = getIntent().hasExtra("is_initial_setup") && getIntent().getBooleanExtra("is_initial_setup", false);
         initialSetup();
 
-        final Realm realm = Realm.getInstance(this);
-        final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+        realm = Realm.getInstance(this);
+        SessionManager sessionManager = new SessionManager(context);
+        final Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
         final Card card = account.getCards().first();
 
         setName(account);
@@ -122,7 +127,6 @@ public class EditProfileActivity extends AppCompatActivity {
                 startActivityForResult(i, 0);
             }
         });
-        realm.close();
     }
 
     private void initialSetup() {
@@ -172,14 +176,15 @@ public class EditProfileActivity extends AppCompatActivity {
             View nameDivider = findViewById(R.id.name_divider);
             nameLayout.setVisibility(View.VISIBLE);
             nameDivider.setVisibility(View.VISIBLE);
-            saveButton.setText("Save");
+            saveButton.setText("Done");
         }
 
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final Realm realm = Realm.getInstance(context);
-                final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+                SessionManager sessionManager = new SessionManager(context);
+                final Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
                 final Card card = account.getCards().first();
 
                 realm.beginTransaction();
@@ -481,7 +486,7 @@ public class EditProfileActivity extends AppCompatActivity {
             ((TextView) snapchatView.findViewById(R.id.title)).setText("Add Snapchat");
         }
 
-        final Realm realm = Realm.getInstance(context);
+        final Realm realm2 = Realm.getInstance(context);
 
         facebookView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -495,9 +500,9 @@ public class EditProfileActivity extends AppCompatActivity {
                                     ((TextView) facebookView.findViewById(R.id.title)).setText("Add Facebook");
                                     for (int i = 0; i < card.getSocials().size(); i++) {
                                         if (card.getSocials().get(i).getNetwork().equals("facebook")) {
-                                            realm.beginTransaction();
+                                            realm2.beginTransaction();
                                             card.getSocials().get(i).removeFromRealm();
-                                            realm.commitTransaction();
+                                            realm2.commitTransaction();
                                         }
                                     }
                                 }
@@ -509,13 +514,6 @@ public class EditProfileActivity extends AppCompatActivity {
                             })
                             .show();
                 } else if (facebookView.getTag() == VIEW_ADD) {
-//                    if(!SessionManager.getFBID().equals("Not Connected") && !SessionManager.getFBID().isEmpty()) {
-//                        addFacebookToCard(SessionManager.getFBID());
-//                        facebookView.setTag(VIEW_REMOVE);
-//                        fillViews();
-//                        return;
-//                    }
-
                     callbackManager = CallbackManager.Factory.create();
                     LoginManager.getInstance().logInWithReadPermissions(EditProfileActivity.this,
                             Arrays.asList("email"));
@@ -571,9 +569,9 @@ public class EditProfileActivity extends AppCompatActivity {
                                     ((TextView) twitterView.findViewById(R.id.title)).setText("Add Twitter");
                                     for (int i = 0; i < card.getSocials().size(); i++) {
                                         if (card.getSocials().get(i).getNetwork().equals("twitter")) {
-                                            realm.beginTransaction();
+                                            realm2.beginTransaction();
                                             card.getSocials().get(i).removeFromRealm();
-                                            realm.commitTransaction();
+                                            realm2.commitTransaction();
                                         }
                                     }
                                 }
@@ -604,9 +602,9 @@ public class EditProfileActivity extends AppCompatActivity {
                                     ((TextView) instagramView.findViewById(R.id.title)).setText("Add Instagram");
                                     for (int i = 0; i < card.getSocials().size(); i++) {
                                         if (card.getSocials().get(i).getNetwork().equals("instagram")) {
-                                            realm.beginTransaction();
+                                            realm2.beginTransaction();
                                             card.getSocials().get(i).removeFromRealm();
-                                            realm.commitTransaction();
+                                            realm2.commitTransaction();
                                         }
                                     }
                                 }
@@ -637,9 +635,9 @@ public class EditProfileActivity extends AppCompatActivity {
                                     ((TextView) snapchatView.findViewById(R.id.title)).setText("Add Snapchat");
                                     for (int i = 0; i < card.getSocials().size(); i++) {
                                         if (card.getSocials().get(i).getNetwork().equals("snapchat")) {
-                                            realm.beginTransaction();
+                                            realm2.beginTransaction();
                                             card.getSocials().get(i).removeFromRealm();
-                                            realm.commitTransaction();
+                                            realm2.commitTransaction();
                                         }
                                     }
                                 }
@@ -657,13 +655,12 @@ public class EditProfileActivity extends AppCompatActivity {
                 }
             }
         });
-
-        realm.close();
     }
 
     private void addFacebookToCard(String id) {
         Realm realm = Realm.getInstance(context);
-        final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+        SessionManager sessionManager = new SessionManager(context);
+        final Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
         final Card card = account.getCards().first();
 
         realm.beginTransaction();
@@ -680,10 +677,12 @@ public class EditProfileActivity extends AppCompatActivity {
         TextViewCustomFont profileImageText = (TextViewCustomFont) findViewById(R.id.picture_text);
 
         if (!account.getThumb().isEmpty() && !account.getThumb().equals("null")) {
-            Picasso.with(this).load(account.getThumb()).transform(new CircleTransform()).into(profileImage);
+            Picasso.with(this).load(account.getThumb())
+                    .resize(Utils.dpToPx(context, 40), Utils.dpToPx(context, 40)).transform(new CircleTransform()).into(profileImage);
             profileImageText.setText("Change picture");
         } else if (!account.getPicture().isEmpty() && !account.getPicture().equals("null")) {
-            Picasso.with(this).load(account.getPicture()).transform(new CircleTransform()).into(profileImage);
+            Picasso.with(this).load(account.getPicture())
+                    .resize(Utils.dpToPx(context, 40), Utils.dpToPx(context, 40)).transform(new CircleTransform()).into(profileImage);
             profileImageText.setText("Change picture");
         } else if (account.getPictureData() != null && account.getPictureData().length > 0) {
             photo = BitmapFactory.decodeByteArray(account.getPictureData(), 0, account.getPictureData().length);
@@ -692,7 +691,8 @@ public class EditProfileActivity extends AppCompatActivity {
             profileImage.setImageBitmap(circle);
             profileImageText.setText("Change picture");
         } else {
-            Picasso.with(this).load(R.drawable.default_profile).transform(new CircleTransform()).into(profileImage);
+            Picasso.with(this).load(R.drawable.default_profile)
+                    .resize(Utils.dpToPx(context, 40), Utils.dpToPx(context, 40)).transform(new CircleTransform()).into(profileImage);
             profileImageText.setText("Add picture");
         }
 
@@ -745,6 +745,8 @@ public class EditProfileActivity extends AppCompatActivity {
         if (callbackManager != null)
             callbackManager.onActivityResult(requestCode, resultCode, data);
 
+        Uri outputUri = Uri.fromFile(new File(getCacheDir(), System.currentTimeMillis() + ""));
+
         if (requestCode == 0 && resultCode == RESULT_OK) {
             fillViews();
         } else if (requestCode == 1 && resultCode == RESULT_OK) {
@@ -757,30 +759,19 @@ public class EditProfileActivity extends AppCompatActivity {
             snapchatView.setTag(VIEW_REMOVE);
             fillViews();
         } else if (requestCode == 4 && resultCode == RESULT_OK) {
-            fillViews();
-
             Bitmap photo = (Bitmap) data.getExtras().get("data");
-
-            Realm realm = Realm.getInstance(context);
-            final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
-            realm.beginTransaction();
-            account.setPictureData(getBytesFromBitmap(photo));
-            account.setPicture("");
-            account.setThumb("");
-            realm.commitTransaction();
-            realm.close();
-
-            CircleTransform transform = new CircleTransform();
-            Bitmap circle = transform.transform(photo);
-            profileImage.setImageBitmap(circle);
+            Crop.of(Utils.getImageUri(context, photo), outputUri)
+                    .asSquare().start(EditProfileActivity.this);
         } else if (requestCode == 5 && resultCode == RESULT_OK) {
-            fillViews();
-
             Uri selectedImage = data.getData();
+            Crop.of(selectedImage, outputUri)
+                    .asSquare().start(EditProfileActivity.this);
+        } else if (requestCode == Crop.REQUEST_CROP && resultCode == RESULT_OK) {
             try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), Crop.getOutput(data));
                 Realm realm = Realm.getInstance(context);
-                final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+                SessionManager sessionManager = new SessionManager(context);
+                final Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
                 realm.beginTransaction();
                 account.setPictureData(getBytesFromBitmap(bitmap));
                 account.setPicture("");
@@ -791,7 +782,9 @@ public class EditProfileActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            Picasso.with(this).load(selectedImage).transform(new CircleTransform()).into(profileImage);
+            Picasso.with(this).load(Crop.getOutput(data))
+                    .resize(Utils.dpToPx(context, 40), Utils.dpToPx(context, 40))
+                    .transform(new CircleTransform()).into(profileImage);
         }
     }
 
@@ -861,5 +854,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
         if (circle != null) circle.recycle();
         if (photo != null) photo.recycle();
+        if (realm != null) realm.close();
+        if (realm2 != null) realm2.close();
     }
 }

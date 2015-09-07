@@ -17,12 +17,16 @@
     <!-- [END gcm_permission] -->
 
     <application
+        android:name=".HandshakeApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name">
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme">
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
+
+        <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
 
         <activity
             android:name="com.facebook.FacebookActivity"
@@ -35,24 +39,24 @@
             android:name=".IntroActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:theme="@style/NoActionBarTheme" />
         <activity
             android:name=".LoginActivity"
             android:label="@string/title_activity_login"
             android:parentActivityName=".IntroActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+            android:theme="@style/DarkActionBarTheme" />
         <activity
             android:name=".SignUpActivity"
             android:label="@string/title_activity_sign_up"
             android:parentActivityName=".IntroActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+            android:theme="@style/DarkActionBarTheme" />
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme"
+            android:theme="@style/NoActionBarTheme"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -64,102 +68,103 @@
             android:name=".ContactActivity"
             android:label="@string/title_activity_contact"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+            android:theme="@style/DarkActionBarTheme" />
         <activity
             android:name=".GroupActivity"
             android:label="@string/title_activity_group"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+            android:theme="@style/DarkActionBarTheme" />
         <activity
             android:name=".JoinGroupActivity"
             android:label="@string/title_activity_join_group"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+            android:theme="@style/DarkActionBarTheme" />
         <activity
             android:name=".CreateEditGroupActivity"
             android:label="@string/title_activity_create_group"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+            android:theme="@style/DarkActionBarTheme" />
         <activity
             android:name=".GroupMemberActivity"
             android:label="@string/title_activity_group_member"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+            android:theme="@style/DarkActionBarTheme" />
         <activity
             android:name="com.handshake.editor.EditProfileActivity"
             android:label="@string/title_activity_edit_profile"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+            android:theme="@style/DarkActionBarTheme" />
         <activity
             android:name="com.handshake.editor.EditNameActivity"
             android:label="@string/title_activity_edit_name"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+            android:theme="@style/DarkActionBarTheme" />
         <activity
             android:name="com.handshake.editor.EditSocialActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+            android:theme="@style/DarkActionBarTheme" />
         <activity
             android:name="com.handshake.editor.EditPhoneActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+            android:theme="@style/DarkActionBarTheme" />
         <activity
             android:name="com.handshake.editor.EditEmailActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+            android:theme="@style/DarkActionBarTheme" />
         <activity
             android:name="com.handshake.editor.EditAddressActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+            android:theme="@style/DarkActionBarTheme" />
         <activity
             android:name="com.handshake.editor.AddContactActivity"
             android:label="@string/title_activity_add_contact"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+            android:theme="@style/DarkActionBarTheme" />
         <activity
             android:name=".GenericUserProfileActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+            android:theme="@style/NoActionBarTheme" />
         <activity
             android:name=".ContactUserProfileActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+            android:theme="@style/NoActionBarTheme" />
         <activity
             android:name="com.handshake.settings.MainSettingsActivity"
             android:label="@string/title_activity_settings"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+            android:theme="@style/DarkActionBarTheme" />
         <activity
             android:name="com.handshake.settings.NotificationsSettingsActivity"
             android:label="@string/title_activity_notifications_settings"
             android:parentActivityName="com.handshake.settings.MainSettingsActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+            android:theme="@style/DarkActionBarTheme" />
         <activity
             android:name="com.handshake.settings.AutoSyncSettingsActivity"
             android:label="@string/title_activity_autosync_settings"
             android:parentActivityName="com.handshake.settings.MainSettingsActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+            android:theme="@style/DarkActionBarTheme" />
         <activity
             android:name=".ForgotPasswordActivity"
             android:label="@string/title_activity_forgot_password"
             android:parentActivityName=".LoginActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+            android:theme="@style/DarkActionBarTheme" />
         <activity
             android:name=".GetStartedActivity"
             android:label="@string/title_activity_get_started"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+            android:theme="@style/NoActionBarTheme" />
         <activity
             android:name=".ScanActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+            android:theme="@style/NoActionBarTheme" />
         <activity
             android:name=".AppIntroActivity"
-            android:label="@string/app_name" />
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" />
 
         <!-- [START gcm_receiver] -->
         <receiver

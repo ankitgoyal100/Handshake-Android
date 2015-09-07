@@ -8,14 +8,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.GridView;
 import android.widget.LinearLayout;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.handshake.helpers.GroupServerSync;
 import com.handshake.helpers.SyncCompleted;
 import com.handshake.listview.GroupAdapter;
 import com.handshake.models.Group;
 import com.handshake.views.ButtonCustomFont;
+import com.handshake.views.GridViewScrollListener;
+import com.handshake.views.OnDetectScrollListener;
+import com.melnykov.fab.FloatingActionButton;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -27,6 +30,9 @@ public class GroupFragment extends Fragment {
     private SwipeRefreshLayout swipeContainer;
     private Realm realm;
     private LinearLayout introView;
+
+    private FloatingActionButton fab;
+    private int mPreviousVisibleItem;
 
     public GroupFragment() {
         // Required empty public constructor
@@ -57,7 +63,7 @@ public class GroupFragment extends Fragment {
                     @Override
                     public void syncCompletedListener() {
                         swipeContainer.setRefreshing(false);
-//                        setIntroVisible();
+                        setIntroVisible();
                     }
                 });
             }
@@ -76,7 +82,7 @@ public class GroupFragment extends Fragment {
         groups.sort("createdAt", false);
         GroupAdapter adapter = new GroupAdapter(getActivity(), groups, true);
 
-        final GridView gridView = (GridView) getView().findViewById(R.id.grid);
+        final GridViewScrollListener gridView = (GridViewScrollListener) getView().findViewById(R.id.grid);
         gridView.setAdapter(adapter);
 
         gridView.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -91,6 +97,45 @@ public class GroupFragment extends Fragment {
                         (gridView == null || gridView.getChildCount() == 0) ?
                                 0 : gridView.getChildAt(0).getTop();
                 swipeContainer.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
+            }
+        });
+
+        gridView.setOnDetectScrollListener(new OnDetectScrollListener() {
+            @Override
+            public void onUpScrolling() {
+                fab.show(true);
+            }
+
+            @Override
+            public void onDownScrolling() {
+                fab.hide(true);
+            }
+        });
+
+        fab = (FloatingActionButton) getView().findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CharSequence[] items = {"Join Group", "Create Group", "Scan a QR Code"};
+                new MaterialDialog.Builder(getActivity())
+                        .items(items)
+                        .itemsCallback(new MaterialDialog.ListCallback() {
+                            @Override
+                            public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+                                if (which == 0) {
+                                    Intent intent = new Intent(getActivity(), JoinGroupActivity.class);
+                                    startActivity(intent);
+                                } else if (which == 1) {
+                                    Intent intent = new Intent(getActivity(), CreateEditGroupActivity.class);
+                                    intent.putExtra("isEdit", false);
+                                    startActivity(intent);
+                                } else {
+                                    getActivity().startActivityForResult(
+                                            new Intent(getActivity(), ScanActivity.class), MainActivity.QR_CODE);
+                                }
+                            }
+                        })
+                        .show();
             }
         });
 
@@ -116,23 +161,28 @@ public class GroupFragment extends Fragment {
     public void onResume() {
         super.onResume();
         swipeContainer.setRefreshing(false);
+        setIntroVisible();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (realm != null)
-            realm.close();
+//        if (realm != null)
+//            realm.close();
     }
 
     public void setIntroVisible() {
-        final Realm r = Realm.getInstance(getActivity());
-        if (r.where(Group.class).notEqualTo("syncStatus", Utils.GroupDeleted).findAll().size() > 0) {
-            introView.setVisibility(View.GONE);
-        } else {
-            introView.setVisibility(View.VISIBLE);
+        try {
+            final Realm r = Realm.getInstance(getActivity());
+            if (r.where(Group.class).notEqualTo("syncStatus", Utils.GroupDeleted).findAll().size() > 0) {
+                introView.setVisibility(View.GONE);
+            } else {
+                introView.setVisibility(View.VISIBLE);
+            }
+            r.close();
+        } catch (NullPointerException e) {
+            e.printStackTrace();
         }
-        r.close();
     }
 }
 

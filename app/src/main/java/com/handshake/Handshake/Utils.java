@@ -2,11 +2,15 @@ package com.handshake.Handshake;
 
 import android.content.ClipData;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import java.io.ByteArrayOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -49,12 +53,12 @@ public class Utils {
     }
 
     public static int labelToType(String label, boolean isPhone) {
-        if(label.equals("Home")) return 1;
-        else if(label.equals("Mobile") && isPhone) return 2;
-        else if(label.equals("Mobile") && !isPhone) return 4;
-        else if(label.equals("Work") && isPhone) return 3;
-        else if(label.equals("Work") && !isPhone) return 2;
-        else if(label.equals("Other") && isPhone) return 7;
+        if (label.equals("Home")) return 1;
+        else if (label.equals("Mobile") && isPhone) return 2;
+        else if (label.equals("Mobile") && !isPhone) return 4;
+        else if (label.equals("Work") && isPhone) return 3;
+        else if (label.equals("Work") && !isPhone) return 2;
+        else if (label.equals("Other") && isPhone) return 7;
         else return 3;
     }
 
@@ -156,7 +160,7 @@ public class Utils {
 
         for (int i = 0; i < strings.size(); i++) {
             String[] stringSplitByDashes = strings.get(i).split("-");
-            if(stringSplitByDashes.length == 3 && stringSplitByDashes[0].length() == 2
+            if (stringSplitByDashes.length == 3 && stringSplitByDashes[0].length() == 2
                     && stringSplitByDashes[1].length() == 2 && stringSplitByDashes[2].length() == 2)
                 return strings.get(i).replaceAll("-", "").toLowerCase();
         }
@@ -165,22 +169,26 @@ public class Utils {
     }
 
     public static void setDynamicHeight(ListView mListView) {
-        ListAdapter mListAdapter = mListView.getAdapter();
-        if (mListAdapter == null) {
-            // when adapter is null
-            return;
+        try {
+            ListAdapter mListAdapter = mListView.getAdapter();
+            if (mListAdapter == null) {
+                // when adapter is null
+                return;
+            }
+            int height = 0;
+            int desiredWidth = View.MeasureSpec.makeMeasureSpec(mListView.getWidth(), View.MeasureSpec.UNSPECIFIED);
+            for (int i = 0; i < mListAdapter.getCount(); i++) {
+                View listItem = mListAdapter.getView(i, null, mListView);
+                listItem.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
+                height += listItem.getMeasuredHeight();
+            }
+            ViewGroup.LayoutParams params = mListView.getLayoutParams();
+            params.height = height + (mListView.getDividerHeight() * (mListAdapter.getCount() - 1));
+            mListView.setLayoutParams(params);
+            mListView.requestLayout();
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
         }
-        int height = 0;
-        int desiredWidth = View.MeasureSpec.makeMeasureSpec(mListView.getWidth(), View.MeasureSpec.UNSPECIFIED);
-        for (int i = 0; i < mListAdapter.getCount(); i++) {
-            View listItem = mListAdapter.getView(i, null, mListView);
-            listItem.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
-            height += listItem.getMeasuredHeight();
-        }
-        ViewGroup.LayoutParams params = mListView.getLayoutParams();
-        params.height = height + (mListView.getDividerHeight() * (mListAdapter.getCount() - 1));
-        mListView.setLayoutParams(params);
-        mListView.requestLayout();
     }
 
     public static int dpToPx(Context context, int dp) {
@@ -195,5 +203,12 @@ public class Utils {
             result = context.getResources().getDimensionPixelSize(resourceId);
         }
         return result;
+    }
+
+    public static Uri getImageUri(Context context, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
     }
 }

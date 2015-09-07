@@ -129,7 +129,8 @@ public class EditPhoneActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final Realm realm = Realm.getInstance(EditPhoneActivity.this);
-                final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+                SessionManager sessionManager = new SessionManager(context);
+                final Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
                 final Card card = account.getCards().first();
 
                 if (isEdit) {

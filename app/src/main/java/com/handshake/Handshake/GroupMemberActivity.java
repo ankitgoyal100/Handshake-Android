@@ -33,6 +33,7 @@ public class GroupMemberActivity extends AppCompatActivity {
     public Context context = this;
 
     private SwipeRefreshLayout swipeContainer;
+    private Realm realm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +58,7 @@ public class GroupMemberActivity extends AppCompatActivity {
             }
         });
 
-        Realm realm = Realm.getInstance(this);
+        realm = Realm.getInstance(this);
 
         long groupId = getIntent().getLongExtra("groupId", -1);
 
@@ -92,8 +93,6 @@ public class GroupMemberActivity extends AppCompatActivity {
                 context.startActivity(i);
             }
         });
-
-        realm.close();
     }
 
     public void changeColor(int newColor) {
@@ -155,5 +154,12 @@ public class GroupMemberActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
         swipeContainer.setRefreshing(false);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (realm != null)
+            realm.close();
     }
 }

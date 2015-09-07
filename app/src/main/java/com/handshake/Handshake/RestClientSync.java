@@ -25,23 +25,25 @@ public class RestClientSync {
     private static final int DEFAULT_TIMEOUT = 20 * 1000;
 
     public static void get(Context context, String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        SessionManager sessionManager = new SessionManager(context);
         client.setTimeout(DEFAULT_TIMEOUT);
         client.addHeader("Accept", "application/json");
         client.addHeader("Content-type", "application/json");
-        params.put("auth_token", SessionManager.getToken());
-        params.put("user_id", SessionManager.getID());
+        params.put("auth_token", sessionManager.getToken());
+        params.put("user_id", sessionManager.getID());
         client.get(context, getAbsoluteUrl(url), params, responseHandler);
     }
 
     public static void post(Context context, String url, JSONObject jsonObject, String contentType, AsyncHttpResponseHandler responseHandler) {
+        SessionManager sessionManager = new SessionManager(context);
         client.setTimeout(DEFAULT_TIMEOUT);
         client.addHeader("Accept", "application/json");
         client.addHeader("Content-type", "application/json");
         try {
             if (!jsonObject.has("auth_token"))
-                jsonObject.put("auth_token", SessionManager.getToken());
+                jsonObject.put("auth_token", sessionManager.getToken());
             if (!jsonObject.has("user_id"))
-                jsonObject.put("user_id", SessionManager.getID());
+                jsonObject.put("user_id", sessionManager.getID());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -62,11 +64,12 @@ public class RestClientSync {
     }
 
     public static void post(Context context, String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        SessionManager sessionManager = new SessionManager(context);
         client.setTimeout(DEFAULT_TIMEOUT);
         client.addHeader("Accept", "application/json");
         client.addHeader("Content-type", "application/json");
-        params.put("auth_token", SessionManager.getToken());
-        params.put("user_id", SessionManager.getID());
+        params.put("auth_token", sessionManager.getToken());
+        params.put("user_id", sessionManager.getID());
         client.post(context, getAbsoluteUrl(url), params, responseHandler);
     }
 
@@ -78,16 +81,18 @@ public class RestClientSync {
     }
 
     public static void put(Context context, String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        SessionManager sessionManager = new SessionManager(context);
         client.setTimeout(DEFAULT_TIMEOUT);
         client.addHeader("Accept", "application/json");
         client.addHeader("Content-type", "application/json");
-        params.put("auth_token", SessionManager.getToken());
-        params.put("user_id", SessionManager.getID());
+        params.put("auth_token", sessionManager.getToken());
+        params.put("user_id", sessionManager.getID());
         client.put(context, getAbsoluteUrl(url), params, responseHandler);
     }
 
 
     public static void delete(Context context, String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        SessionManager sessionManager = new SessionManager(context);
         client.setTimeout(DEFAULT_TIMEOUT);
         client.addHeader("Accept", "application/json");
         client.addHeader("Content-type", "application/json");
@@ -95,8 +100,8 @@ public class RestClientSync {
                 new BasicHeader("Accept", "application/json")
                 , new BasicHeader("Content-type", "application/json")
         };
-        params.put("auth_token", SessionManager.getToken());
-        params.put("user_id", SessionManager.getID());
+        params.put("auth_token", sessionManager.getToken());
+        params.put("user_id", sessionManager.getID());
         client.delete(context, getAbsoluteUrl(url), headers, params, responseHandler);
     }
 

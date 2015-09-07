@@ -49,19 +49,25 @@ public class EditSocialActivity extends AppCompatActivity {
         }
 
         final Realm realm = Realm.getInstance(this);
-        final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
-        final Card card = account.getCards().first();
+        SessionManager sessionManager = new SessionManager(EditSocialActivity.this);
+        final Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
 
         ButtonCustomFont saveButton = (ButtonCustomFont) findViewById(R.id.save);
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Realm realm = Realm.getInstance(EditSocialActivity.this);
+                SessionManager sessionManager = new SessionManager(EditSocialActivity.this);
+                final Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
+                final Card card = account.getCards().first();
+
                 realm.beginTransaction();
                 Social social = realm.createObject(Social.class);
                 social.setNetwork(getIntent().getStringExtra("network").toLowerCase());
                 social.setUsername(username.getText().toString());
                 card.getSocials().add(realm.copyToRealm(social));
                 realm.commitTransaction();
+                realm.close();
 
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra("is_initial_setup", EditProfileActivity.isIntialSetup);

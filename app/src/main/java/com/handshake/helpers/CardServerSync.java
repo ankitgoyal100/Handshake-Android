@@ -53,7 +53,8 @@ public class CardServerSync {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 final Realm realm = Realm.getInstance(context);
-                Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+                SessionManager sessionManager = new SessionManager(context);
+                Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
 
                 if (account == null) return;
 
@@ -105,7 +106,7 @@ public class CardServerSync {
                 for (int i = 0; i < cards.size(); i++) {
                     final Card c = cards.get(i);
                     if (c.getSyncStatus() == Utils.CardCreated) {
-                        RestClientSync.post(context, "/cards", Card.cardToJSONObject(c), "application/json", new JsonHttpResponseHandler() {
+                        RestClientSync.post(context, "/cards", Card.cardToJSONObject(context, c), "application/json", new JsonHttpResponseHandler() {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                                 Card card = c;
@@ -130,7 +131,7 @@ public class CardServerSync {
                     } else {
                         if (c.getSyncStatus() == Utils.CardUpdated) {
                             try {
-                                StringEntity entity = new StringEntity(Card.cardToJSONObject(c).toString());
+                                StringEntity entity = new StringEntity(Card.cardToJSONObject(context, c).toString());
                                 RestClientSync.put(context, "/cards/" + c.getCardId(), entity, new JsonHttpResponseHandler() {
                                     @Override
                                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {

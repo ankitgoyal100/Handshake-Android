@@ -61,17 +61,13 @@ public class RegistrationIntentService extends IntentService {
                 String token = instanceID.getToken(getString(R.string.gcm_defaultSenderId),
                         GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
                 // [END get_token]
-                // Log.i(TAG, "GCM Registration Token: " + token);
 
-                sendRegistrationToServer(token);
+                boolean sentToken = sharedPreferences.getBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, false);
+                if (!sentToken)
+                    sendRegistrationToServer(token);
 
                 // Subscribe to topic channels
                 // subscribeTopics(token);
-
-                // You should store a boolean that indicates whether the generated token has been
-                // sent to your server. If the boolean is false, send the token to your server,
-                // otherwise your server should have already received the token.
-                sharedPreferences.edit().putBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, true).apply();
                 // [END register_for_gcm]
             }
         } catch (Exception e) {
@@ -99,6 +95,15 @@ public class RegistrationIntentService extends IntentService {
         params.add("platform", "android");
 
         RestClientSync.post(getApplicationContext(), "/devices", params, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                // You should store a boolean that indicates whether the generated token has been
+                // sent to your server. If the boolean is false, send the token to your server,
+                // otherwise your server should have already received the token.
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                sharedPreferences.edit().putBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, true).apply();
+            }
+
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 sendRegistrationToServer(token);

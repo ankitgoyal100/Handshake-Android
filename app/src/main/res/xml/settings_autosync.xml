@@ -10,6 +10,12 @@
 
     <SwitchPreference
         android:defaultValue="true"
+        android:key="autosync_groups_preference"
+        android:summary="If selected, AutoSync will automatically add all group members to your contacts."
+        android:title="Sync All Group Members" />
+
+    <SwitchPreference
+        android:defaultValue="true"
         android:key="overwrite_names_preference"
         android:summary="If selected, AutoSync will replace the names on your contacts with their Handshake names."
         android:title="Overwrite Names" />

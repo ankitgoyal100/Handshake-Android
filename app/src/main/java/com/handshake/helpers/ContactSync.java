@@ -91,7 +91,8 @@ public class ContactSync {
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         boolean isAutosync = sharedPreferences.getBoolean("autosync_preference", true);
-        if (isAutosync) {
+        boolean isAutosyncGroup = sharedPreferences.getBoolean("autosync_groups_preference", true);
+        if (isAutosync && isAutosyncGroup) {
             users = realm.where(User.class).equalTo("isContact", true).equalTo("saved", false).findAll();
         } else {
             users = realm.where(User.class).equalTo("isContact", true).equalTo("saved", false).equalTo("savesToPhone", true).findAll();
@@ -190,11 +191,15 @@ public class ContactSync {
             updateAddressBookContact(user, card, contactId);
         }
 
-        Realm realm = Realm.getInstance(context);
-        realm.beginTransaction();
-        user.setSaved(true);
-        realm.commitTransaction();
-        realm.close();
+        try {
+            Realm realm = Realm.getInstance(context);
+            realm.beginTransaction();
+            user.setSaved(true);
+            realm.commitTransaction();
+            realm.close();
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
     }
 
     private static void updateAddressBookContact(User user, Card card, String contactId) {
@@ -393,7 +398,7 @@ public class ContactSync {
                 .withValue(RawContacts.ACCOUNT_NAME, null)
                 .build());
 
-        if (!user.getPicture().isEmpty()) {
+        if (!user.getPicture().isEmpty() && !user.getPicture().equals("null")) {
             if (user.getPictureData() != null && user.getPictureData().length > 0) {
                 // Adding insert operation to operations list
                 // to insert Photo in the table ContactsContract.Data

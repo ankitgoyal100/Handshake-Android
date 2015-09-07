@@ -14,11 +14,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
-import com.handshake.helpers.GroupServerSync;
+import com.handshake.helpers.ContactServerSync;
 import com.handshake.helpers.SyncCompleted;
 import com.handshake.helpers.UserArraySyncCompleted;
 import com.handshake.helpers.UserServerSync;
 import com.handshake.listview.ContactAdapter;
+import com.handshake.listview.StockContactAdapter;
 import com.handshake.models.User;
 import com.handshake.views.TextViewCustomFont;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -44,6 +45,7 @@ public class ContactActivity extends AppCompatActivity {
     private SwipeRefreshLayout swipeContainer;
 
     RealmResults<User> users;
+    private Realm realm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,21 +61,23 @@ public class ContactActivity extends AppCompatActivity {
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                GroupServerSync.performSync(context, new SyncCompleted() {
+                ContactServerSync.performSync(context, new SyncCompleted() {
                     @Override
                     public void syncCompletedListener() {
+                        MainActivity.contactSyncCompleted = true;
                         swipeContainer.setRefreshing(false);
                     }
                 });
             }
         });
 
-        if (getIntent().hasExtra("userId") && getIntent().getLongExtra("userId", -1) != SessionManager.getID()) {
-            final long userId = getIntent().getLongExtra("userId", SessionManager.getID());
+        SessionManager sessionManager = new SessionManager(context);
+        if (getIntent().hasExtra("userId") && getIntent().getLongExtra("userId", -1) != sessionManager.getID()) {
+            final long userId = getIntent().getLongExtra("userId", sessionManager.getID());
 
             RestClientAsync.get(context, "/users/" + userId + "/" + getIntent().getStringExtra("type"), new RequestParams(), new JsonHttpResponseHandler() {
                 @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                public void onSuccess(int statusCode, Header[] headers, final JSONObject response) {
                     try {
                         UserServerSync.cacheUser(context, response.getJSONArray(getIntent().getStringExtra("type")), new UserArraySyncCompleted() {
                             @Override
@@ -85,7 +89,7 @@ public class ContactActivity extends AppCompatActivity {
                                 handler.post(new Runnable() {
                                     @Override
                                     public void run() {
-                                        Realm realm = Realm.getInstance(context);
+                                        realm = Realm.getInstance(context);
                                         RealmQuery<User> query = realm.where(User.class);
                                         query.equalTo("userId", -1);
 
@@ -105,7 +109,6 @@ public class ContactActivity extends AppCompatActivity {
                                         text.setText("No contacts");
                                         addContentView(empty, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                                         list.setEmptyView(empty);
-                                        realm.close();
                                     }
                                 });
                             }
@@ -121,11 +124,16 @@ public class ContactActivity extends AppCompatActivity {
                 }
             });
         } else {
-            Realm realm = Realm.getInstance(this);
+            realm = Realm.getInstance(context);
             users = realm.where(User.class).equalTo("isContact", true).findAll();
             users.sort("firstName", true);
 
-            ContactAdapter myAdapter = new ContactAdapter(this, users, true);
+            ArrayList<Long> ids = new ArrayList<Long>();
+            for (int i = 0; i < users.size(); i++) {
+                ids.add(users.get(i).getUserId());
+            }
+
+            StockContactAdapter myAdapter = new StockContactAdapter(context, R.layout.user_list_item, ids);
             list.setAdapter(myAdapter);
 
             View empty = getLayoutInflater().inflate(R.layout.empty_list_view, null, false);
@@ -133,7 +141,6 @@ public class ContactActivity extends AppCompatActivity {
             text.setText("No contacts");
             addContentView(empty, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             list.setEmptyView(empty);
-            realm.close();
         }
     }
 
@@ -195,5 +202,12 @@ public class ContactActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
         swipeContainer.setRefreshing(false);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (realm != null)
+            realm.close();
     }
 }

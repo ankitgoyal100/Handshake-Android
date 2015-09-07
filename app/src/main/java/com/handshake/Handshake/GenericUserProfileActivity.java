@@ -38,8 +38,6 @@ public class GenericUserProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_generic_user_profile);
 
-//        changeColor(getResources().getColor(R.color.orange));
-
         CircleImageView profileImage = (CircleImageView) findViewById(R.id.profile_image);
         CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) profileImage.getLayoutParams();
         params.setMargins(Utils.dpToPx(context, 16), Utils.getStatusBarHeight(context) + Utils.dpToPx(context, 16),
@@ -50,7 +48,15 @@ public class GenericUserProfileActivity extends AppCompatActivity {
 
     private void fillViews() {
         final Realm realm = Realm.getInstance(context);
-        final User account = realm.where(User.class).equalTo("userId", getIntent().getLongExtra("userId", SessionManager.getID())).findFirst();
+        SessionManager sessionManager = new SessionManager(context);
+        final User account = realm.where(User.class).equalTo("userId", getIntent().getLongExtra("userId", sessionManager.getID())).findFirst();
+
+        if (account.isContact()) {
+            Intent i = new Intent(this, ContactUserProfileActivity.class);
+            i.putExtra("userId", getIntent().getLongExtra("userId", sessionManager.getID()));
+            startActivity(i);
+            finish();
+        }
 
         TextViewCustomFont name = (TextViewCustomFont) findViewById(R.id.name);
         String lastName = "";
@@ -63,26 +69,35 @@ public class GenericUserProfileActivity extends AppCompatActivity {
         CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
 
         if (!account.getThumb().isEmpty() && !account.getThumb().equals("null")) {
-            Picasso.with(context).load(account.getThumb()).transform(new CircleTransform()).into(profileImage);
+            Picasso.with(context).load(account.getThumb())
+                    .resize(Utils.dpToPx(context, 80), Utils.dpToPx(context, 80)).transform(new CircleTransform()).into(profileImage);
             if (!account.getPicture().isEmpty() && !account.getPicture().equals("null"))
-                Picasso.with(context).load(account.getPicture()).into(backdrop);
+                Picasso.with(context).load(account.getPicture())
+                        .into(backdrop);
             else
-                Picasso.with(context).load(account.getThumb()).into(backdrop);
+                Picasso.with(context).load(account.getThumb())
+                        .into(backdrop);
         } else {
-            Picasso.with(context).load(R.drawable.default_profile).transform(new CircleTransform()).into(profileImage);
+            Picasso.with(context).load(R.drawable.default_profile)
+                    .resize(Utils.dpToPx(context, 80), Utils.dpToPx(context, 80)).transform(new CircleTransform()).into(profileImage);
             collapsingToolbar.setContentScrimColor(getResources().getColor(R.color.background_window));
         }
 
         TextViewCustomFont contacts = (TextViewCustomFont) findViewById(R.id.contacts);
         TextViewCustomFont mutual = (TextViewCustomFont) findViewById(R.id.mutual);
 
-        contacts.setText(account.getContacts() + " contacts");
+        if (account.getContacts() == 1)
+            contacts.setText(account.getContacts() + " contact");
+        else
+            contacts.setText(account.getContacts() + " contacts");
         mutual.setText(account.getMutual() + " mutual");
+
         contacts.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(GenericUserProfileActivity.this, ContactActivity.class);
-                i.putExtra("userId", account.getUserId());
+                SessionManager sessionManager = new SessionManager(context);
+                i.putExtra("userId", getIntent().getLongExtra("userId", sessionManager.getID()));
                 i.putExtra("type", "contacts");
                 startActivity(i);
             }
@@ -92,7 +107,8 @@ public class GenericUserProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(GenericUserProfileActivity.this, ContactActivity.class);
-                i.putExtra("userId", account.getUserId());
+                SessionManager sessionManager = new SessionManager(context);
+                i.putExtra("userId", getIntent().getLongExtra("userId", sessionManager.getID()));
                 i.putExtra("type", "mutual");
                 startActivity(i);
             }
@@ -100,7 +116,7 @@ public class GenericUserProfileActivity extends AppCompatActivity {
 
         TextViewCustomFont text = (TextViewCustomFont) findViewById(R.id.text);
 
-        MainActivity.setContactButtons(context, account,
+        MainActivity.setContactButtons(context, account.getUserId(),
                 (ImageView) findViewById(R.id.button_one), (ImageView) findViewById(R.id.button_two), text);
         realm.close();
     }

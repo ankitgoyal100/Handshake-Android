@@ -51,7 +51,7 @@ public class SuggestionsServerSync {
     private static void performSyncHelper() {
         RestClientSync.get(context, "/suggestions", new RequestParams(), new JsonHttpResponseHandler() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+            public void onSuccess(int statusCode, Header[] headers, final JSONObject response) {
                 try {
                     final JSONArray suggestionsArray = response.getJSONArray("suggestions");
                     UserServerSync.cacheUser(context, suggestionsArray, new UserArraySyncCompleted() {

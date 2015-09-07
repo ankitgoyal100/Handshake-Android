@@ -83,7 +83,8 @@ public class EditEmailActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final Realm realm = Realm.getInstance(EditEmailActivity.this);
-                final Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+                SessionManager sessionManager = new SessionManager(EditEmailActivity.this);
+                final Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
                 final Card card = account.getCards().first();
 
                 if (isEdit) {

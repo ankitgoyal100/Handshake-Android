@@ -51,6 +51,7 @@ public class CreateEditGroupActivity extends AppCompatActivity {
             if (group == null) finish();
 
             groupName.setText(group.getName());
+            groupName.setSelection(groupName.getText().length());
 
             create.setText("Save");
             realm.close();

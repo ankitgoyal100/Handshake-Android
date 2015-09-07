@@ -48,7 +48,7 @@ public class RequestServerSync {
     private static void performSyncHelper() {
         RestClientSync.get(context, "/requests", new RequestParams(), new JsonHttpResponseHandler() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+            public void onSuccess(int statusCode, Header[] headers, final JSONObject response) {
                 try {
                     final JSONArray requestsJSONArray = response.getJSONArray("requests");
                     UserServerSync.cacheUser(context, requestsJSONArray, new UserArraySyncCompleted() {
@@ -96,11 +96,12 @@ public class RequestServerSync {
         });
     }
 
-    public static void sendRequest(final User user, final UserSyncCompleted listener) {
+    public static void sendRequest(final Context context, final User user, final UserSyncCompleted listener) {
         if (user.isRequestSent()) return;
 
         Realm realm = Realm.getInstance(context);
-        Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+        SessionManager sessionManager = new SessionManager(context);
+        Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
 
         JSONArray cardIds = new JSONArray();
         cardIds.put(account.getCards().first().getCardId());
@@ -116,7 +117,7 @@ public class RequestServerSync {
         RestClientAsync.post(context, "/users/" + user.getUserId() + "/request", jsonParams, "application/json", new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                success(listener, user, response);
+                success(context, listener, user, response);
             }
 
             @Override
@@ -139,13 +140,13 @@ public class RequestServerSync {
         realm.commitTransaction();
     }
 
-    public static void deleteRequest(final User user, final UserSyncCompleted listener) {
+    public static void deleteRequest(final Context context, final User user, final UserSyncCompleted listener) {
         if (!user.isRequestSent()) return;
 
         RestClientAsync.delete(context, "/users/" + user.getUserId() + "/request", new RequestParams(), new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                success(listener, user, response);
+                success(context, listener, user, response);
             }
 
             @Override
@@ -170,11 +171,12 @@ public class RequestServerSync {
         realm.close();
     }
 
-    public static void acceptRequest(final User user, final UserSyncCompleted listener) {
+    public static void acceptRequest(final Context context, final User user, final UserSyncCompleted listener) {
         if (!user.isRequestReceived()) return;
 
         Realm realm = Realm.getInstance(context);
-        Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+        SessionManager sessionManager = new SessionManager(context);
+        Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
 
         JSONArray cardIds = new JSONArray();
         cardIds.put(account.getCards().first().getCardId());
@@ -190,7 +192,7 @@ public class RequestServerSync {
         RestClientAsync.post(context, "/users/" + user.getUserId() + "/accept", jsonParams, "application/json", new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                success(listener, user, response);
+                success(context, listener, user, response);
                 FeedItemServerSync.performSync(context, new SyncCompleted() {
                     @Override
                     public void syncCompletedListener() {
@@ -221,13 +223,13 @@ public class RequestServerSync {
         realm.commitTransaction();
     }
 
-    public static void declineRequest(final User user, final UserSyncCompleted listener) {
+    public static void declineRequest(final Context context, final User user, final UserSyncCompleted listener) {
         if (!user.isRequestReceived()) return;
 
         RestClientAsync.delete(context, "/users/" + user.getUserId() + "/decline", new RequestParams(), new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                success(listener, user, response);
+                success(context, listener, user, response);
             }
 
             @Override
@@ -252,7 +254,7 @@ public class RequestServerSync {
         realm.close();
     }
 
-    private static void success(UserSyncCompleted listener, User user, JSONObject response) {
+    private static void success(Context context, UserSyncCompleted listener, User user, JSONObject response) {
         Realm realm = Realm.getInstance(context);
         realm.beginTransaction();
         try {

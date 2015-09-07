@@ -223,7 +223,6 @@ public class FeedItemServerSync {
                             });
                         }
                     });
-
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

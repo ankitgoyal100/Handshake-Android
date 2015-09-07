@@ -56,7 +56,17 @@ public class GroupServerSync {
     }
 
     private static void performSyncHelper() {
-        RestClientSync.get(context, "/groups", new RequestParams(), new JsonHttpResponseHandler() {
+//        String date = "";
+//        Realm realm = Realm.getInstance(context);
+//        RealmResults<Group> result = realm.where(Group.class).findAll();
+//        result.sort("updatedAt", RealmResults.SORT_ORDER_DESCENDING);
+//
+//        if (result.size() > 0) date = Utils.toGmtString(result.first().getUpdatedAt());
+//
+        RequestParams params = new RequestParams();
+//        if (!date.equals("")) params.put("since_date", date);
+
+        RestClientSync.get(context, "/groups", params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
@@ -67,7 +77,8 @@ public class GroupServerSync {
                         public void syncCompletedListener(ArrayList<Group> c) {
                             Realm realm = Realm.getInstance(context);
                             RealmResults<Group> requestedGroups = realm.where(Group.class).notEqualTo("syncStatus", Utils.GroupSynced).findAll();
-                            Account account = realm.where(Account.class).equalTo("userId", SessionManager.getID()).findFirst();
+                            SessionManager sessionManager = new SessionManager(context);
+                            Account account = realm.where(Account.class).equalTo("userId", sessionManager.getID()).findFirst();
 
                             ArrayList<Long> allIDs = new ArrayList<Long>();
                             for (int i = 0; i < groups.length(); i++) {
@@ -279,7 +290,7 @@ public class GroupServerSync {
         final long groupId = group.getGroupId();
         RestClientSync.get(context, "/groups/" + groupId + "/members", new RequestParams(), new JsonHttpResponseHandler() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+            public void onSuccess(int statusCode, Header[] headers, final JSONObject response) {
                 try {
                     final JSONArray membersJSON = response.getJSONArray("members");
                     UserServerSync.cacheUser(context, membersJSON, new UserArraySyncCompleted() {

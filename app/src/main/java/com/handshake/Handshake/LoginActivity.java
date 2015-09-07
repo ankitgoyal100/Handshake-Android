@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
@@ -11,6 +12,7 @@ import android.graphics.drawable.TransitionDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -78,6 +80,9 @@ public class LoginActivity extends AppCompatActivity {
                         dialog.cancel();
 
                         try {
+                            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+                            prefs.edit().putBoolean("isFirstRun", true).apply();
+
                             session.createLoginSession(response.getJSONObject("user").getLong("id"), response.getString("auth_token"), email.getText().toString());
 
                             Realm realm = Realm.getInstance(context);
@@ -142,7 +147,8 @@ public class LoginActivity extends AppCompatActivity {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Toast.makeText(context, "Instructions sent to your email.", Toast.LENGTH_LONG).show();
 
-                if (!email.equals(SessionManager.getEmail()))
+                SessionManager sessionManager = new SessionManager(context);
+                if (!email.equals(sessionManager.getEmail()))
                     ((Activity) context).finish();
             }
 

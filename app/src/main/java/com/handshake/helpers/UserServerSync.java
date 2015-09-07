@@ -83,12 +83,13 @@ public class UserServerSync {
                         map.put(user.getUserId(), user);
                 }
 
-                ArrayList<User> orderedArray = new ArrayList<User>();
+                final ArrayList<User> orderedArray = new ArrayList<User>();
                 for (Long id : allIDs) {
                     orderedArray.add(map.get(id));
                 }
 
                 listener.syncCompletedListener(orderedArray);
+
                 realm.close();
             }
         });
